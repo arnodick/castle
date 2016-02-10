@@ -1,6 +1,8 @@
 pico-8 cartridge // http://www.pico-8.com
 version 5
 __lua__
+debug=true
+
 function actors_i()
 	local a={}
 	a.ch="@"
@@ -23,6 +25,7 @@ function makeactor(t,ch,x,y,c)
 	a.x=x
 	a.y=y
 	a.c=c
+	a.hit=false
 	a.shake=0
 	add(actors,a)
 	return a
@@ -34,18 +37,7 @@ function drawactor(a)
 --	print(a.y,a.x*cellw,a.y*cellh+cellh,a.c)
 end
 
-function shake(a)
-	a.shake=sin(timer)
-end
-
-function doactor(a)
-	local d=0
-	if a.t==1 then
-		d=btnp()
-	end
-	if a.t==3 then
-		d=2^flr(rnd(4))
-	end
+function moveactor(a,d)
 	if d!=0 then
 		local xdir=0 local ydir=0
 		if d==1 then xdir=-1 end
@@ -57,6 +49,43 @@ function doactor(a)
 			room[a.x][a.y]=0
 			a.x+=xdir a.y+=ydir
 			room[a.x][a.y]=a.t
+		else return true
+		end
+	end
+end
+
+function colactor(a,d,t)
+	local xdir=0 local ydir=0
+	if d==1 then xdir=-1 end
+	if d==2 then xdir= 1 end
+	if d==4 then ydir=-1 end
+	if d==8 then ydir= 1 end
+	
+	if a.x+xdir==t.x and a.y+ydir==t.y then
+		t.hit=true
+	end
+	--room[a.x+xdir][a.y+ydir].hit=true
+end
+
+function shake(a)
+	if a.hit then
+		a.shake=cos(timer*1/16)*2
+	end
+end
+
+function doactor(a)
+	local d=0
+	if a.t==1 then
+		d=btnp()
+	end
+	if a.t==3 then
+		d=2^flr(rnd(4))
+	end
+	local col=moveactor(a,d)
+	--if col then colactor(a,d) end
+	if col then
+		for target in all(actors) do 
+			colactor(a,d,target)
 		end
 	end
 end
@@ -108,6 +137,9 @@ function _draw()
 	foreach(actors,drawactor)
 --	rect(-2+cellw,-2+cellh,16*cellw+cellw-1,16*cellh+cellh)
 --	print(xs,16*cellw+cellw,16*cellh+cellh)
+	if debug then
+		print(timer,90,10,6)
+	end
 end
 
 function _update()
