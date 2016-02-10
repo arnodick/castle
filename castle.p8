@@ -2,6 +2,13 @@ pico-8 cartridge // http://www.pico-8.com
 version 5
 __lua__
 debug=true
+debug_l={}
+
+function debug_u()
+	debug_l[1]=timer
+	debug_l[2]=stat(0)
+	debug_l[3]=stat(1)
+end
 
 function actors_i()
 	local a={}
@@ -37,17 +44,23 @@ function drawactor(a)
 --	print(a.y,a.x*cellw,a.y*cellh+cellh,a.c)
 end
 
+function direction(d)
+	local dire={}
+	dire[1]=0 dire[2]=0
+	if d==1 then dire[1]=-1 end
+	if d==2 then dire[1]= 1 end
+	if d==4 then dire[2]=-1 end
+	if d==8 then dire[2]= 1 end
+	return dire
+end
+
 function moveactor(a,d)
 	if d!=0 then
-		local xdir=0 local ydir=0
-		if d==1 then xdir=-1 end
-		if d==2 then xdir= 1 end
-		if d==4 then ydir=-1 end
-		if d==8 then ydir= 1 end
+		local dire=direction(d)
 		
-		if room[a.x+xdir][a.y+ydir]==0 then
+		if room[a.x+dire[1]][a.y+dire[2]]==0 then
 			room[a.x][a.y]=0
-			a.x+=xdir a.y+=ydir
+			a.x+=dire[1] a.y+=dire[2]
 			room[a.x][a.y]=a.t
 		else return true
 		end
@@ -55,16 +68,13 @@ function moveactor(a,d)
 end
 
 function colactor(a,d,t)
-	local xdir=0 local ydir=0
-	if d==1 then xdir=-1 end
-	if d==2 then xdir= 1 end
-	if d==4 then ydir=-1 end
-	if d==8 then ydir= 1 end
-	
-	if a.x+xdir==t.x and a.y+ydir==t.y then
-		t.hit=true
+	local dire=direction(d)
+
+	if t.t==3 then	
+		if a.x+dire[1]==t.x and a.y+dire[2]==t.y then
+			t.hit=true
+		end
 	end
-	--room[a.x+xdir][a.y+ydir].hit=true
 end
 
 function shake(a)
@@ -81,9 +91,7 @@ function doactor(a)
 	if a.t==3 then
 		d=2^flr(rnd(4))
 	end
-	local col=moveactor(a,d)
-	--if col then colactor(a,d) end
-	if col then
+	if moveactor(a,d) then
 		for target in all(actors) do 
 			colactor(a,d,target)
 		end
@@ -105,6 +113,7 @@ function _init()
 	sector_a=4
 	room_w=sector_s*sector_a
 	level=0
+	cam={} cam[1]=0 cam[2]=0
 	actortypes={}
 	actors={}
 	actors_i()
@@ -138,7 +147,9 @@ function _draw()
 --	rect(-2+cellw,-2+cellh,16*cellw+cellw-1,16*cellh+cellh)
 --	print(xs,16*cellw+cellw,16*cellh+cellh)
 	if debug then
-		print(timer,90,10,6)
+		for a=1,#debug_l do
+			print(debug_l[a],cam[1],cam[2]+a*6,6)
+		end
 	end
 end
 
@@ -147,8 +158,10 @@ function _update()
 		foreach(actors,doactor)
 	end
 	foreach(actors,shake)
-	camera(p.x*cellw-10*cellw,p.y*cellh-8*cellh)
+	cam[1]=p.x*cellw-10*cellw cam[2]=p.y*cellh-8*cellh
+	camera(cam[1],cam[2])
 	timer+=1
+	debug_u()
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
