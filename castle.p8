@@ -87,7 +87,7 @@ function colactor(a,d,t)
 
 	if t.t!=2 then	
 		if a.x+dire[1]==t.x and a.y+dire[2]==t.y then
-			a.attack=10
+			a.attack=6
 			if t.hit==0 then
 				t.hit=2
 				moveactor(t,d)
@@ -99,16 +99,17 @@ function colactor(a,d,t)
 end
 
 function shake(a)
-	if a.hit>0 then
-		a.shake=cos(timer*1/16)*2
-	--else
-		--a.shake=0
-	end
 	if a.attack>0 then
-		a.shake=cos(timer*1/4)*2
+		a.shake=cos(timer*1/6)*2
 		a.attack-=1
 	else
 		a.shake=0
+	end
+	if a.hit>0 then
+		a.shake=cos(timer*1/16)*2
+		
+	--else
+		--a.shake=0
 	end
 end
 
@@ -130,7 +131,7 @@ function doactor(a)
 	end
 	if a.hit>0 then
 		a.hit-=1
-		if a.hit==0 then a.shake=0 end
+--		if a.hit==0 then a.shake=0 end
 	end
 end
 
