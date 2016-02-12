@@ -33,16 +33,34 @@ function makeactor(t,ch,x,y,c)
 	a.y=y
 	a.c=c
 	a.attack=0
+	a.attackdir=0
 	a.hit=0
-	a.shake=0
+	a.shakex=0
+	a.shakey=0
 	add(actors,a)
 	return a
 end
 
 function drawactor(a)
-	print(a.ch,a.x*cellw+a.shake,a.y*cellh,a.c)
+	print(a.ch,a.x*cellw+a.shakex,a.y*cellh+a.shakey,a.c)
 --	print(a.x,a.x*cellw+cellw,a.y*cellh,a.c)
 --	print(a.y,a.x*cellw,a.y*cellh+cellh,a.c)
+end
+
+function shake(a)
+	if a.attack>0 then
+		if a.attackdir==1 then
+			a.shakex=cos(timer*1/6)*2
+		else
+			a.shakey=cos(timer*1/6)*2
+		end
+		a.attack-=1
+	else
+		a.shakex=0 a.shakey=0
+	end
+	if a.hit>0 then
+		a.shakex=cos(timer*1/16)*2
+	end
 end
 
 function direction(d)
@@ -53,20 +71,6 @@ function direction(d)
 	if d==4 then dire[2]=-1 end
 	if d==8 then dire[2]= 1 end
 	return dire
-end
-
-function follow(a,t)
-	local xdist=t.x-a.x
-	local ydist=t.y-a.y
-	if abs(xdist)>=abs(ydist) then
-		if xdist<0 then return 1
-		else return 2
-		end
-	else
-		if ydist<0 then return 4
-		else return 8
-		end
-	end
 end
 
 function moveactor(a,d)
@@ -82,11 +86,33 @@ function moveactor(a,d)
 	end
 end
 
+function follow(a,t)
+	local xdist=t.x-a.x
+	local ydist=t.y-a.y
+	if abs(xdist)==abs(ydist) then
+		return 2^flr(rnd(4))
+	else
+		if abs(xdist)>abs(ydist) then
+			if xdist<0 then return 1
+			else return 2
+			end
+		else
+			if ydist<0 then return 4
+			else return 8
+			end
+		end
+	end
+end
+
 function colactor(a,d,t)
 	local dire=direction(d)
 
 	if t.t!=2 then	
 		if a.x+dire[1]==t.x and a.y+dire[2]==t.y then
+			sfx(0)
+			for b=1,2 do
+				if dire[b]!=0 then a.attackdir=b end
+			end
 			a.attack=6
 			if t.hit==0 then
 				t.hit=2
@@ -98,21 +124,6 @@ function colactor(a,d,t)
 	end
 end
 
-function shake(a)
-	if a.attack>0 then
-		a.shake=cos(timer*1/6)*2
-		a.attack-=1
-	else
-		a.shake=0
-	end
-	if a.hit>0 then
-		a.shake=cos(timer*1/16)*2
-		
-	--else
-		--a.shake=0
-	end
-end
-
 function doactor(a)
 	local d=0
 	if a.t==1 then
@@ -120,7 +131,6 @@ function doactor(a)
 	end
 	if a.t==3 then
 		d=follow(a,p)
-		--d=2^flr(rnd(4))
 	end
 	if a.hit==0 then
 	if moveactor(a,d) then
@@ -192,9 +202,6 @@ end
 
 function _update()
 	if btnp()>0 then
-		--for t in all(actors) do
-			--t.shake=0
-		--end
 		foreach(actors,doactor)
 	end
 	foreach(actors,shake)
@@ -369,7 +376,7 @@ __map__
 0000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __sfx__
-000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000300000f1300d120000000000012640156500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
