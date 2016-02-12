@@ -122,6 +122,7 @@ function colactor(a,d,t)
 				moveactor(t,d)
 			else
 				sfx(1)
+				room[t.x][t.y]=0
 				del(actors,t)
 			end
 		end
