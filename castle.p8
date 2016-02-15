@@ -96,7 +96,8 @@ function loadmap(rw,s)
 	end
 	for b=0,s-1 do
 		for a=0,s-1 do
-			loadsector(a,b,flr(rnd(8)),level)
+			--loadsector(a,b,flr(rnd(8)),level)
+			loadsector(a,b,rooms[level][b*4+a],level)
 		end
 	end
 end
@@ -163,6 +164,17 @@ function actortypes_i(l)
 		add(actortypes,a)
 	end
 
+end
+
+function rooms_i()
+	rooms={}
+	for b=0,3 do
+		rooms[b]={}
+		for a=0,15 do
+			--rooms[b][a]=(a%4)
+			rooms[b][a]=flr(rnd(8))
+		end
+	end
 end
 
 function makeactor(t,ch,x,y,c)
@@ -290,6 +302,7 @@ function _init()
 	cellw=5 cellh=6
 	cam={}
 	level=0
+	rooms_i()
 	
 	state_i(state)
 end
