@@ -27,6 +27,7 @@ function state_i(s)
 		room_w=sector_s*sector_a
 		loadmap(room_w,sector_a)
 		p=makeactor(1,actortypes[1].ch,5,5,actortypes[1].c)
+		cam[1]=p.x*cellw-10*cellw cam[2]=p.y*cellh-8*cellh
 		loadactors(room_w)
 	end	
 end
