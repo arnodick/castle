@@ -4,7 +4,7 @@ __lua__
 --cash castle
 --by ashley pringle
 
-debug=false
+debug=true
 debug_l={}
 
 function debug_u()
@@ -26,7 +26,7 @@ function state_i(s)
 		sector_a=4
 		room_w=sector_s*sector_a
 		loadmap(room_w,sector_a)
-		p=makeactor(1,actortypes[1].ch,5,5,actortypes[1].c)
+		p=makeactor(1,actortypes[1].ch,5,5,actortypes[1].c,actortypes[1].m)
 		cam[1]=p.x*cellw-10*cellw cam[2]=p.y*cellh-8*cellh
 		loadactors(room_w)
 	end	
@@ -107,7 +107,7 @@ function loadactors(r)
 		for a=1,r do
 			local cell=room[a][b]
 			if cell>0 then
-				makeactor(cell,actortypes[cell].ch,a,b,actortypes[cell].c)
+				makeactor(cell,actortypes[cell].ch,a,b,actortypes[cell].c,actortypes[cell].m)
 			end
 		end
 	end
@@ -117,50 +117,59 @@ function actortypes_i(l)
 	local a={}
 	a.ch="@"
 	a.c=7
+	a.m=1
 	add(actortypes,a)
 	
 	if l==0 then
 		a={}
 		a.ch="*"
 		a.c=2
+		a.m=0
 		add(actortypes,a)
 	
 		a={}
 		a.ch="e"
 		a.c=12
+		a.m=2
 		add(actortypes,a)
 	end
 	if l==1 then
 		a={}
 		a.ch="^"
 		a.c=3
+		a.m=0
 		add(actortypes,a)
 	
 		a={}
 		a.ch="*"
 		a.c=8
+		a.m=2
 		add(actortypes,a)
 	end
 	if l==2 then
 		a={}
 		a.ch="="
 		a.c=10
+		a.m=0
 		add(actortypes,a)
 	
 		a={}
 		a.ch="q"
 		a.c=5
+		a.m=2
 		add(actortypes,a)
 	end
 	if l==3 then
 		a={}
 		a.ch="#"
 		a.c=4
+		a.m=0
 		add(actortypes,a)
 	
 		a={}
 		a.ch="z"
 		a.c=9
+		a.m=2
 		add(actortypes,a)
 	end
 
@@ -177,13 +186,14 @@ function rooms_i()
 	end
 end
 
-function makeactor(t,ch,x,y,c)
+function makeactor(t,ch,x,y,c,m)
 	local a={}
 	a.t=t
 	a.ch=ch
 	a.x=x
 	a.y=y
 	a.c=c
+	a.m=m
 	a.attack=0
 	a.attackdir=0
 	a.hit=0
@@ -209,6 +219,15 @@ function direction(d)
 	return dire
 end
 
+function movetype(a)
+	if a.m==1 then
+		return btnp()
+	end
+	if a.m==2 then
+		return followactor(a,p)
+	end
+end
+
 function moveactor(a,d)
 	if d!=0 then
 		local dire=direction(d)
@@ -222,7 +241,7 @@ function moveactor(a,d)
 	end
 end
 
-function follow(a,t)
+function followactor(a,t)
 	local xdist=t.x-a.x
 	local ydist=t.y-a.y
 	if abs(xdist)==abs(ydist) then
@@ -263,19 +282,15 @@ function colactor(a,d,t)
 end
 
 function doactor(a)
-	local d=0
-	if a.t==1 then
-		d=btnp()
-	end
-	if a.t==3 then
-		d=follow(a,p)
-	end
-	if a.hit>0 then
-		a.hit-=1
-	else
-		if moveactor(a,d) then
-			for target in all(actors) do 
-				colactor(a,d,target)
+	if a.m>0 then
+		if a.hit>0 then
+			a.hit-=1
+		else
+			local d=movetype(a)
+			if moveactor(a,d) then
+				for target in all(actors) do 
+					colactor(a,d,target)
+				end
 			end
 		end
 	end
@@ -302,8 +317,7 @@ function _init()
 	cellw=5 cellh=6
 	cam={}
 	level=0
-	rooms_i()
-	
+	rooms_i()	
 	state_i(state)
 end
 
