@@ -26,8 +26,12 @@ function state_i(s)
 		sector_a=4
 		room_w=sector_s*sector_a
 		loadmap(room_w,sector_a)
-		p=makeactor(1,actortypes[1].ch,5,5,actortypes[1].c,actortypes[1].m)
-		cam[1]=p.x*cellw-10*cellw cam[2]=p.y*cellh-8*cellh
+		p=makeactor(1,5,5)
+		--cam[1]=p.x*cellw-10*cellw cam[2]=p.y*cellh-8*cellh
+		--cam[2]=p.y*cellh-8*cellh
+		--cam[1]=(p.x%sector_a)*sector_s
+		cam[1]=flr(p.x/sector_s)*sector_s*cellw
+		cam[2]=flr(p.y/sector_s)*sector_s*cellh
 		loadactors(room_w)
 	end	
 end
@@ -44,7 +48,10 @@ function stateupdate(s)
 			foreach(actors,doactor)
 		end
 		foreach(actors,shake)
-		cam[1]=p.x*cellw-10*cellw cam[2]=p.y*cellh-8*cellh
+		--cam[1]=p.x*cellw-10*cellw cam[2]=p.y*cellh-8*cellh
+		cam[1]=flr(p.x/sector_s)*sector_s*cellw
+		cam[2]=flr(p.y/sector_s)*sector_s*cellh
+		--cam[2]=p.y*cellh-8*cellh
 		if btnp(4) then
 			level+=1
 			if level>3 then level=0 end
@@ -70,7 +77,8 @@ function statedraw(s)
 		foreach(actors,drawactor)
 	end
 --		if debug then print(xs,16*cellw+cellw,16*cellh+cellh) end
---		rect(-2+cellw,-2+cellh,16*cellw+cellw-1,16*cellh+cellh)
+		--rect(-2+cellw,-2+cellh,16*cellw-1,16*cellh)
+		rect(-2+cellw,-2+cellh,64*cellw-1,64*cellh)
 	if debug then
 		for a=1,#debug_l do
 			print(debug_l[a],cam[1],cam[2]+a*6,6)
@@ -107,7 +115,7 @@ function loadactors(r)
 		for a=1,r do
 			local cell=room[a][b]
 			if cell>0 then
-				makeactor(cell,actortypes[cell].ch,a,b,actortypes[cell].c,actortypes[cell].m)
+				makeactor(cell,a,b)
 			end
 		end
 	end
@@ -186,16 +194,17 @@ function rooms_i()
 	end
 end
 
-function makeactor(t,ch,x,y,c,m)
+function makeactor(t,x,y)
 	local a={}
 	a.t=t
-	a.ch=ch
 	a.x=x
 	a.y=y
-	a.c=c
-	a.m=m
 	a.attack=0
 	a.attackdir=0
+	a.attackpwr=3
+	if #actors==0 then
+		a.attackpwr=2
+	end
 	a.hit=0
 	a.shakex=0
 	a.shakey=0
@@ -204,7 +213,13 @@ function makeactor(t,ch,x,y,c,m)
 end
 
 function drawactor(a)
-	print(a.ch,a.x*cellw+a.shakex,a.y*cellh+a.shakey,a.c)
+--cam[1]=flr(p.x/sector_s)*sector_s*cellw
+		--cam[2]=flr(p.y/sector_s)*sector_s*cellw
+	if (flr((a.x)/sector_s)*sector_s*cellw)==cam[1] then 
+		if(flr((a.y)/sector_s)*sector_s*cellh)==cam[2] then 
+			print(actortypes[a.t].ch,a.x*cellw+a.shakex,a.y*cellh+a.shakey,actortypes[a.t].c)
+		end
+	end
 --	print(a.x,a.x*cellw+cellw,a.y*cellh,a.c)
 --	print(a.y,a.x*cellw,a.y*cellh+cellh,a.c)
 end
@@ -220,10 +235,10 @@ function direction(d)
 end
 
 function movetype(a)
-	if a.m==1 then
+	if actortypes[a.t].m==1 then
 		return btnp()
 	end
-	if a.m==2 then
+	if actortypes[a.t].m==2 then
 		return followactor(a,p)
 	end
 end
@@ -231,13 +246,19 @@ end
 function moveactor(a,d)
 	if d!=0 then
 		local dire=direction(d)
-		
+
+		if a.x+dire[1]<1 then a.x=room_w end
+		if a.x+dire[1]>=room_w then a.x=1 end
+		if a.y+dire[2]<1 then a.y=room_w end
+		if a.y+dire[2]>=room_w then a.y=1 end
+--		if a.x+dire[1]>1 then a.x=64 end
 		if room[a.x+dire[1]][a.y+dire[2]]==0 then
 			room[a.x][a.y]=0
 			a.x+=dire[1] a.y+=dire[2]
 			room[a.x][a.y]=a.t
 		else return true
 		end
+
 	end
 end
 
@@ -270,7 +291,7 @@ function colactor(a,d,t)
 			end
 			a.attack=6
 			if t.hit==0 then
-				t.hit=2
+				t.hit=a.attackpwr
 				moveactor(t,d)
 			else
 				sfx(1)
@@ -282,16 +303,19 @@ function colactor(a,d,t)
 end
 
 function doactor(a)
-	if a.m>0 then
-		if a.hit>0 then
-			a.hit-=1
-		else
+	if actortypes[a.t].m>0 then
+		--if a.hit>0 then
+		--	a.hit-=1
+		--else
+		if a.hit==0 then
 			local d=movetype(a)
 			if moveactor(a,d) then
 				for target in all(actors) do 
 					colactor(a,d,target)
 				end
 			end
+		else
+			a.hit-=1
 		end
 	end
 end
