@@ -96,6 +96,7 @@ end
 
 function loadmap(rw,s)
 	room={}
+	reload()
 	for a=1,rw do
 		room[a]={}
 		for b=1,rw do
@@ -108,12 +109,18 @@ function loadmap(rw,s)
 			loadsector(a,b,rooms[level][b*4+a],level)
 		end
 	end
+	for a=1,rw do
+		for b=1,rw do
+			mset(a-1,b-1,room[a][b])
+		end
+	end
+	room={}
 end
 
 function loadactors(r)
 	for b=1,r do
 		for a=1,r do
-			local cell=room[a][b]
+			local cell=mget(a,b)
 			if cell>0 then
 				makeactor(cell,a,b)
 			end
@@ -176,10 +183,11 @@ function direction(d)
 end
 
 function movetype(a)
-	if actortypes[a.t].m==1 then
+	local m=actortypes[a.t].m
+	if m==1 then
 		return btnp()
 	end
-	if actortypes[a.t].m==2 then
+	if m==2 then
 		return followactor(a,p)
 	end
 end
@@ -220,7 +228,7 @@ function colactor(a,d,t)
 				moveactor(t,d)
 			else
 				sfx(1)
-				room[t.x][t.y]=0
+				mset(t.x,t.y,0)
 				del(actors,t)
 				del(creatures,t)
 			end
@@ -237,12 +245,10 @@ function moveactor(a,d)
 		if a.x+dire[1]>=room_w then a.x=1 end
 		if a.y+dire[2]<1 then a.y=room_w end
 		if a.y+dire[2]>=room_w then a.y=1 end
---		if a.x+dire[1]>1 then a.x=64 end
-		if room[a.x+dire[1]][a.y+dire[2]]==0 then
-			room[a.x][a.y]=0
+		if mget(a.x+dire[1],a.y+dire[2])==0 then
+			mset(a.x,a.y,0)
 			a.x+=dire[1] a.y+=dire[2]
-			room[a.x][a.y]=a.t
-			
+			mset(a.x,a.y,a.t)
 			a.secx=flr(a.x/sector_s)*sector_s*cellw
 			a.secy=flr(a.y/sector_s)*sector_s*cellh
 		else return true
