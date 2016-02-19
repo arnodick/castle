@@ -4,7 +4,7 @@ __lua__
 --cash castle
 --by ashley pringle
 
-debug=false
+debug=true
 debug_l={}
 debug_l[4]=0
 
@@ -17,118 +17,6 @@ function debug_u()
 	end
 	debug_l[5]=#actors
 	debug_l[6]=#creatures
-	--todo: delete from creatures when killing
-end
-
-function reset()
-	actortypes={}
-	actors={}
-	creatures={}
-end
-
-function state_i(s)
-	timer=0
-	cam[1]=0 cam[2]=0
-	reset()
-	
-	if s==1 then
-		actortypes_i(level)
-		sector_s=16
-		sector_a=4
-		room_w=sector_s*sector_a
-		loadmap(room_w,sector_a)
-		p=makeactor(1,5,5)
-		cam[1]=flr(p.x/sector_s)*sector_s*cellw
-		cam[2]=flr(p.y/sector_s)*sector_s*cellh
-		loadactors(room_w)
-	end	
-end
-
-function stateupdate(s)
-	if s==0 then
-		if btnp(5) then
-			state=1
-			state_i(state)
-		end
-	end
-	if s==1 then
-		if btnp()>0 then
-			--foreach(actors,doactor)
-			foreach(creatures,doactor)
-			debug_l[4]=0
-		end
-		foreach(creatures,shake)
-		--cam[1]=p.x*cellw-10*cellw cam[2]=p.y*cellh-8*cellh
-		cam[1]=flr(p.x/sector_s)*sector_s*cellw
-		cam[2]=flr(p.y/sector_s)*sector_s*cellh
-		--cam[2]=p.y*cellh-8*cellh
-		if btnp(4) then
-			level+=1
-			if level>3 then level=0 end
-			state_i(state)
-		end
-		if btnp(5) then
-			state=0
-			state_i(0)
-		end
-	end
-
-	camera(cam[1],cam[2])	
-	timer+=1
-	debug_u()
-end
-
-function statedraw(s)
-	cls()
-	if s==0 then
-		print("title\npress button to start",30,30,7)
-	end
-	if s==1 then
-		foreach(actors,drawactor)
-		rect(p.secx,-2+cellh+p.secy,16*cellw-1+p.secx,16*cellh+p.secy)
-	end
---		if debug then print(xs,16*cellw+cellw,16*cellh+cellh) end
-		--rect(-2+cellw,-2+cellh,64*cellw-1,64*cellh)
-	if debug then
-		for a=1,#debug_l do
-			print(debug_l[a],cam[1],cam[2]+a*6,6)
-		end
-	end
-end
-
-function loadsector(rx,ry,mx,my)
-	for b=1,sector_s do
-		for a=1,sector_s do
-			room[a+rx*sector_s][b+ry*sector_s]=mget(a-1+mx*sector_s,b-1+my*sector_s)
-		end
-	end
-end
-
-function loadmap(rw,s)
-	room={}
-	for a=1,rw do
-		room[a]={}
-		for b=1,rw do
-			room[a][b]=0
-		end
-	end
-	for b=0,s-1 do
-		for a=0,s-1 do
-			--loadsector(a,b,flr(rnd(8)),level)
-			loadsector(a,b,rooms[level][b*4+a],level)
-		end
-	end
-end
-
-function loadactors(r)
-	for b=1,r do
-		for a=1,r do
-			local cell=room[a][b]
-			if cell>0 then
-				makeactor(cell,a,b)
-			end
-		end
-	end
 end
 
 function actortypes_i(l)
@@ -190,7 +78,47 @@ function actortypes_i(l)
 		a.m=2
 		add(actortypes,a)
 	end
+end
 
+function reset()
+	actortypes={}
+	actors={}
+	creatures={}
+end
+
+function loadsector(rx,ry,mx,my)
+	for b=1,sector_s do
+		for a=1,sector_s do
+			room[a+rx*sector_s][b+ry*sector_s]=mget(a-1+mx*sector_s,b-1+my*sector_s)
+		end
+	end
+end
+
+function loadmap(rw,s)
+	room={}
+	for a=1,rw do
+		room[a]={}
+		for b=1,rw do
+			room[a][b]=0
+		end
+	end
+	for b=0,s-1 do
+		for a=0,s-1 do
+			--loadsector(a,b,flr(rnd(8)),level)
+			loadsector(a,b,rooms[level][b*4+a],level)
+		end
+	end
+end
+
+function loadactors(r)
+	for b=1,r do
+		for a=1,r do
+			local cell=room[a][b]
+			if cell>0 then
+				makeactor(cell,a,b)
+			end
+		end
+	end
 end
 
 function rooms_i()
@@ -256,28 +184,6 @@ function movetype(a)
 	end
 end
 
-function moveactor(a,d)
-	if d!=0 then
-		local dire=direction(d)
-
-		if a.x+dire[1]<1 then a.x=room_w end
-		if a.x+dire[1]>=room_w then a.x=1 end
-		if a.y+dire[2]<1 then a.y=room_w end
-		if a.y+dire[2]>=room_w then a.y=1 end
---		if a.x+dire[1]>1 then a.x=64 end
-		if room[a.x+dire[1]][a.y+dire[2]]==0 then
-			room[a.x][a.y]=0
-			a.x+=dire[1] a.y+=dire[2]
-			room[a.x][a.y]=a.t
-			
-			a.secx=flr(a.x/sector_s)*sector_s*cellw
-			a.secy=flr(a.y/sector_s)*sector_s*cellh
-		else return true
-		end
-
-	end
-end
-
 function followactor(a,t)
 	if t.secx==a.secx and t.secy==a.secy then
 	local xdist=t.x-a.x
@@ -301,7 +207,8 @@ end
 function colactor(a,d,t)
 	local dire=direction(d)
 
-	if t.t!=2 then	
+	if t.t!=2 then
+		if t!=a then
 		if a.x+dire[1]==t.x and a.y+dire[2]==t.y then
 			sfx(0)
 			for b=1,2 do
@@ -318,28 +225,46 @@ function colactor(a,d,t)
 				del(creatures,t)
 			end
 		end
-	end
-end
-
-function doactor(a)
-	if actortypes[a.t].m>0 then
-		--if a.hit>0 then
-		--	a.hit-=1
-		--else
-		if a.hit==0 then
-			local d=movetype(a)
-			if moveactor(a,d) then
-				for target in all(actors) do 
-					colactor(a,d,target)
-				end
-			end
-		else
-			a.hit-=1
 		end
 	end
 end
 
-function shake(a)
+function moveactor(a,d)
+	if d!=0 then
+		local dire=direction(d)
+
+		if a.x+dire[1]<1 then a.x=room_w end
+		if a.x+dire[1]>=room_w then a.x=1 end
+		if a.y+dire[2]<1 then a.y=room_w end
+		if a.y+dire[2]>=room_w then a.y=1 end
+--		if a.x+dire[1]>1 then a.x=64 end
+		if room[a.x+dire[1]][a.y+dire[2]]==0 then
+			room[a.x][a.y]=0
+			a.x+=dire[1] a.y+=dire[2]
+			room[a.x][a.y]=a.t
+			
+			a.secx=flr(a.x/sector_s)*sector_s*cellw
+			a.secy=flr(a.y/sector_s)*sector_s*cellh
+		else return true
+		end
+
+	end
+end
+
+function doactor(a)
+	if a.hit==0 then
+		local d=movetype(a)
+		if moveactor(a,d) then
+			for target in all(actors) do 
+				colactor(a,d,target)
+			end
+		end
+	else
+		a.hit-=1
+	end
+end
+
+function shakeactor(a)
 	if a.attack>0 then
 		if a.attackdir==1 then
 			a.shakex=cos(timer*1/6)*2
@@ -352,6 +277,74 @@ function shake(a)
 	end
 	if a.hit>0 then
 		a.shakex=cos(timer*1/16)*2
+	end
+end
+
+function state_i(s)
+	timer=0
+	cam[1]=0 cam[2]=0
+	reset()
+	
+	if s==1 then
+		actortypes_i(level)
+		sector_s=16
+		sector_a=4
+		room_w=sector_s*sector_a
+		loadmap(room_w,sector_a)
+		p=makeactor(1,5,5)
+		cam[1]=flr(p.x/sector_s)*sector_s*cellw
+		cam[2]=flr(p.y/sector_s)*sector_s*cellh
+		loadactors(room_w)
+	end	
+end
+
+function stateupdate(s)
+	if s==0 then
+		if btnp(5) then
+			state=1
+			state_i(state)
+		end
+	end
+	if s==1 then
+		if btnp()>0 then
+			--foreach(actors,doactor)
+			foreach(creatures,doactor)
+			debug_l[4]=0
+		end
+		foreach(creatures,shakeactor)
+		cam[1]=flr(p.x/sector_s)*sector_s*cellw
+		cam[2]=flr(p.y/sector_s)*sector_s*cellh
+		if btnp(4) then
+			level+=1
+			if level>3 then level=0 end
+			state_i(state)
+		end
+		if btnp(5) then
+			state=0
+			state_i(0)
+		end
+	end
+
+	camera(cam[1],cam[2])	
+	timer+=1
+	debug_u()
+end
+
+function statedraw(s)
+	cls()
+	if s==0 then
+		print("title\npress button to start",30,30,7)
+	end
+	if s==1 then
+		foreach(actors,drawactor)
+		rect(cam[1],-2+cellh+cam[2],16*cellw-1+cam[1],16*cellh+cam[2])
+	end
+--		if debug then print(xs,16*cellw+cellw,16*cellh+cellh) end
+		--rect(-2+cellw,-2+cellh,64*cellw-1,64*cellh)
+	if debug then
+		for a=1,#debug_l do
+			print(debug_l[a],cam[1],cam[2]+a*6,6)
+		end
 	end
 end
 
