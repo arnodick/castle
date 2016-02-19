@@ -16,7 +16,7 @@ function debug_u()
 		debug_l[4]=stat(1)
 	end
 	debug_l[5]=#actors
-	debug_l[6]=#creatures
+	debug_l[6]=#actors.creatures
 end
 
 function actortypes_i(l)
@@ -83,7 +83,7 @@ end
 function reset()
 	actortypes={}
 	actors={}
-	creatures={}
+	actors.creatures={}
 end
 
 function loadsector(rx,ry,mx,my)
@@ -156,7 +156,7 @@ function makeactor(t,x,y)
 		a.attackpwr=2
 	end
 	a.hit=0
-	add(creatures,a)
+	add(actors.creatures,a)
 	end
 	add(actors,a)
 	return a
@@ -230,7 +230,7 @@ function colactor(a,d,t)
 				sfx(1)
 				mset(t.x,t.y,0)
 				del(actors,t)
-				del(creatures,t)
+				del(actors.creatures,t)
 			end
 		end
 		end
@@ -261,7 +261,7 @@ function doactor(a)
 	if a.hit==0 then
 		local d=movetype(a)
 		if moveactor(a,d) then
-			for target in all(creatures) do 
+			for target in all(actors.creatures) do 
 				colactor(a,d,target)
 			end
 		end
@@ -314,10 +314,10 @@ function stateupdate(s)
 	if s==1 then
 		if btnp()>0 then
 			--foreach(actors,doactor)
-			foreach(creatures,doactor)
+			foreach(actors.creatures,doactor)
 			debug_l[4]=0
 		end
-		foreach(creatures,shakeactor)
+		foreach(actors.creatures,shakeactor)
 		cam[1]=flr(p.x/sector_s)*sector_s*cellw
 		cam[2]=flr(p.y/sector_s)*sector_s*cellh
 		if btnp(4) then
