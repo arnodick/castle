@@ -4,21 +4,32 @@ __lua__
 --cash castle
 --by ashley pringle
 
-debug=true
+debug=false
 debug_l={}
+debug_l[4]=0
 
 function debug_u()
 	debug_l[1]=timer
 	debug_l[2]=stat(0)
 	debug_l[3]=stat(1)
-	debug_l[4]=#actors
+	if stat(1)>debug_l[4] then
+		debug_l[4]=stat(1)
+	end
+	debug_l[5]=#actors
+	debug_l[6]=#creatures
+	--todo: delete from creatures when killing
+end
+
+function reset()
+	actortypes={}
+	actors={}
+	creatures={}
 end
 
 function state_i(s)
 	timer=0
 	cam[1]=0 cam[2]=0
-	actortypes={}
-	actors={}
+	reset()
 	
 	if s==1 then
 		actortypes_i(level)
@@ -27,9 +38,6 @@ function state_i(s)
 		room_w=sector_s*sector_a
 		loadmap(room_w,sector_a)
 		p=makeactor(1,5,5)
-		--cam[1]=p.x*cellw-10*cellw cam[2]=p.y*cellh-8*cellh
-		--cam[2]=p.y*cellh-8*cellh
-		--cam[1]=(p.x%sector_a)*sector_s
 		cam[1]=flr(p.x/sector_s)*sector_s*cellw
 		cam[2]=flr(p.y/sector_s)*sector_s*cellh
 		loadactors(room_w)
@@ -45,9 +53,11 @@ function stateupdate(s)
 	end
 	if s==1 then
 		if btnp()>0 then
-			foreach(actors,doactor)
+			--foreach(actors,doactor)
+			foreach(creatures,doactor)
+			debug_l[4]=0
 		end
-		foreach(actors,shake)
+		foreach(creatures,shake)
 		--cam[1]=p.x*cellw-10*cellw cam[2]=p.y*cellh-8*cellh
 		cam[1]=flr(p.x/sector_s)*sector_s*cellw
 		cam[2]=flr(p.y/sector_s)*sector_s*cellh
@@ -75,10 +85,10 @@ function statedraw(s)
 	end
 	if s==1 then
 		foreach(actors,drawactor)
+		rect(p.secx,-2+cellh+p.secy,16*cellw-1+p.secx,16*cellh+p.secy)
 	end
 --		if debug then print(xs,16*cellw+cellw,16*cellh+cellh) end
-		--rect(-2+cellw,-2+cellh,16*cellw-1,16*cellh)
-		rect(-2+cellw,-2+cellh,64*cellw-1,64*cellh)
+		--rect(-2+cellw,-2+cellh,64*cellw-1,64*cellh)
 	if debug then
 		for a=1,#debug_l do
 			print(debug_l[a],cam[1],cam[2]+a*6,6)
@@ -199,6 +209,11 @@ function makeactor(t,x,y)
 	a.t=t
 	a.x=x
 	a.y=y
+	a.secx=flr(a.x/sector_s)*sector_s*cellw
+	a.secy=flr(a.y/sector_s)*sector_s*cellh
+	a.shakex=0
+	a.shakey=0
+	if a.t!=2 then
 	a.attack=0
 	a.attackdir=0
 	a.attackpwr=3
@@ -206,17 +221,15 @@ function makeactor(t,x,y)
 		a.attackpwr=2
 	end
 	a.hit=0
-	a.shakex=0
-	a.shakey=0
+	add(creatures,a)
+	end
 	add(actors,a)
 	return a
 end
 
 function drawactor(a)
---cam[1]=flr(p.x/sector_s)*sector_s*cellw
-		--cam[2]=flr(p.y/sector_s)*sector_s*cellw
-	if (flr((a.x)/sector_s)*sector_s*cellw)==cam[1] then 
-		if(flr((a.y)/sector_s)*sector_s*cellh)==cam[2] then 
+	if a.secx==cam[1] then 
+		if	a.secy==cam[2] then 
 			print(actortypes[a.t].ch,a.x*cellw+a.shakex,a.y*cellh+a.shakey,actortypes[a.t].c)
 		end
 	end
@@ -256,6 +269,9 @@ function moveactor(a,d)
 			room[a.x][a.y]=0
 			a.x+=dire[1] a.y+=dire[2]
 			room[a.x][a.y]=a.t
+			
+			a.secx=flr(a.x/sector_s)*sector_s*cellw
+			a.secy=flr(a.y/sector_s)*sector_s*cellh
 		else return true
 		end
 
@@ -263,6 +279,7 @@ function moveactor(a,d)
 end
 
 function followactor(a,t)
+	if t.secx==a.secx and t.secy==a.secy then
 	local xdist=t.x-a.x
 	local ydist=t.y-a.y
 	if abs(xdist)==abs(ydist) then
@@ -277,6 +294,7 @@ function followactor(a,t)
 			else return 8
 			end
 		end
+	end
 	end
 end
 
@@ -297,6 +315,7 @@ function colactor(a,d,t)
 				sfx(1)
 				room[t.x][t.y]=0
 				del(actors,t)
+				del(creatures,t)
 			end
 		end
 	end
