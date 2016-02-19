@@ -4,7 +4,7 @@ __lua__
 --cash castle
 --by ashley pringle
 
-debug=true
+debug=false
 debug_l={}
 debug_l[4]=0
 
@@ -80,6 +80,19 @@ function actortypes_i(l)
 	end
 end
 
+function rooms_i()
+	rooms={}
+	roomspawns={}
+	for b=0,3 do
+		rooms[b]={}
+		roomspawns[b]=true
+		for a=0,15 do
+			--rooms[b][a]=(a%4)
+			rooms[b][a]=flr(rnd(8))
+		end
+	end
+end
+
 function reset()
 	actortypes={}
 	actors={}
@@ -124,17 +137,6 @@ function loadactors(r)
 			if cell>0 then
 				makeactor(cell,a,b)
 			end
-		end
-	end
-end
-
-function rooms_i()
-	rooms={}
-	for b=0,3 do
-		rooms[b]={}
-		for a=0,15 do
-			--rooms[b][a]=(a%4)
-			rooms[b][a]=flr(rnd(8))
 		end
 	end
 end
@@ -229,6 +231,9 @@ function colactor(a,d,t)
 			else
 				sfx(1)
 				mset(t.x,t.y,0)
+				if t==p then
+					roomspawns[level]=false
+				end
 				del(actors,t)
 				del(actors.creatures,t)
 			end
@@ -297,9 +302,13 @@ function state_i(s)
 		sector_a=4
 		room_w=sector_s*sector_a
 		loadmap(room_w,sector_a)
-		p=makeactor(1,5,5)
+		if roomspawns[level] then
+			p=makeactor(1,5,5)
+		end
+		if p!=nil then
 		cam[1]=flr(p.x/sector_s)*sector_s*cellw
 		cam[2]=flr(p.y/sector_s)*sector_s*cellh
+		end
 		loadactors(room_w)
 	end	
 end
@@ -313,13 +322,14 @@ function stateupdate(s)
 	end
 	if s==1 then
 		if btnp()>0 then
-			--foreach(actors,doactor)
 			foreach(actors.creatures,doactor)
 			debug_l[4]=0
 		end
 		foreach(actors.creatures,shakeactor)
+		if p!=nil then
 		cam[1]=flr(p.x/sector_s)*sector_s*cellw
 		cam[2]=flr(p.y/sector_s)*sector_s*cellh
+		end
 		if btnp(4) then
 			level+=1
 			if level>3 then level=0 end
