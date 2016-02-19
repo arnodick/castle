@@ -261,7 +261,7 @@ function doactor(a)
 	if a.hit==0 then
 		local d=movetype(a)
 		if moveactor(a,d) then
-			for target in all(actors) do 
+			for target in all(creatures) do 
 				colactor(a,d,target)
 			end
 		end
