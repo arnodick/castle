@@ -17,6 +17,7 @@ function debug_u()
 	end
 	debug_l[5]=#actors
 	debug_l[6]=#actors.creatures
+	debug_l[7]=#actortypes
 end
 
 function actortypes_i(l)
@@ -30,6 +31,8 @@ function actortypes_i(l)
 		a={}
 		a.ch="*"
 		a.c=2
+		a.ch2="s"
+		a.c2=11
 		a.m=0
 		add(actortypes,a)
 	
@@ -43,6 +46,8 @@ function actortypes_i(l)
 		a={}
 		a.ch="^"
 		a.c=3
+		a.ch2="i"
+		a.c2=4
 		a.m=0
 		add(actortypes,a)
 	
@@ -56,6 +61,8 @@ function actortypes_i(l)
 		a={}
 		a.ch="="
 		a.c=10
+		a.ch2=";"
+		a.c2=9
 		a.m=0
 		add(actortypes,a)
 	
@@ -69,6 +76,8 @@ function actortypes_i(l)
 		a={}
 		a.ch="#"
 		a.c=4
+		a.ch2="e"
+		a.c2=10
 		a.m=0
 		add(actortypes,a)
 	
@@ -151,14 +160,17 @@ function makeactor(t,x,y)
 	a.shakex=0
 	a.shakey=0
 	if a.t!=2 then
-	a.attack=0
-	a.attackdir=0
-	a.attackpwr=3
-	if #actors==0 then
-		a.attackpwr=2
-	end
-	a.hit=0
-	add(actors.creatures,a)
+		a.attack=0
+		a.attackdir=0
+		a.attackpwr=3
+		if #actors==0 then
+			a.attackpwr=2
+		end
+		a.hit=0
+		add(actors.creatures,a)
+	else
+		a.ch2="i"
+		a.c2=4
 	end
 	add(actors,a)
 	return a
@@ -167,6 +179,10 @@ end
 function drawactor(a)
 	if a.secx==cam[1] then 
 		if	a.secy==cam[2] then 
+			if a.t==2 then
+				--print(a.ch2,a.x*cellw+a.shakex,a.y*cellh+a.shakey,a.c2)
+				print(actortypes[2].ch2,a.x*cellw+a.shakex,a.y*cellh+a.shakey,actortypes[2].c2)
+			end
 			print(actortypes[a.t].ch,a.x*cellw+a.shakex,a.y*cellh+a.shakey,actortypes[a.t].c)
 		end
 	end
