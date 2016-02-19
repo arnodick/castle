@@ -4,7 +4,7 @@ __lua__
 --cash castle
 --by ashley pringle
 
-debug=false
+debug=true
 debug_l={}
 debug_l[4]=0
 
@@ -17,7 +17,10 @@ function debug_u()
 	end
 	debug_l[5]=#actors
 	debug_l[6]=#actors.creatures
-	debug_l[7]=#actortypes
+	if p!=nil then
+	debug_l[7]=p.x
+	debug_l[8]=p.y
+	end
 end
 
 function actortypes_i(l)
@@ -200,6 +203,14 @@ function direction(d)
 	return dire
 end
 
+function actoroob(a,dire)
+	if a.x+dire[1]<1       then dire[1]=room_w-2 end
+	if a.x+dire[1]>=room_w then dire[1]=-room_w+2 end
+	if a.y+dire[2]<1       then dire[2]=room_w-2 end
+	if a.y+dire[2]>=room_w then dire[2]=-room_w+2 end	
+	return dire
+end
+
 function movetype(a)
 	local m=actortypes[a.t].m
 	if m==1 then
@@ -262,10 +273,8 @@ function moveactor(a,d)
 	if d!=0 then
 		local dire=direction(d)
 
-		if a.x+dire[1]<1 then a.x=room_w end
-		if a.x+dire[1]>=room_w then a.x=1 end
-		if a.y+dire[2]<1 then a.y=room_w end
-		if a.y+dire[2]>=room_w then a.y=1 end
+		dire=actoroob(a,dire)
+		
 		if mget(a.x+dire[1],a.y+dire[2])==0 then
 			mset(a.x,a.y,0)
 			a.x+=dire[1] a.y+=dire[2]
