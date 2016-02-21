@@ -90,14 +90,30 @@ function actortypes_i(l)
 		a.m=2
 		add(actortypes,a)
 	end
-	nouns={}
-	nouns[1]="jaunty"
-	nouns[2]="gibbous"
-	nouns[3]="chatterly"
-	nouns[4]="tumescent"
-	nouns[5]="unctuous"
-	nouns[6]="effervesent"
-	nouns[7]="subcutaneous"
+	adjective={}
+	adjective[1]="jaunty"
+	adjective[2]="gibbous"
+	adjective[3]="chattering"
+	adjective[4]="tumescent"
+	adjective[5]="unctuous"
+	adjective[6]="effervesent"
+	adjective[7]="subcutaneous"
+	adjective[8]="deplorable"
+	adjective[9]="analytic"
+	adjective[10]="loathsome"
+	adjective[11]="incomprehensible"
+	adjective[12]="greater"
+	adjective[13]="lesser"
+	adjective[14]="conservative"
+	adjective[15]="moderate"
+	adjective[16]="impatient"
+	adjective[17]="alright"
+	adjective[18]="reasonable"
+	adjective[19]="decent"
+	adjective[20]="unloved"
+	adjective[21]="failed"
+	adjective[22]="prospering"
+	adjective[23]="learned"
 	
 	pronouns={}
 	pronouns[1]="half"
@@ -107,11 +123,31 @@ function actortypes_i(l)
 	pronouns[5]="anti"
 	pronouns[6]="meta"
 	pronouns[7]="robo"
+	pronouns[8]="hoary"
+	pronouns[9]="gnar"
+	pronouns[10]="were"
 	
 	species={}
 	species[1]="bear"
 	species[2]="fish"
 	species[3]="blog"
+	species[4]="crow"
+	species[5]="wyrm"
+	species[6]="griffin"
+	species[7]="serpent"
+	species[8]="boar"
+	species[9]="stud"
+	species[10]="whal"
+	species[11]="cock"
+	species[12]="hippo"
+	species[13]="t rex"
+	species[14]="bot"
+	species[15]="sleuth"
+	species[16]="sloth"
+	species[17]="wicca"
+	species[18]="mummy"
+	species[19]="ghoul"
+ species[20]="gull"
 	
 	places={}
 	places[1]="marsh"
@@ -120,7 +156,13 @@ function actortypes_i(l)
 	places[4]="garden"
 	places[5]="mine"
 	places[6]="isle"
---	nouns[1]=
+	places[7]="cavern"
+	places[8]="tundra"
+	places[9]="lagoon"
+	places[10]="desert"
+	places[11]="aerie"
+	places[12]="strait"
+	places[13]="plateau"
 end
 
 function rooms_i()
@@ -203,9 +245,10 @@ function makeactor(t,x,y)
 		a.attackpwr=3
 		if #actors==0 then
 			a.attackpwr=2
-			local n=flr(rnd(#nouns))+1
-			a.de="you are a "..nouns[n].. " "..pronouns[flr(rnd(#pronouns))+1].."-"..species[flr(rnd(#species)+1)]
-			del(nouns,nouns[n])
+			local n=flr(rnd(#adjective))+1
+			a.pn="" if rnd(1)>=0.5 then a.pn=pronouns[flr(rnd(#pronouns))+1].."-" end
+			a.de=" a "..adjective[n].. " "..a.pn..species[flr(rnd(#species)+1)]
+			del(adjective,adjective[n])
 		end
 		a.hit=0
 		add(actors.creatures,a)
@@ -217,7 +260,7 @@ function makeactor(t,x,y)
 	return a
 end
 
-function makemenu(x,y,w,h,m1,m2,m3)
+function makemenu(x,y,w,h,m1,m2,m3,m4)
 	m={}
 	m.x=x
 	m.y=y
@@ -227,6 +270,7 @@ function makemenu(x,y,w,h,m1,m2,m3)
 	m.me[1]=m1
 	m.me[2]=m2
 	m.me[3]=m3
+	m.me[4]=m4
 	add(menus,m)
 end
 
@@ -246,7 +290,7 @@ end
 
 function drawmenu(m)
 --	rect(m.x,m.y,m.x+m.w,m.y+m.h,7)
-	for a=0,2 do
+	for a=0,3 do
 		print(m.me[a+1],m.x+cam[1],m.y+a*cellh+cam[2],6)
 	end
 end
@@ -272,7 +316,8 @@ end
 function movetype(a)
 	local m=actortypes[a.t].m
 	if m==1 then
-		return btnp()
+		return btn()
+--		return btnp()
 	end
 	if m==2 then
 		return followactor(a,p)
@@ -398,9 +443,9 @@ function state_i(s)
 		cam[2]=flr(p.y/sector_s)*sector_s*cellh
 		end
 		loadactors(room_w)
-		local n=flr(rnd(#nouns))+1
-		makemenu(0,106,120,20,p.de,"you are in a "..nouns[n].." "..places[flr(rnd(#places))+1],"you are feeling *lugubrious*")
-		del(nouns,nouns[n])
+		local n=flr(rnd(#adjective))+1
+		makemenu(10,105,120,20,"you are:",p.de," in a "..adjective[n].." "..places[flr(rnd(#places))+1]," feeling *lugubrious*")
+		del(adjective,adjective[n])
 	end	
 end
 
@@ -412,7 +457,8 @@ function stateupdate(s)
 		end
 	end
 	if s==1 then
-		if btnp()>0 then
+		--if btnp()>0 then
+		if timer%4==0 then
 			foreach(actors.creatures,doactor)
 			debug_l[4]=0
 		end
