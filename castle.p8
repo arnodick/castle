@@ -4,7 +4,7 @@ __lua__
 --cash castle
 --by ashley pringle
 
-debug=true
+debug=false
 debug_l={}
 debug_l[4]=0
 
@@ -90,6 +90,37 @@ function actortypes_i(l)
 		a.m=2
 		add(actortypes,a)
 	end
+	nouns={}
+	nouns[1]="jaunty"
+	nouns[2]="gibbous"
+	nouns[3]="chatterly"
+	nouns[4]="tumescent"
+	nouns[5]="unctuous"
+	nouns[6]="effervesent"
+	nouns[7]="subcutaneous"
+	
+	pronouns={}
+	pronouns[1]="half"
+	pronouns[2]="demi"
+	pronouns[3]="hyper"
+	pronouns[4]="aqua"
+	pronouns[5]="anti"
+	pronouns[6]="meta"
+	pronouns[7]="robo"
+	
+	species={}
+	species[1]="bear"
+	species[2]="fish"
+	species[3]="blog"
+	
+	places={}
+	places[1]="marsh"
+	places[2]="vista"
+	places[3]="palace"
+	places[4]="garden"
+	places[5]="mine"
+	places[6]="isle"
+--	nouns[1]=
 end
 
 function rooms_i()
@@ -109,6 +140,7 @@ function reset()
 	actortypes={}
 	actors={}
 	actors.creatures={}
+	menus={}
 end
 
 function loadsector(rx,ry,mx,my)
@@ -163,11 +195,17 @@ function makeactor(t,x,y)
 	a.shakex=0
 	a.shakey=0
 	if a.t!=2 then
+	--	if a.t==1 then
+			
+	--	end
 		a.attack=0
 		a.attackdir=0
 		a.attackpwr=3
 		if #actors==0 then
 			a.attackpwr=2
+			local n=flr(rnd(#nouns))+1
+			a.de="you are a "..nouns[n].. " "..pronouns[flr(rnd(#pronouns))+1].."-"..species[flr(rnd(#species)+1)]
+			del(nouns,nouns[n])
 		end
 		a.hit=0
 		add(actors.creatures,a)
@@ -177,6 +215,19 @@ function makeactor(t,x,y)
 	end
 	add(actors,a)
 	return a
+end
+
+function makemenu(x,y,w,h,m1,m2,m3)
+	m={}
+	m.x=x
+	m.y=y
+	m.w=w
+	m.h=h
+	m.me={}
+	m.me[1]=m1
+	m.me[2]=m2
+	m.me[3]=m3
+	add(menus,m)
 end
 
 function drawactor(a)
@@ -191,6 +242,13 @@ function drawactor(a)
 	end
 --	print(a.x,a.x*cellw+cellw,a.y*cellh,a.c)
 --	print(a.y,a.x*cellw,a.y*cellh+cellh,a.c)
+end
+
+function drawmenu(m)
+--	rect(m.x,m.y,m.x+m.w,m.y+m.h,7)
+	for a=0,2 do
+		print(m.me[a+1],m.x+cam[1],m.y+a*cellh+cam[2],6)
+	end
 end
 
 function direction(d)
@@ -300,6 +358,11 @@ function doactor(a)
 	end
 end
 
+function domenu(m)
+--	m.x=m.x+cam[1]
+--	m.y=m.y+cam[2]
+end
+
 function shakeactor(a)
 	if a.attack>0 then
 		if a.attackdir==1 then
@@ -335,6 +398,9 @@ function state_i(s)
 		cam[2]=flr(p.y/sector_s)*sector_s*cellh
 		end
 		loadactors(room_w)
+		local n=flr(rnd(#nouns))+1
+		makemenu(0,106,120,20,p.de,"you are in a "..nouns[n].." "..places[flr(rnd(#places))+1],"you are feeling *lugubrious*")
+		del(nouns,nouns[n])
 	end	
 end
 
@@ -364,6 +430,7 @@ function stateupdate(s)
 			state=0
 			state_i(0)
 		end
+--		foreach(menus,domenu)
 	end
 
 	camera(cam[1],cam[2])	
@@ -379,6 +446,13 @@ function statedraw(s)
 	if s==1 then
 		foreach(actors,drawactor)
 		rect(cam[1],-2+cellh+cam[2],16*cellw-1+cam[1],16*cellh+cam[2])
+		print("inventory:\n -potion",cam[1]+84,cam[2]+20,6)
+		print("  vending",cam[1]+84,cam[2]+40,6)
+		print("  machine",cam[1]+84,cam[2]+47,6)
+--		print("you are a jaunty half-bear",cam[1]+5,cam[2]+106,6)
+--		print("you are in a gibbous marsh",cam[1]+5,cam[2]+113,6)
+--		print("you are feeling *lugubrious*",cam[1]+5,cam[2]+120,6)
+		foreach(menus,drawmenu)
 	end
 --		if debug then print(xs,16*cellw+cellw,16*cellh+cellh) end
 		--rect(-2+cellw,-2+cellh,64*cellw-1,64*cellh)
@@ -393,6 +467,7 @@ function _init()
 	state=0
 	cellw=5 cellh=6
 	cam={}
+	menus={}
 	level=0
 	rooms_i()	
 	state_i(state)
