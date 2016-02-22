@@ -44,6 +44,12 @@ function actortypes_i(l)
 		a.c=12
 		a.m=2
 		add(actortypes,a)
+		
+		feelings={}
+		feelings[1]="lugubrious"
+		feelings[2]="winsome"
+		feelings[3]="ineffable"
+		feelings[4]="morose"
 	end
 	if l==1 then
 		a={}
@@ -59,6 +65,12 @@ function actortypes_i(l)
 		a.c=8
 		a.m=2
 		add(actortypes,a)
+		
+		feelings={}
+		feelings[1]="arrested"
+		feelings[2]="polite"
+		feelings[3]="obvious"
+		feelings[4]="trite"
 	end
 	if l==2 then
 		a={}
@@ -74,6 +86,12 @@ function actortypes_i(l)
 		a.c=5
 		a.m=2
 		add(actortypes,a)
+		
+		feelings={}
+		feelings[1]="prideful"
+		feelings[2]="forward"
+		feelings[3]="oblivious"
+		feelings[4]="artful"
 	end
 	if l==3 then
 		a={}
@@ -89,6 +107,12 @@ function actortypes_i(l)
 		a.c=9
 		a.m=2
 		add(actortypes,a)
+		
+		feelings={}
+		feelings[1]="princessly"
+		feelings[2]="angelic"
+		feelings[3]="friendly"
+		feelings[4]="ostentatious"
 	end
 	adjective={}
 	adjective[1]="jaunty"
@@ -255,6 +279,7 @@ function makeactor(t,x,y)
 			local n=flr(rnd(#adjective))+1
 			a.pn="" if rnd(1)>=0.5 then a.pn=pronouns[flr(rnd(#pronouns))+1].."-" end
 			a.de=" a "..adjective[n].. " "..a.pn..species[flr(rnd(#species)+1)]
+			a.fe=feelings[flr(rnd(#feelings))+1]
 			del(adjective,adjective[n])
 		end
 		a.hit=0
@@ -451,7 +476,9 @@ function state_i(s)
 		end
 		loadactors(room_w)
 		local n=flr(rnd(#adjective))+1
-		makemenu(10,105,120,20,"you are:",p.de," in a "..adjective[n].." "..places[flr(rnd(#places))+1]," feeling *lugubrious*")
+		if p!=nil then
+			makemenu(10,105,120,20,"you are:",p.de," in a "..adjective[n].." "..places[flr(rnd(#places))+1]," feeling "..p.fe)
+		end
 		del(adjective,adjective[n])
 	end	
 end
