@@ -114,6 +114,11 @@ function actortypes_i(l)
 	adjective[21]="failed"
 	adjective[22]="prospering"
 	adjective[23]="learned"
+	adjective[24]="disappointing"
+	adjective[25]="mundane"
+	adjective[26]="misunderstood"
+	adjective[27]="hairy"
+	adjective[28]="sartorial"
 	
 	pronouns={}
 	pronouns[1]="half"
@@ -148,6 +153,8 @@ function actortypes_i(l)
 	species[18]="mummy"
 	species[19]="ghoul"
  species[20]="gull"
+	species[21]="manticore"
+	species[22]="bro"
 	
 	places={}
 	places[1]="marsh"
@@ -457,8 +464,8 @@ function stateupdate(s)
 		end
 	end
 	if s==1 then
-		--if btnp()>0 then
-		if timer%4==0 then
+		if btnp()>0 then
+		--if timer%4==0 then
 			foreach(actors.creatures,doactor)
 			debug_l[4]=0
 		end
@@ -490,6 +497,7 @@ function statedraw(s)
 		print("title\npress button to start",30,30,7)
 	end
 	if s==1 then
+		rectfill(cam[1],-2+cellh+cam[2],16*cellw-1+cam[1],16*cellh+cam[2],level+1)
 		foreach(actors,drawactor)
 		rect(cam[1],-2+cellh+cam[2],16*cellw-1+cam[1],16*cellh+cam[2])
 		print("inventory:\n -potion",cam[1]+84,cam[2]+20,6)
