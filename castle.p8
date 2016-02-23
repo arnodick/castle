@@ -279,7 +279,8 @@ function makeactor(t,x,y)
 			local n=flr(rnd(#adjective))+1
 			a.pn="" if rnd(1)>=0.5 then a.pn=pronouns[flr(rnd(#pronouns))+1].."-" end
 			a.de=" a "..adjective[n].. " "..a.pn..species[flr(rnd(#species)+1)]
-			a.fe=feelings[flr(rnd(#feelings))+1]
+			a.fe=flr(rnd(#feelings))+1
+			--a.fe=feelings[flr(rnd(#feelings))+1]
 			del(adjective,adjective[n])
 		end
 		a.hit=0
@@ -477,7 +478,7 @@ function state_i(s)
 		loadactors(room_w)
 		local n=flr(rnd(#adjective))+1
 		if p!=nil then
-			makemenu(10,105,120,20,"you are:",p.de," in a "..adjective[n].." "..places[flr(rnd(#places))+1]," feeling "..p.fe)
+			makemenu(10,105,120,20,"you are:",p.de," in a "..adjective[n].." "..places[flr(rnd(#places))+1]," feeling "..feelings[p.fe])
 		end
 		del(adjective,adjective[n])
 	end	
