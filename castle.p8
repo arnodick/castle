@@ -24,6 +24,12 @@ function debug_u()
 end
 
 function actortypes_i(l)
+	chars="abcdefghijklmnopqrstuvwxys123456789!#%^*():;,.{}"
+	local ch1=flr(rnd(#chars))
+	local ch2=flr(rnd(#chars))
+	
+	levelc=flr(rnd(2))
+	
 	local a={}
 	a.ch="@"
 	a.c=7
@@ -31,11 +37,22 @@ function actortypes_i(l)
 	add(actortypes,a)
 	
 	if l==0 then
+		--terrainchar={}
+		--terrainchar[1]="*"
+		--terrainchar[2]="s"
+		--terrainchar[3]="%"
+		--terrainchar[4]="o"
+	
 		a={}
-		a.ch="*"
-		a.c=2
-		a.ch2="s"
-		a.c2=11
+		
+		a.ch=sub(chars,ch1,ch1)
+		a.ch2=sub(chars,ch2,ch2)
+		--a.ch="*"
+		--a.ch2="s"
+		a.c=flr(rnd(14))+1
+		a.c2=flr(rnd(14))+1
+		--a.c=2
+		--a.c2=11
 		a.m=0
 		add(actortypes,a)
 	
@@ -53,10 +70,14 @@ function actortypes_i(l)
 	end
 	if l==1 then
 		a={}
-		a.ch="^"
-		a.c=3
-		a.ch2="i"
-		a.c2=4
+		a.ch=sub(chars,ch1,ch1)
+		a.ch2=sub(chars,ch2,ch2)
+		--a.ch="^"
+		--a.ch2="i"
+		a.c=flr(rnd(14))+1
+		a.c2=flr(rnd(14))+1
+		--a.c=3
+		--a.c2=4
 		a.m=0
 		add(actortypes,a)
 	
@@ -74,10 +95,14 @@ function actortypes_i(l)
 	end
 	if l==2 then
 		a={}
-		a.ch="="
-		a.c=10
-		a.ch2=";"
-		a.c2=9
+		a.ch=sub(chars,ch1,ch1)
+		a.ch2=sub(chars,ch2,ch2)
+		--a.ch="="
+		--a.ch2=";"
+		a.c=flr(rnd(14))+1
+		a.c2=flr(rnd(14))+1
+		--a.c=10
+		--a.c2=9
 		a.m=0
 		add(actortypes,a)
 	
@@ -95,10 +120,14 @@ function actortypes_i(l)
 	end
 	if l==3 then
 		a={}
-		a.ch="#"
-		a.c=4
-		a.ch2="e"
-		a.c2=10
+		a.ch=sub(chars,ch1,ch1)
+		a.ch2=sub(chars,ch2,ch2)
+		--a.ch="#"
+		--a.ch2="e"
+		a.c=flr(rnd(14))+1
+		a.c2=flr(rnd(14))+1
+		--a.c=4
+		--a.c2=10
 		a.m=0
 		add(actortypes,a)
 	
@@ -478,7 +507,7 @@ function state_i(s)
 		loadactors(room_w)
 		local n=flr(rnd(#adjective))+1
 		if p!=nil then
-			makemenu(10,105,120,20,"you are:",p.de," in a "..adjective[n].." "..places[flr(rnd(#places))+1]," feeling "..feelings[p.fe])
+			makemenu(10,105,120,20,"you are:",p.de," in a "..adjective[n].." "..places[flr(rnd(#places))+1]," feeling *"..feelings[p.fe].."*")
 		end
 		del(adjective,adjective[n])
 	end	
@@ -525,7 +554,7 @@ function statedraw(s)
 		print("title\npress button to start",30,30,7)
 	end
 	if s==1 then
-		rectfill(cam[1],-2+cellh+cam[2],16*cellw-1+cam[1],16*cellh+cam[2],level+1)
+		rectfill(cam[1],-2+cellh+cam[2],16*cellw-1+cam[1],16*cellh+cam[2],level+1+levelc)
 		foreach(actors,drawactor)
 		rect(cam[1],-2+cellh+cam[2],16*cellw-1+cam[1],16*cellh+cam[2])
 		print("inventory:\n -potion",cam[1]+84,cam[2]+20,6)
