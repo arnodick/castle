@@ -28,7 +28,7 @@ function actortypes_i(l)
 	local ch1=flr(rnd(#chars))
 	local ch2=flr(rnd(#chars))
 	
-	levelc=flr(rnd(2))
+	levelc=flr(rnd(3))
 	
 	local a={}
 	a.ch="@"
@@ -554,7 +554,7 @@ function statedraw(s)
 		print("title\npress button to start",30,30,7)
 	end
 	if s==1 then
-		rectfill(cam[1],-2+cellh+cam[2],16*cellw-1+cam[1],16*cellh+cam[2],level+1+levelc)
+		rectfill(cam[1],-2+cellh+cam[2],16*cellw-1+cam[1],16*cellh+cam[2],level+levelc)
 		foreach(actors,drawactor)
 		rect(cam[1],-2+cellh+cam[2],16*cellw-1+cam[1],16*cellh+cam[2])
 		print("inventory:\n -potion",cam[1]+84,cam[2]+20,6)
