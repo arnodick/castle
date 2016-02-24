@@ -20,13 +20,16 @@ function debug_u()
 	if p!=nil then
 	debug_l[7]=p.x
 	debug_l[8]=p.y
+	debug_l[9]=actortypes[2].ch
+	debug_l[10]=actortypes[2].ch2
 	end
 end
 
 function actortypes_i(l)
-	chars="abcdefghijklmnopqrstuvwxys123456789!#%^*():;,.{}"
-	local ch1=flr(rnd(#chars))
-	local ch2=flr(rnd(#chars))
+	chars="abcdefghijklmnopqrstuvwxyz0123456789!#%^*():;,.{}"
+	--local ch1=flr(rnd(13))
+	local ch1=flr(rnd(#chars)+1)
+	local ch2=flr(rnd(#chars)+1)
 	
 	levelc=flr(rnd(3))
 	
@@ -44,7 +47,6 @@ function actortypes_i(l)
 		--terrainchar[4]="o"
 	
 		a={}
-		
 		a.ch=sub(chars,ch1,ch1)
 		a.ch2=sub(chars,ch2,ch2)
 		--a.ch="*"
@@ -223,6 +225,8 @@ function actortypes_i(l)
 	places[11]="aerie"
 	places[12]="strait"
 	places[13]="plateau"
+	places[14]="mountain"
+	places[15]="valley"
 end
 
 function rooms_i()
