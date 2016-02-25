@@ -4,7 +4,7 @@ __lua__
 --cash castle
 --by ashley pringle
 
-debug=false
+debug=true
 debug_l={}
 debug_l[4]=0
 
@@ -20,6 +20,8 @@ function debug_u()
 	if p!=nil then
 	debug_l[7]=p.x
 	debug_l[8]=p.y
+	end
+	if actortypes[2]!=nil then
 	debug_l[9]=actortypes[2].ch
 	debug_l[10]=actortypes[2].ch2
 	end
@@ -259,7 +261,7 @@ end
 
 function loadmap(rw,s)
 	room={}
-	reload()
+--	reload()
 	for a=1,rw do
 		room[a]={}
 		for b=1,rw do
@@ -272,18 +274,19 @@ function loadmap(rw,s)
 			loadsector(a,b,rooms[level][b*4+a],level)
 		end
 	end
-	for a=1,rw do
-		for b=1,rw do
-			mset(a-1,b-1,room[a][b])
-		end
-	end
-	room={}
+--	for a=1,rw do
+--		for b=1,rw do
+--			mset(a-1,b-1,room[a][b])
+--		end
+--	end
+--	room={}
 end
 
 function loadactors(r)
 	for b=1,r do
 		for a=1,r do
-			local cell=mget(a,b)
+			--local cell=mget(a,b)
+			local cell=room[a][b]
 			if cell>0 then
 				makeactor(cell,a,b)
 			end
@@ -426,7 +429,8 @@ function colactor(a,d,t)
 				moveactor(t,d)
 			else
 				sfx(1)
-				mset(t.x,t.y,0)
+--				mset(t.x,t.y,0)
+				room[t.x][t.y]=0
 				if t==p then
 					roomspawns[level]=false
 				end
@@ -444,10 +448,13 @@ function moveactor(a,d)
 
 		dire=actoroob(a,dire)
 		
-		if mget(a.x+dire[1],a.y+dire[2])==0 then
-			mset(a.x,a.y,0)
+--		if mget(a.x+dire[1],a.y+dire[2])==0 then
+--			mset(a.x,a.y,0)
+		if room[a.x+dire[1]][a.y+dire[2]]==0 then
+			room[a.x][a.y]=0
 			a.x+=dire[1] a.y+=dire[2]
-			mset(a.x,a.y,a.t)
+--			mset(a.x,a.y,a.t)
+			room[a.x][a.y]=a.t
 			a.secx=flr(a.x/sector_s)*sector_s*cellw
 			a.secy=flr(a.y/sector_s)*sector_s*cellh
 		else return true
