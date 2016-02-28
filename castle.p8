@@ -141,96 +141,100 @@ function actortypes_i(l)
 	
 	levelc=flr(rnd(3))
 	
+	local at={}
+	local style={}
+	style.ch="@"
+	style.c=7
+	style.m=1
+	add(at,style)
 	
+	style={}
+	style.ch="@"
+	style.c=7
+	style.m=1
+	add(at,style)
 	
-	local a={}
-	a.ch="@"
-	a.c=7
-	a.m=1
-	add(actortypes,a)
+	style={}
+	style.ch="@"
+	style.c=7
+	style.m=1
+	add(at,style)
+		
+	style={}
+	style.ch="@"
+	style.c=7
+	style.m=1
+	add(at,style)
 	
-	if l==0 then
-		--terrainchar={}
-		--terrainchar[1]="*"
-		--terrainchar[2]="s"
-		--terrainchar[3]="%"
-		--terrainchar[4]="o"
+	add(actortypes,at)
 	
-		a={}
-		a.ch=sub(chars,ch1,ch1)
-		a.ch2=sub(chars,ch2,ch2)
-		--a.ch="*"
-		--a.ch2="s"
-		a.c=flr(rnd(14))+1
-		a.c2=flr(rnd(14))+1
-		--a.c=2
-		--a.c2=11
-		a.m=0
-		add(actortypes,a)
+	at={}
+	style={}
+	style.ch=sub(chars,ch1,ch1)
+	style.ch2=sub(chars,ch2,ch2)
+	style.c=flr(rnd(14))+1
+	style.c2=flr(rnd(14))+1
+	style.m=0
+	add(at,style)
 	
-		a={}
-		a.ch="e"
-		a.c=12
-		a.m=2
-		add(actortypes,a)
-	end
-	if l==1 then
-		a={}
-		a.ch=sub(chars,ch1,ch1)
-		a.ch2=sub(chars,ch2,ch2)
-		--a.ch="^"
-		--a.ch2="i"
-		a.c=flr(rnd(14))+1
-		a.c2=flr(rnd(14))+1
-		--a.c=3
-		--a.c2=4
-		a.m=0
-		add(actortypes,a)
+	ch1=flr(rnd(#chars)+1)
+	ch2=flr(rnd(#chars)+1)
+	style={}
+	style.ch=sub(chars,ch1,ch1)
+	style.ch2=sub(chars,ch2,ch2)
+	style.c=flr(rnd(14))+1
+	style.c2=flr(rnd(14))+1
+	style.m=0
+	add(at,style)
 	
-		a={}
-		a.ch="*"
-		a.c=8
-		a.m=2
-		add(actortypes,a)
-	end
-	if l==2 then
-		a={}
-		a.ch=sub(chars,ch1,ch1)
-		a.ch2=sub(chars,ch2,ch2)
-		--a.ch="="
-		--a.ch2=";"
-		a.c=flr(rnd(14))+1
-		a.c2=flr(rnd(14))+1
-		--a.c=10
-		--a.c2=9
-		a.m=0
-		add(actortypes,a)
+	ch1=flr(rnd(#chars)+1)
+	ch2=flr(rnd(#chars)+1)
+	style={}
+	style.ch=sub(chars,ch1,ch1)
+	style.ch2=sub(chars,ch2,ch2)
+	style.c=flr(rnd(14))+1
+	style.c2=flr(rnd(14))+1
+	style.m=0
+	add(at,style)
 	
-		a={}
-		a.ch="q"
-		a.c=5
-		a.m=2
-		add(actortypes,a)		
-	end
-	if l==3 then
-		a={}
-		a.ch=sub(chars,ch1,ch1)
-		a.ch2=sub(chars,ch2,ch2)
-		--a.ch="#"
-		--a.ch2="e"
-		a.c=flr(rnd(14))+1
-		a.c2=flr(rnd(14))+1
-		--a.c=4
-		--a.c2=10
-		a.m=0
-		add(actortypes,a)
+	ch1=flr(rnd(#chars)+1)
+	ch2=flr(rnd(#chars)+1)
+	style={}
+	style.ch=sub(chars,ch1,ch1)
+	style.ch2=sub(chars,ch2,ch2)
+	style.c=flr(rnd(14))+1
+	style.c2=flr(rnd(14))+1
+	style.m=0
+	add(at,style)
 	
-		a={}
-		a.ch="z"
-		a.c=9
-		a.m=2
-		add(actortypes,a)		
-	end
+	add(actortypes,at)
+
+	at={}
+	style={}
+	style.ch="e"
+	style.c=12
+	style.m=2
+	add(at,style)
+	
+	style={}
+	style.ch="*"
+	style.c=8
+	style.m=2
+	add(at,style)
+	
+	style={}
+	style.ch="q"
+	style.c=5
+	style.m=2
+	add(at,style)
+	
+	style={}
+	style.ch="z"
+	style.c=9
+	style.m=2
+	add(at,style)
+	
+	add(actortypes,at)
 end
 
 function rooms_i(sa)
@@ -329,9 +333,9 @@ function drawactor(a)
 	if a.secx==cam[1] then 
 		if	a.secy==cam[2] then 
 			if a.t==2 then
-				print(actortypes[a.t].ch2,a.x*cellw+a.shakex,a.y*cellh+a.shakey,actortypes[2].c2)
+				print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex,a.y*cellh+a.shakey,actortypes[2][level+1].c2)
 			end
-			print(actortypes[a.t].ch,a.x*cellw+a.shakex,a.y*cellh+a.shakey,actortypes[a.t].c)
+			print(actortypes[a.t][level+1].ch,a.x*cellw+a.shakex,a.y*cellh+a.shakey,actortypes[a.t][level+1].c)
 		end
 	end
 --	print(a.x,a.x*cellw+cellw,a.y*cellh,a.c)
@@ -529,7 +533,7 @@ function levelchange(l)
 		add(actors,p)
 		add(actors.creatures,p)
 	end
-	actortypes_i(l)
+--	actortypes_i(l)
 	loadmap(room_w,sector_a)
 	loadactors(room_w)
 end
