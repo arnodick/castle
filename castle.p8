@@ -29,7 +29,6 @@ end
 
 function actortypes_i(l)
 	chars="abcdefghijklmnopqrstuvwxyz0123456789!#%^*():;,.{}"
-	--local ch1=flr(rnd(13))
 	local ch1=flr(rnd(#chars)+1)
 	local ch2=flr(rnd(#chars)+1)
 	
@@ -176,6 +175,7 @@ function actortypes_i(l)
 	adjective[26]="misunderstood"
 	adjective[27]="hairy"
 	adjective[28]="sartorial"
+	adjective[29]="swarthy"
 	
 	pronouns={}
 	pronouns[1]="half"
@@ -229,6 +229,7 @@ function actortypes_i(l)
 	places[13]="plateau"
 	places[14]="mountain"
 	places[15]="valley"
+	places[16]="spaceship"
 end
 
 function rooms_i()
@@ -238,7 +239,6 @@ function rooms_i()
 		rooms[b]={}
 		roomspawns[b]=true
 		for a=0,15 do
-			--rooms[b][a]=(a%4)
 			rooms[b][a]=flr(rnd(8))
 		end
 	end
@@ -261,7 +261,6 @@ end
 
 function loadmap(rw,s)
 	room={}
---	reload()
 	for a=1,rw do
 		room[a]={}
 		for b=1,rw do
@@ -270,22 +269,14 @@ function loadmap(rw,s)
 	end
 	for b=0,s-1 do
 		for a=0,s-1 do
-			--loadsector(a,b,flr(rnd(8)),level)
 			loadsector(a,b,rooms[level][b*4+a],level)
 		end
 	end
---	for a=1,rw do
---		for b=1,rw do
---			mset(a-1,b-1,room[a][b])
---		end
---	end
---	room={}
 end
 
 function loadactors(r)
 	for b=1,r do
 		for a=1,r do
-			--local cell=mget(a,b)
 			local cell=room[a][b]
 			if cell>0 then
 				makeactor(cell,a,b)
@@ -316,30 +307,22 @@ function makeactor(t,x,y)
 			a.pn="" if rnd(1)>=0.5 then a.pn=pronouns[flr(rnd(#pronouns))+1].."-" end
 			a.de=" a "..adjective[n].. " "..a.pn..species[flr(rnd(#species)+1)]
 			a.fe=flr(rnd(#feelings))+1
-			--a.fe=feelings[flr(rnd(#feelings))+1]
 			del(adjective,adjective[n])
 		end
 		a.hit=0
 		add(actors.creatures,a)
-	else
-		a.ch2="i"
-		a.c2=4
 	end
 	add(actors,a)
 	return a
 end
 
-function makemenu(x,y,w,h,m1,m2,m3,m4)
+function makemenu(x,y,w,h,me)
 	m={}
 	m.x=x
 	m.y=y
 	m.w=w
 	m.h=h
-	m.me={}
-	m.me[1]=m1
-	m.me[2]=m2
-	m.me[3]=m3
-	m.me[4]=m4
+	m.me=me
 	add(menus,m)
 end
 
@@ -347,7 +330,6 @@ function drawactor(a)
 	if a.secx==cam[1] then 
 		if	a.secy==cam[2] then 
 			if a.t==2 then
-				--print(a.ch2,a.x*cellw+a.shakex,a.y*cellh+a.shakey,a.c2)
 				print(actortypes[2].ch2,a.x*cellw+a.shakex,a.y*cellh+a.shakey,actortypes[2].c2)
 			end
 			print(actortypes[a.t].ch,a.x*cellw+a.shakex,a.y*cellh+a.shakey,actortypes[a.t].c)
@@ -359,7 +341,7 @@ end
 
 function drawmenu(m)
 --	rect(m.x,m.y,m.x+m.w,m.y+m.h,7)
-	for a=0,3 do
+	for a=0,#m.me-1 do
 		print(m.me[a+1],m.x+cam[1],m.y+a*cellh+cam[2],6)
 	end
 end
@@ -429,7 +411,6 @@ function colactor(a,d,t)
 				moveactor(t,d)
 			else
 				sfx(1)
---				mset(t.x,t.y,0)
 				room[t.x][t.y]=0
 				if t==p then
 					roomspawns[level]=false
@@ -448,12 +429,9 @@ function moveactor(a,d)
 
 		dire=actoroob(a,dire)
 		
---		if mget(a.x+dire[1],a.y+dire[2])==0 then
---			mset(a.x,a.y,0)
 		if room[a.x+dire[1]][a.y+dire[2]]==0 then
 			room[a.x][a.y]=0
 			a.x+=dire[1] a.y+=dire[2]
---			mset(a.x,a.y,a.t)
 			room[a.x][a.y]=a.t
 			a.secx=flr(a.x/sector_s)*sector_s*cellw
 			a.secy=flr(a.y/sector_s)*sector_s*cellh
@@ -518,7 +496,12 @@ function state_i(s)
 		loadactors(room_w)
 		local n=flr(rnd(#adjective))+1
 		if p!=nil then
-			makemenu(10,105,120,20,"you are:",p.de," in a "..adjective[n].." "..places[flr(rnd(#places))+1]," feeling *"..feelings[p.fe].."*")
+			local mess={}
+			mess[1]="you are:"
+			mess[2]=p.de
+			mess[3]=" in a "..adjective[n].." "..places[flr(rnd(#places))+1]
+			mess[4]=" feeling *"..feelings[p.fe].."*"
+			makemenu(10,105,120,20,mess)
 		end
 		del(adjective,adjective[n])
 	end	
@@ -571,9 +554,6 @@ function statedraw(s)
 		print("inventory:\n -potion",cam[1]+84,cam[2]+20,6)
 		print("  vending",cam[1]+84,cam[2]+40,6)
 		print("  machine",cam[1]+84,cam[2]+47,6)
---		print("you are a jaunty half-bear",cam[1]+5,cam[2]+106,6)
---		print("you are in a gibbous marsh",cam[1]+5,cam[2]+113,6)
---		print("you are feeling *lugubrious*",cam[1]+5,cam[2]+120,6)
 		foreach(menus,drawmenu)
 	end
 --		if debug then print(xs,16*cellw+cellw,16*cellh+cellh) end
