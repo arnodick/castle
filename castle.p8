@@ -24,8 +24,8 @@ function debug_u()
 	debug_l[10]="lvl="..level
 	end
 	if actortypes[2]!=nil then
-	debug_l[11]=actortypes[2].ch
-	debug_l[12]=actortypes[2].ch2
+	debug_l[11]=actortypes[2][level+1].ch
+	debug_l[12]=actortypes[2][level+1].ch2
 	end
 end
 
@@ -136,77 +136,35 @@ end
 
 function actortypes_i(l)
 	chars="abcdefghijklmnopqrstuvwxyz0123456789!#%^*():;,.{}"
-	local ch1=flr(rnd(#chars)+1)
-	local ch2=flr(rnd(#chars)+1)
+	local ch1=0
+	local ch2=0
 	
 	levelc=flr(rnd(3))
 	
 	local at={}
 	local style={}
-	style.ch="@"
-	style.c=7
-	style.m=1
-	add(at,style)
 	
-	style={}
-	style.ch="@"
-	style.c=7
-	style.m=1
-	add(at,style)
-	
-	style={}
-	style.ch="@"
-	style.c=7
-	style.m=1
-	add(at,style)
-		
-	style={}
-	style.ch="@"
-	style.c=7
-	style.m=1
-	add(at,style)
-	
+	for a=1,4 do
+		style={}
+		style.ch="@"
+		style.c=7+a
+		style.m=1
+		add(at,style)
+	end
 	add(actortypes,at)
 	
 	at={}
-	style={}
-	style.ch=sub(chars,ch1,ch1)
-	style.ch2=sub(chars,ch2,ch2)
-	style.c=flr(rnd(14))+1
-	style.c2=flr(rnd(14))+1
-	style.m=0
-	add(at,style)
-	
-	ch1=flr(rnd(#chars)+1)
-	ch2=flr(rnd(#chars)+1)
-	style={}
-	style.ch=sub(chars,ch1,ch1)
-	style.ch2=sub(chars,ch2,ch2)
-	style.c=flr(rnd(14))+1
-	style.c2=flr(rnd(14))+1
-	style.m=0
-	add(at,style)
-	
-	ch1=flr(rnd(#chars)+1)
-	ch2=flr(rnd(#chars)+1)
-	style={}
-	style.ch=sub(chars,ch1,ch1)
-	style.ch2=sub(chars,ch2,ch2)
-	style.c=flr(rnd(14))+1
-	style.c2=flr(rnd(14))+1
-	style.m=0
-	add(at,style)
-	
-	ch1=flr(rnd(#chars)+1)
-	ch2=flr(rnd(#chars)+1)
-	style={}
-	style.ch=sub(chars,ch1,ch1)
-	style.ch2=sub(chars,ch2,ch2)
-	style.c=flr(rnd(14))+1
-	style.c2=flr(rnd(14))+1
-	style.m=0
-	add(at,style)
-	
+	for a=1,4 do
+		ch1=flr(rnd(#chars)+1)
+		ch2=flr(rnd(#chars)+1)
+		style={}
+		style.ch=sub(chars,ch1,ch1)
+		style.ch2=sub(chars,ch2,ch2)
+		style.c=flr(rnd(14))+1
+		style.c2=flr(rnd(14))+1
+		style.m=0
+		add(at,style)
+	end
 	add(actortypes,at)
 
 	at={}
@@ -368,7 +326,7 @@ function actoroob(a,dire)
 end
 
 function movetype(a)
-	local m=actortypes[a.t].m
+	local m=actortypes[a.t][level+1].m
 	if m==1 then
 		if a.t==1 then a.steps+=1 end
 		return btn()
@@ -480,6 +438,19 @@ function shakeactor(a)
 	end
 end
 
+function levelchange(l)
+	actors={}
+	actors.creatures={}
+	if players[1]!=nil then
+		p=players[1]
+		add(actors,p)
+		add(actors.creatures,p)
+	end
+--	actortypes_i(l)
+	loadmap(room_w,sector_a)
+	loadactors(room_w)
+end
+
 function state_i(s)
 	timer=0
 	cam[1]=0 cam[2]=0
@@ -523,19 +494,6 @@ function state_i(s)
 		end
 		--del(adjective,adjective[n])
 	end
-end
-
-function levelchange(l)
-	actors={}
-	actors.creatures={}
-	if players[1]!=nil then
-		p=players[1]
-		add(actors,p)
-		add(actors.creatures,p)
-	end
---	actortypes_i(l)
-	loadmap(room_w,sector_a)
-	loadactors(room_w)
 end
 
 function stateupdate(s)
