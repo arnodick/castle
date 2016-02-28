@@ -135,64 +135,43 @@ function words()
 end
 
 function actortypes_i(l)
-	chars="abcdefghijklmnopqrstuvwxyz0123456789!#%^*():;,.{}"
-	local ch1=0
-	local ch2=0
+	chars="@abcdefghijklmnopqrstuvwxyz0123456789!#%^*():;,.{}"
+	local as={}
+	
+	for a=1,3 do
+		as[a]={}
+		for b=1,4 do as[a][b]={} end
+	end
+	
+	--player attributes
+	for a=1,4 do
+		as[1][a].ch=1 as[1][a].c=7 as[1][a].m=1
+	end
+	--terrain attributes
+	for a=1,4 do
+		as[2][a].ch=flr(rnd(#chars)+1) as[2][a].c=flr(rnd(14))+1 as[2][a].m=0
+	end
+	--enemy attributes
+	for a=1,4 do	
+		as[3][a].ch=6  as[3][a].c=12 as[3][a].m=2
+	end
 	
 	levelc=flr(rnd(3))
 	
 	local at={}
 	local style={}
 	
-	for a=1,4 do
-		style={}
-		style.ch="@"
-		style.c=7+a
-		style.m=1
-		add(at,style)
+	for a=1,3 do
+		at={}
+		for b=1,4 do
+			style={}
+			style.ch=sub(chars,as[a][b].ch,as[a][b].ch)
+			style.c=as[a][b].c
+			style.m=as[a][b].m
+			add(at,style)
+		end
+		add(actortypes,at)
 	end
-	add(actortypes,at)
-	
-	at={}
-	for a=1,4 do
-		ch1=flr(rnd(#chars)+1)
-		ch2=flr(rnd(#chars)+1)
-		style={}
-		style.ch=sub(chars,ch1,ch1)
-		style.ch2=sub(chars,ch2,ch2)
-		style.c=flr(rnd(14))+1
-		style.c2=flr(rnd(14))+1
-		style.m=0
-		add(at,style)
-	end
-	add(actortypes,at)
-
-	at={}
-	style={}
-	style.ch="e"
-	style.c=12
-	style.m=2
-	add(at,style)
-	
-	style={}
-	style.ch="*"
-	style.c=8
-	style.m=2
-	add(at,style)
-	
-	style={}
-	style.ch="q"
-	style.c=5
-	style.m=2
-	add(at,style)
-	
-	style={}
-	style.ch="z"
-	style.c=9
-	style.m=2
-	add(at,style)
-	
-	add(actortypes,at)
 end
 
 function rooms_i(sa)
@@ -291,7 +270,7 @@ function drawactor(a)
 	if a.secx==cam[1] then 
 		if	a.secy==cam[2] then 
 			if a.t==2 then
-				print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex,a.y*cellh+a.shakey,actortypes[2][level+1].c2)
+--				print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex,a.y*cellh+a.shakey,actortypes[2][level+1].c2)
 			end
 			print(actortypes[a.t][level+1].ch,a.x*cellw+a.shakex,a.y*cellh+a.shakey,actortypes[a.t][level+1].c)
 		end
