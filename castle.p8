@@ -28,125 +28,25 @@ function debug_u()
 	end
 end
 
-function actortypes_i(l)
-	chars="abcdefghijklmnopqrstuvwxyz0123456789!#%^*():;,.{}"
-	local ch1=flr(rnd(#chars)+1)
-	local ch2=flr(rnd(#chars)+1)
+function words()
+	feelings={}
+	feelings[1]="lugubrious"
+	feelings[2]="winsome"
+	feelings[3]="ineffable"
+	feelings[4]="morose"
+	feelings[5]="arrested"
+	feelings[6]="polite"
+	feelings[7]="obvious"
+	feelings[8]="trite"	
+	feelings[9]="prideful"
+	feelings[10]="forward"
+	feelings[11]="oblivious"
+	feelings[12]="artful"
+	feelings[13]="princessly"
+	feelings[14]="angelic"
+	feelings[15]="friendly"
+	feelings[16]="ostentatious"
 	
-	levelc=flr(rnd(3))
-	
-	local a={}
-	a.ch="@"
-	a.c=7
-	a.m=1
-	add(actortypes,a)
-	
-	if l==0 then
-		--terrainchar={}
-		--terrainchar[1]="*"
-		--terrainchar[2]="s"
-		--terrainchar[3]="%"
-		--terrainchar[4]="o"
-	
-		a={}
-		a.ch=sub(chars,ch1,ch1)
-		a.ch2=sub(chars,ch2,ch2)
-		--a.ch="*"
-		--a.ch2="s"
-		a.c=flr(rnd(14))+1
-		a.c2=flr(rnd(14))+1
-		--a.c=2
-		--a.c2=11
-		a.m=0
-		add(actortypes,a)
-	
-		a={}
-		a.ch="e"
-		a.c=12
-		a.m=2
-		add(actortypes,a)
-		
-		feelings={}
-		feelings[1]="lugubrious"
-		feelings[2]="winsome"
-		feelings[3]="ineffable"
-		feelings[4]="morose"
-	end
-	if l==1 then
-		a={}
-		a.ch=sub(chars,ch1,ch1)
-		a.ch2=sub(chars,ch2,ch2)
-		--a.ch="^"
-		--a.ch2="i"
-		a.c=flr(rnd(14))+1
-		a.c2=flr(rnd(14))+1
-		--a.c=3
-		--a.c2=4
-		a.m=0
-		add(actortypes,a)
-	
-		a={}
-		a.ch="*"
-		a.c=8
-		a.m=2
-		add(actortypes,a)
-		
-		feelings={}
-		feelings[1]="arrested"
-		feelings[2]="polite"
-		feelings[3]="obvious"
-		feelings[4]="trite"
-	end
-	if l==2 then
-		a={}
-		a.ch=sub(chars,ch1,ch1)
-		a.ch2=sub(chars,ch2,ch2)
-		--a.ch="="
-		--a.ch2=";"
-		a.c=flr(rnd(14))+1
-		a.c2=flr(rnd(14))+1
-		--a.c=10
-		--a.c2=9
-		a.m=0
-		add(actortypes,a)
-	
-		a={}
-		a.ch="q"
-		a.c=5
-		a.m=2
-		add(actortypes,a)
-		
-		feelings={}
-		feelings[1]="prideful"
-		feelings[2]="forward"
-		feelings[3]="oblivious"
-		feelings[4]="artful"
-	end
-	if l==3 then
-		a={}
-		a.ch=sub(chars,ch1,ch1)
-		a.ch2=sub(chars,ch2,ch2)
-		--a.ch="#"
-		--a.ch2="e"
-		a.c=flr(rnd(14))+1
-		a.c2=flr(rnd(14))+1
-		--a.c=4
-		--a.c2=10
-		a.m=0
-		add(actortypes,a)
-	
-		a={}
-		a.ch="z"
-		a.c=9
-		a.m=2
-		add(actortypes,a)
-		
-		feelings={}
-		feelings[1]="princessly"
-		feelings[2]="angelic"
-		feelings[3]="friendly"
-		feelings[4]="ostentatious"
-	end
 	adjective={}
 	adjective[1]="jaunty"
 	adjective[2]="gibbous"
@@ -233,6 +133,103 @@ function actortypes_i(l)
 	places[16]="spaceship"
 end
 
+function actortypes_i(l)
+	chars="abcdefghijklmnopqrstuvwxyz0123456789!#%^*():;,.{}"
+	local ch1=flr(rnd(#chars)+1)
+	local ch2=flr(rnd(#chars)+1)
+	
+	levelc=flr(rnd(3))
+	
+	local a={}
+	a.ch="@"
+	a.c=7
+	a.m=1
+	add(actortypes,a)
+	
+	if l==0 then
+		--terrainchar={}
+		--terrainchar[1]="*"
+		--terrainchar[2]="s"
+		--terrainchar[3]="%"
+		--terrainchar[4]="o"
+	
+		a={}
+		a.ch=sub(chars,ch1,ch1)
+		a.ch2=sub(chars,ch2,ch2)
+		--a.ch="*"
+		--a.ch2="s"
+		a.c=flr(rnd(14))+1
+		a.c2=flr(rnd(14))+1
+		--a.c=2
+		--a.c2=11
+		a.m=0
+		add(actortypes,a)
+	
+		a={}
+		a.ch="e"
+		a.c=12
+		a.m=2
+		add(actortypes,a)
+	end
+	if l==1 then
+		a={}
+		a.ch=sub(chars,ch1,ch1)
+		a.ch2=sub(chars,ch2,ch2)
+		--a.ch="^"
+		--a.ch2="i"
+		a.c=flr(rnd(14))+1
+		a.c2=flr(rnd(14))+1
+		--a.c=3
+		--a.c2=4
+		a.m=0
+		add(actortypes,a)
+	
+		a={}
+		a.ch="*"
+		a.c=8
+		a.m=2
+		add(actortypes,a)
+	end
+	if l==2 then
+		a={}
+		a.ch=sub(chars,ch1,ch1)
+		a.ch2=sub(chars,ch2,ch2)
+		--a.ch="="
+		--a.ch2=";"
+		a.c=flr(rnd(14))+1
+		a.c2=flr(rnd(14))+1
+		--a.c=10
+		--a.c2=9
+		a.m=0
+		add(actortypes,a)
+	
+		a={}
+		a.ch="q"
+		a.c=5
+		a.m=2
+		add(actortypes,a)		
+	end
+	if l==3 then
+		a={}
+		a.ch=sub(chars,ch1,ch1)
+		a.ch2=sub(chars,ch2,ch2)
+		--a.ch="#"
+		--a.ch2="e"
+		a.c=flr(rnd(14))+1
+		a.c2=flr(rnd(14))+1
+		--a.c=4
+		--a.c2=10
+		a.m=0
+		add(actortypes,a)
+	
+		a={}
+		a.ch="z"
+		a.c=9
+		a.m=2
+		add(actortypes,a)		
+	end
+end
+
 function rooms_i(sa)
 	rooms={}
 	roomspawns={}
@@ -309,7 +306,7 @@ function makeactor(t,x,y)
 		a.pn="" if rnd(1)>=0.5 then a.pn=pronouns[flr(rnd(#pronouns))+1].."-" end
 		a.de=" a "..adjective[n].. " "..a.pn..species[flr(rnd(#species)+1)]
 		a.fe=flr(rnd(#feelings))+1
-		del(adjective,adjective[n])
+		--del(adjective,adjective[n])
 	end
 	add(actors,a)
 	return a
@@ -414,6 +411,7 @@ function colactor(a,d,t)
 				room[t.x][t.y]=0
 				if t==p then
 					roomspawns[level]=false
+					players={}
 				end
 				del(actors,t)
 				del(actors.creatures,t)
@@ -480,20 +478,24 @@ function state_i(s)
 	cam[1]=0 cam[2]=0
 	reset()
 	
+	if s==0 then
+		players={}
+		add(players,makeactor(1,flr(rnd(room_w))+1,flr(rnd(room_w))+1))
+	end
 	if s==1 then
 		actortypes_i(level)
-		sector_s=16
-		sector_a=4 --6 is max here!
-		room_w=sector_s*sector_a
+--		sector_s=16
+--		sector_a=4 --6 is max here!
+--		room_w=sector_s*sector_a
 		rooms_i(sector_a)
 		loadmap(room_w,sector_a)
-		if players[1]==nil then
-			add(players,makeactor(1,flr(rnd(room_w))+1,flr(rnd(room_w))+1))
-			p=players[1]
-		else
+		if players[1]!=nil then
 			p=players[1]
 			add(actors,p)
 			add(actors.creatures,p)
+		--else
+		--	p=makeactor(1,flr(rnd(room_w))+1,flr(rnd(room_w))+1)
+		--	add(players,p)
 		end
 		--if roomspawns[level] then
 		--	p=players[1]
@@ -512,7 +514,7 @@ function state_i(s)
 			mess[4]=" feeling *"..feelings[p.fe].."*"
 			makemenu(10,105,120,20,mess)
 		end
-		del(adjective,adjective[n])
+		--del(adjective,adjective[n])
 	end
 end
 
@@ -575,11 +577,16 @@ function statedraw(s)
 end
 
 function _init()
-	state=0
 	cellw=5 cellh=6
+	sector_s=16
+	sector_a=4 --6 is max here!
+	room_w=sector_s*sector_a
+
 	cam={}
+	words()
+	
 	level=0
-	players={}
+	state=0
 	state_i(state)
 end
 
