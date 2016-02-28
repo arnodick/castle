@@ -20,10 +20,11 @@ function debug_u()
 	if p!=nil then
 	debug_l[7]=p.x
 	debug_l[8]=p.y
+	debug_l[9]=p.steps
 	end
 	if actortypes[2]!=nil then
-	debug_l[9]=actortypes[2].ch
-	debug_l[10]=actortypes[2].ch2
+	debug_l[10]=actortypes[2].ch
+	debug_l[11]=actortypes[2].ch2
 	end
 end
 
@@ -232,13 +233,13 @@ function actortypes_i(l)
 	places[16]="spaceship"
 end
 
-function rooms_i()
+function rooms_i(sa)
 	rooms={}
 	roomspawns={}
 	for b=0,3 do
 		rooms[b]={}
 		roomspawns[b]=true
-		for a=0,15 do
+		for a=0,sa*sa-1 do
 			rooms[b][a]=flr(rnd(8))
 		end
 	end
@@ -294,23 +295,21 @@ function makeactor(t,x,y)
 	a.secy=flr(a.y/sector_s)*sector_s*cellh
 	a.shakex=0
 	a.shakey=0
-	if a.t!=2 then
-	--	if a.t==1 then
-			
-	--	end
+	if a.t==3 or a.t==1 then
 		a.attack=0
 		a.attackdir=0
 		a.attackpwr=3
-		if #actors==0 then
-			a.attackpwr=2
-			local n=flr(rnd(#adjective))+1
-			a.pn="" if rnd(1)>=0.5 then a.pn=pronouns[flr(rnd(#pronouns))+1].."-" end
-			a.de=" a "..adjective[n].. " "..a.pn..species[flr(rnd(#species)+1)]
-			a.fe=flr(rnd(#feelings))+1
-			del(adjective,adjective[n])
-		end
 		a.hit=0
 		add(actors.creatures,a)
+	end
+	if a.t==1 then
+		a.steps=0
+		a.attackpwr=2
+		local n=flr(rnd(#adjective))+1
+		a.pn="" if rnd(1)>=0.5 then a.pn=pronouns[flr(rnd(#pronouns))+1].."-" end
+		a.de=" a "..adjective[n].. " "..a.pn..species[flr(rnd(#species)+1)]
+		a.fe=flr(rnd(#feelings))+1
+		del(adjective,adjective[n])
 	end
 	add(actors,a)
 	return a
@@ -330,7 +329,7 @@ function drawactor(a)
 	if a.secx==cam[1] then 
 		if	a.secy==cam[2] then 
 			if a.t==2 then
-				print(actortypes[2].ch2,a.x*cellw+a.shakex,a.y*cellh+a.shakey,actortypes[2].c2)
+				print(actortypes[a.t].ch2,a.x*cellw+a.shakex,a.y*cellh+a.shakey,actortypes[2].c2)
 			end
 			print(actortypes[a.t].ch,a.x*cellw+a.shakex,a.y*cellh+a.shakey,actortypes[a.t].c)
 		end
@@ -367,6 +366,7 @@ end
 function movetype(a)
 	local m=actortypes[a.t].m
 	if m==1 then
+		if a.t==1 then a.steps+=1 end
 		return btn()
 --		return btnp()
 	end
@@ -483,12 +483,21 @@ function state_i(s)
 	if s==1 then
 		actortypes_i(level)
 		sector_s=16
-		sector_a=4
+		sector_a=4 --6 is max here!
 		room_w=sector_s*sector_a
+		rooms_i(sector_a)
 		loadmap(room_w,sector_a)
-		if roomspawns[level] then
-			p=makeactor(1,5,5)
+		if players[1]==nil then
+			add(players,makeactor(1,flr(rnd(room_w))+1,flr(rnd(room_w))+1))
+			p=players[1]
+		else
+			p=players[1]
+			add(actors,p)
+			add(actors.creatures,p)
 		end
+		--if roomspawns[level] then
+		--	p=players[1]
+		--end
 		if p!=nil then
 		cam[1]=flr(p.x/sector_s)*sector_s*cellw
 		cam[2]=flr(p.y/sector_s)*sector_s*cellh
@@ -504,7 +513,7 @@ function state_i(s)
 			makemenu(10,105,120,20,mess)
 		end
 		del(adjective,adjective[n])
-	end	
+	end
 end
 
 function stateupdate(s)
@@ -532,7 +541,7 @@ function stateupdate(s)
 		end
 		if btnp(5) then
 			state=0
-			state_i(0)
+			state_i(state)
 		end
 --		foreach(menus,domenu)
 	end
@@ -569,9 +578,8 @@ function _init()
 	state=0
 	cellw=5 cellh=6
 	cam={}
-	menus={}
 	level=0
-	rooms_i()	
+	players={}
 	state_i(state)
 end
 
