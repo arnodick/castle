@@ -241,11 +241,13 @@ function makeactor(t,x,y)
 	a.secy=flr(a.y/sector_s)*sector_s*cellh
 	a.shakex=0
 	a.shakey=0
+	a.status=a.x
 	if a.t==3 or a.t==1 then
 		a.attack=0
 		a.attackdir=0
 		a.attackpwr=3
 		a.hit=0
+		--a.status="zorse"
 		add(actors.creatures,a)
 	end
 	if a.t==1 then
@@ -255,6 +257,14 @@ function makeactor(t,x,y)
 		a.pn="" if rnd(1)>=0.5 then a.pn=pronouns[flr(rnd(#pronouns))+1].."-" end
 		a.de=" a "..adjective[n].. " "..a.pn..species[flr(rnd(#species)+1)]
 		a.fe=flr(rnd(#feelings))+1
+		a.target=nil
+		
+		n=flr(rnd(#adjective))+1
+		a.status={}
+		a.status[1]="you are:"
+		a.status[2]=a.de
+		a.status[3]=" in a "..adjective[n].." "..places[flr(rnd(#places))+1]
+		a.status[4]=" feeling *"..feelings[a.fe].."*"
 		--del(adjective,adjective[n])
 	end
 	add(actors,a)
@@ -343,7 +353,8 @@ end
 
 function colactor(a,d,t)
 	local dire=direction(d)
-
+	--gotta put this where it chec pos!
+	if a.t==1 then p.target=t.status end
 	if t.t!=2 then
 		if t!=a then
 		if a.x+dire[1]==t.x and a.y+dire[2]==t.y then
@@ -391,6 +402,7 @@ end
 function doactor(a)
 	if a.hit==0 then
 		local d=movetype(a)
+		a.target=nil
 		if moveactor(a,d) then
 			for target in all(actors.creatures) do 
 				colactor(a,d,target)
@@ -402,6 +414,20 @@ function doactor(a)
 end
 
 function domenu(m)
+	if btnp(4) then
+		if debug then
+			m.me={}
+			m.me[1]="new level !!"
+		end
+	elseif btn() then
+		if p.target!=nil then
+			m.me={}
+			m.me[1]="you face:"
+			m.me[2]=" a "..p.target
+		else
+			m.me=p.status
+		end
+	end
 --	m.x=m.x+cam[1]
 --	m.y=m.y+cam[2]
 end
@@ -469,12 +495,8 @@ function state_i(s)
 		loadactors(room_w)
 		local n=flr(rnd(#adjective))+1
 		if p!=nil then
-			local mess={}
-			mess[1]="you are:"
-			mess[2]=p.de
-			mess[3]=" in a "..adjective[n].." "..places[flr(rnd(#places))+1]
-			mess[4]=" feeling *"..feelings[p.fe].."*"
-			makemenu(10,105,120,20,mess)
+
+			makemenu(10,105,120,20,p.status)
 		end
 		--del(adjective,adjective[n])
 	end
@@ -491,6 +513,7 @@ function stateupdate(s)
 		if btnp()>0 then
 		--if timer%4==0 then
 			foreach(actors.creatures,doactor)
+			foreach(menus,domenu)
 			debug_l[4]=0
 		end
 		foreach(actors.creatures,shakeactor)
@@ -498,11 +521,13 @@ function stateupdate(s)
 		cam[1]=flr(p.x/sector_s)*sector_s*cellw
 		cam[2]=flr(p.y/sector_s)*sector_s*cellh
 		end
+		if debug then
 		if btnp(4) then
 			level+=1
 			if level>3 then level=0 end
 			levelchange(level)
 --			state_i(state)
+		end
 		end
 		if btnp(5) then
 			state=0
