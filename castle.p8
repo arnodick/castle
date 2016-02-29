@@ -149,7 +149,8 @@ function actortypes_i(l)
 	end
 	--terrain attributes
 	for a=1,4 do
-		as[2][a].ch=flr(rnd(#chars)+1) as[2][a].c=flr(rnd(14))+1 as[2][a].m=0
+		as[2][a].ch=flr(rnd(#chars)+1)  as[2][a].c=flr(rnd(14))+1 as[2][a].m=0
+		as[2][a].ch2=flr(rnd(#chars)+1) as[2][a].c2=flr(rnd(14))+1
 	end
 	--enemy attributes
 	for a=1,4 do	
@@ -168,6 +169,10 @@ function actortypes_i(l)
 			style.ch=sub(chars,as[a][b].ch,as[a][b].ch)
 			style.c=as[a][b].c
 			style.m=as[a][b].m
+			if a==2 then
+				style.ch2=sub(chars,as[a][b].ch2,as[a][b].ch2)
+				style.c2=as[a][b].c2
+			end
 			add(at,style)
 		end
 		add(actortypes,at)
@@ -270,7 +275,7 @@ function drawactor(a)
 	if a.secx==cam[1] then 
 		if	a.secy==cam[2] then 
 			if a.t==2 then
---				print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex,a.y*cellh+a.shakey,actortypes[2][level+1].c2)
+				print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex,a.y*cellh+a.shakey,actortypes[2][level+1].c2)
 			end
 			print(actortypes[a.t][level+1].ch,a.x*cellw+a.shakex,a.y*cellh+a.shakey,actortypes[a.t][level+1].c)
 		end
