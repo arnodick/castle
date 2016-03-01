@@ -80,16 +80,18 @@ function words()
 	adjective[29]="swarthy"
 	
 	pronouns={}
-	pronouns[1]="half"
-	pronouns[2]="demi"
-	pronouns[3]="hyper"
-	pronouns[4]="aqua"
-	pronouns[5]="anti"
-	pronouns[6]="meta"
-	pronouns[7]="robo"
-	pronouns[8]="hoary"
-	pronouns[9]="gnar"
-	pronouns[10]="were"
+	pronouns[1]="half-"
+	pronouns[2]="demi-"
+	pronouns[3]="hyper-"
+	pronouns[4]="aqua-"
+	pronouns[5]="anti-"
+	pronouns[6]="meta-"
+	pronouns[7]="robo-"
+	pronouns[8]="hoary-"
+	pronouns[9]="gnar-"
+	pronouns[10]="were-"
+	pronouns[11]="semi-"
+	pronouns[12]=""
 	
 	species={}
 	species[1]="bear"
@@ -144,17 +146,36 @@ function actortypes_i(l)
 	end
 	
 	--player attributes
+	local ad=flr(rnd(#adjective))+1
+	local pn=#pronouns if rnd(1)<=0.5 then pn=flr(rnd(#pronouns))+1 end
+	local sp=flr(rnd(#species))+1
+	local fe=flr(rnd(#feelings))+1
 	for a=1,4 do
 		as[1][a].ch=1 as[1][a].c=7 as[1][a].m=1
+		as[1][a].ad=ad
+		as[1][a].pn=pn
+		as[1][a].sp=sp
+		as[1][a].fe=fe
 	end
 	--terrain attributes
 	for a=1,4 do
 		as[2][a].ch=flr(rnd(#chars)+1)  as[2][a].c=flr(rnd(14))+1 as[2][a].m=0
 		as[2][a].ch2=flr(rnd(#chars)+1) as[2][a].c2=flr(rnd(14))+1
+		as[2][a].ad=flr(rnd(#adjective))+1
+		as[2][a].pn=#pronouns if rnd(1)<=0.5 then as[2][a].pn=flr(rnd(#pronouns))+1 end
+		as[2][a].sp=flr(rnd(#species))+1
+		as[2][a].fe=flr(rnd(#feelings))+1
+
+--		as[2][a].status="thing"
 	end
 	--enemy attributes
 	for a=1,4 do	
 		as[3][a].ch=6  as[3][a].c=12 as[3][a].m=2
+--		as[3][a].status="sorze"
+		as[3][a].ad=flr(rnd(#adjective))+1
+		as[3][a].pn=#pronouns if rnd(1)<=0.5 then as[2][a].pn=flr(rnd(#pronouns))+1 end
+		as[3][a].sp=flr(rnd(#species))+1
+		as[3][a].fe=flr(rnd(#feelings))+1
 	end
 	
 	levelc=flr(rnd(3))
@@ -162,6 +183,7 @@ function actortypes_i(l)
 	local at={}
 	local style={}
 	
+	--even need this? just set actortypes instead of as[][] above
 	for a=1,3 do
 		at={}
 		for b=1,4 do
@@ -169,6 +191,12 @@ function actortypes_i(l)
 			style.ch=sub(chars,as[a][b].ch,as[a][b].ch)
 			style.c=as[a][b].c
 			style.m=as[a][b].m
+			style.ad=as[a][b].ad
+			style.pn=as[a][b].pn
+			style.sp=as[a][b].sp
+			style.fe=as[a][b].fe
+--			style.m=as[a][b].m
+--			style.status=as[a][b].status
 			if a==2 then
 				style.ch2=sub(chars,as[a][b].ch2,as[a][b].ch2)
 				style.c2=as[a][b].c2
@@ -241,30 +269,34 @@ function makeactor(t,x,y)
 	a.secy=flr(a.y/sector_s)*sector_s*cellh
 	a.shakex=0
 	a.shakey=0
-	a.status=a.x
+--	a.status={}
+--	a.status[1]="thing"
 	if a.t==3 or a.t==1 then
 		a.attack=0
 		a.attackdir=0
 		a.attackpwr=3
 		a.hit=0
-		--a.status="zorse"
+		--a.status[1]="zorse"
 		add(actors.creatures,a)
 	end
 	if a.t==1 then
 		a.steps=0
 		a.attackpwr=2
-		local n=flr(rnd(#adjective))+1
-		a.pn="" if rnd(1)>=0.5 then a.pn=pronouns[flr(rnd(#pronouns))+1].."-" end
-		a.de=" a "..adjective[n].. " "..a.pn..species[flr(rnd(#species)+1)]
-		a.fe=flr(rnd(#feelings))+1
+--		a.ad=flr(rnd(#adjective))+1
+		--a="" if rnd(1)>=0.5 then a.pn=pronouns[flr(rnd(#pronouns))+1].."-" end
+--		a.pn=#pronouns if rnd(1)<=0.5 then a.pn=flr(rnd(#pronouns))+1 end
+		--a.de=" a "..adjective[n].. " "..a.pn..species[flr(rnd(#species)+1)]
+--		a.sp=flr(rnd(#species))+1
+--		a.fe=flr(rnd(#feelings))+1
+--		a.target={}
 		a.target=nil
 		
-		n=flr(rnd(#adjective))+1
-		a.status={}
-		a.status[1]="you are:"
-		a.status[2]=a.de
-		a.status[3]=" in a "..adjective[n].." "..places[flr(rnd(#places))+1]
-		a.status[4]=" feeling *"..feelings[a.fe].."*"
+		--n=flr(rnd(#adjective))+1
+		--a.status={}
+		--a.status[1]="you are:"
+		--a.status[2]=a.de
+		--a.status[3]=" in a "..adjective[n].." "..places[flr(rnd(#places))+1]
+		--a.status[4]=" feeling *"..feelings[a.fe].."*"
 		--del(adjective,adjective[n])
 	end
 	add(actors,a)
@@ -277,7 +309,8 @@ function makemenu(x,y,w,h,me)
 	m.y=y
 	m.w=w
 	m.h=h
-	m.me=me
+	local mess={}
+	m.me=mess
 	add(menus,m)
 end
 
@@ -354,10 +387,11 @@ end
 function colactor(a,d,t)
 	local dire=direction(d)
 	--gotta put this where it chec pos!
-	if a.t==1 then p.target=t.status end
-	if t.t!=2 then
+	--if t.t!=2 then
 		if t!=a then
 		if a.x+dire[1]==t.x and a.y+dire[2]==t.y then
+			--if a.t==1 then
+			--a.target=t.status --end
 			sfx(0)
 			for b=1,2 do
 				if dire[b]!=0 then a.attackdir=b end
@@ -378,7 +412,7 @@ function colactor(a,d,t)
 			end
 		end
 		end
-	end
+	--end
 end
 
 function moveactor(a,d)
@@ -393,9 +427,10 @@ function moveactor(a,d)
 			room[a.x][a.y]=a.t
 			a.secx=flr(a.x/sector_s)*sector_s*cellw
 			a.secy=flr(a.y/sector_s)*sector_s*cellh
-		else return true
+		else
+			a.target=room[a.x+dire[1]][a.y+dire[2]]
+		 return true
 		end
-
 	end
 end
 
@@ -404,8 +439,8 @@ function doactor(a)
 		local d=movetype(a)
 		a.target=nil
 		if moveactor(a,d) then
-			for target in all(actors.creatures) do 
-				colactor(a,d,target)
+			for cr in all(actors.creatures) do 
+				colactor(a,d,cr)
 			end
 		end
 	else
@@ -423,11 +458,18 @@ function domenu(m)
 		if p.target!=nil then
 			m.me={}
 			m.me[1]="you face:"
-			m.me[2]=" a "..p.target
+			m.me[2]=" a "..species[actortypes[p.target][level+1].sp]
 		else
-			m.me=p.status
+			local n=flr(rnd(#adjective))+1
+			local ty=actortypes[p.t][level+1]
+			m.me={}
+			m.me[1]="you are:"
+			m.me[2]=" a "..adjective[ty.ad].." "..pronouns[ty.pn]..species[ty.sp]
+			m.me[3]=" in a "..adjective[n].." "..places[flr(rnd(#places))+1]
+			m.me[4]=" feeling *"..feelings[ty.fe].."*"
 		end
 	end
+	
 --	m.x=m.x+cam[1]
 --	m.y=m.y+cam[2]
 end
