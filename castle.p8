@@ -4,7 +4,7 @@ __lua__
 --cash castle
 --by ashley pringle
 
-debug=true
+debug=false
 debug_l={}
 debug_l[4]=0
 
@@ -116,6 +116,7 @@ function words()
  species[20]="gull"
 	species[21]="manticore"
 	species[22]="bro"
+	species[22]="zorse"
 	
 	places={}
 	places[1]="marsh"
@@ -165,13 +166,10 @@ function actortypes_i(l)
 		as[2][a].pn=#pronouns if rnd(1)<=0.5 then as[2][a].pn=flr(rnd(#pronouns))+1 end
 		as[2][a].sp=flr(rnd(#species))+1
 		as[2][a].fe=flr(rnd(#feelings))+1
-
---		as[2][a].status="thing"
 	end
 	--enemy attributes
 	for a=1,4 do	
 		as[3][a].ch=6  as[3][a].c=12 as[3][a].m=2
---		as[3][a].status="sorze"
 		as[3][a].ad=flr(rnd(#adjective))+1
 		as[3][a].pn=#pronouns if rnd(1)<=0.5 then as[2][a].pn=flr(rnd(#pronouns))+1 end
 		as[3][a].sp=flr(rnd(#species))+1
@@ -195,8 +193,6 @@ function actortypes_i(l)
 			style.pn=as[a][b].pn
 			style.sp=as[a][b].sp
 			style.fe=as[a][b].fe
---			style.m=as[a][b].m
---			style.status=as[a][b].status
 			if a==2 then
 				style.ch2=sub(chars,as[a][b].ch2,as[a][b].ch2)
 				style.c2=as[a][b].c2
@@ -209,10 +205,8 @@ end
 
 function rooms_i(sa)
 	rooms={}
---	roomspawns={}
 	for b=0,3 do
 		rooms[b]={}
---		roomspawns[b]=true
 		for a=0,sa*sa-1 do
 			rooms[b][a]=flr(rnd(8))
 		end
@@ -269,48 +263,29 @@ function makeactor(t,x,y)
 	a.secy=flr(a.y/sector_s)*sector_s*cellh
 	a.shakex=0
 	a.shakey=0
---	a.status={}
---	a.status[1]="thing"
 	if a.t==3 or a.t==1 then
 		a.attack=0
 		a.attackdir=0
 		a.attackpwr=3
 		a.hit=0
-		--a.status[1]="zorse"
 		add(actors.creatures,a)
 	end
 	if a.t==1 then
 		a.steps=0
 		a.attackpwr=2
---		a.ad=flr(rnd(#adjective))+1
-		--a="" if rnd(1)>=0.5 then a.pn=pronouns[flr(rnd(#pronouns))+1].."-" end
---		a.pn=#pronouns if rnd(1)<=0.5 then a.pn=flr(rnd(#pronouns))+1 end
-		--a.de=" a "..adjective[n].. " "..a.pn..species[flr(rnd(#species)+1)]
---		a.sp=flr(rnd(#species))+1
---		a.fe=flr(rnd(#feelings))+1
---		a.target={}
 		a.target=nil
-		
-		--n=flr(rnd(#adjective))+1
-		--a.status={}
-		--a.status[1]="you are:"
-		--a.status[2]=a.de
-		--a.status[3]=" in a "..adjective[n].." "..places[flr(rnd(#places))+1]
-		--a.status[4]=" feeling *"..feelings[a.fe].."*"
-		--del(adjective,adjective[n])
 	end
 	add(actors,a)
 	return a
 end
 
-function makemenu(x,y,w,h,me)
+function makemenu(x,y,w,h)
 	m={}
 	m.x=x
 	m.y=y
 	m.w=w
 	m.h=h
-	local mess={}
-	m.me=mess
+	m.me={}
 	add(menus,m)
 end
 
@@ -386,12 +361,8 @@ end
 
 function colactor(a,d,t)
 	local dire=direction(d)
-	--gotta put this where it chec pos!
-	--if t.t!=2 then
-		if t!=a then
+	if t!=a then
 		if a.x+dire[1]==t.x and a.y+dire[2]==t.y then
-			--if a.t==1 then
-			--a.target=t.status --end
 			sfx(0)
 			for b=1,2 do
 				if dire[b]!=0 then a.attackdir=b end
@@ -404,23 +375,18 @@ function colactor(a,d,t)
 				sfx(1)
 				room[t.x][t.y]=0
 				if t==p then
---					roomspawns[level]=false
 					players[1]=nil
 				end
 				del(actors,t)
 				del(actors.creatures,t)
 			end
 		end
-		end
-	--end
+	end
 end
 
 function moveactor(a,d)
 	if d!=0 then
-		local dire=direction(d)
-
-		dire=actoroob(a,dire)
-		
+		local dire=actoroob(a,direction(d))
 		if room[a.x+dire[1]][a.y+dire[2]]==0 then
 			room[a.x][a.y]=0
 			a.x+=dire[1] a.y+=dire[2]
@@ -449,29 +415,26 @@ function doactor(a)
 end
 
 function domenu(m)
+	m.me={}
 	if btnp(4) then
 		if debug then
-			m.me={}
 			m.me[1]="new level !!"
 		end
+	elseif players[1]==nil then
+		m.me[1]="you are dead!"
 	elseif btn() then
 		if p.target!=nil then
-			m.me={}
 			m.me[1]="you face:"
 			m.me[2]=" a "..species[actortypes[p.target][level+1].sp]
 		else
 			local n=flr(rnd(#adjective))+1
 			local ty=actortypes[p.t][level+1]
-			m.me={}
 			m.me[1]="you are:"
 			m.me[2]=" a "..adjective[ty.ad].." "..pronouns[ty.pn]..species[ty.sp]
 			m.me[3]=" in a "..adjective[n].." "..places[flr(rnd(#places))+1]
 			m.me[4]=" feeling *"..feelings[ty.fe].."*"
 		end
 	end
-	
---	m.x=m.x+cam[1]
---	m.y=m.y+cam[2]
 end
 
 function shakeactor(a)
@@ -523,13 +486,7 @@ function state_i(s)
 			p=players[1]
 			add(actors,p)
 			add(actors.creatures,p)
-		--else
-		--	p=makeactor(1,flr(rnd(room_w))+1,flr(rnd(room_w))+1)
-		--	add(players,p)
 		end
-		--if roomspawns[level] then
-		--	p=players[1]
-		--end
 		if p!=nil then
 		cam[1]=flr(p.x/sector_s)*sector_s*cellw
 		cam[2]=flr(p.y/sector_s)*sector_s*cellh
@@ -538,7 +495,7 @@ function state_i(s)
 		local n=flr(rnd(#adjective))+1
 		if p!=nil then
 
-			makemenu(10,105,120,20,p.status)
+			makemenu(10,105,120,20)
 		end
 		--del(adjective,adjective[n])
 	end
@@ -575,7 +532,6 @@ function stateupdate(s)
 			state=0
 			state_i(state)
 		end
---		foreach(menus,domenu)
 	end
 
 	camera(cam[1],cam[2])	
@@ -592,9 +548,9 @@ function statedraw(s)
 		rectfill(cam[1],-2+cellh+cam[2],16*cellw-1+cam[1],16*cellh+cam[2],level+levelc)
 		foreach(actors,drawactor)
 		rect(cam[1],-2+cellh+cam[2],16*cellw-1+cam[1],16*cellh+cam[2])
-		--print("inventory:\n -potion",cam[1]+84,cam[2]+20,6)
-		--print("  vending",cam[1]+84,cam[2]+40,6)
-		--print("  machine",cam[1]+84,cam[2]+47,6)
+		print("inventory:\n -potion",cam[1]+84,cam[2]+20,6)
+		print("  vending",cam[1]+84,cam[2]+40,6)
+		print("  machine",cam[1]+84,cam[2]+47,6)
 		foreach(menus,drawmenu)
 	end
 --		if debug then print(xs,16*cellw+cellw,16*cellh+cellh) end
