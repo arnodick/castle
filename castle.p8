@@ -4,7 +4,7 @@ __lua__
 --cash castle
 --by ashley pringle
 
-debug=true
+debug=false
 debug_l={}
 debug_l[4]=0
 
