@@ -4,7 +4,7 @@ __lua__
 --cash castle
 --by ashley pringle
 
-debug=false
+debug=true
 debug_l={}
 debug_l[4]=0
 
@@ -20,7 +20,7 @@ function debug_u()
 	if p!=nil then
 	debug_l[7]="px="..p.x
 	debug_l[8]="py="..p.y
-	debug_l[9]="pst="..p.steps
+--	debug_l[9]="pst="..p.steps
 	debug_l[10]="lvl="..level
 	end
 	if actortypes[2]!=nil then
@@ -48,36 +48,36 @@ function words()
 	feelings[15]="friendly"
 	feelings[16]="ostentatious"
 	
-	adjective={}
-	adjective[1]="jaunty"
-	adjective[2]="gibbous"
-	adjective[3]="chattering"
-	adjective[4]="tumescent"
-	adjective[5]="unctuous"
-	adjective[6]="effervesent"
-	adjective[7]="subcutaneous"
-	adjective[8]="deplorable"
-	adjective[9]="analytic"
-	adjective[10]="loathsome"
-	adjective[11]="incomprehensible"
-	adjective[12]="greater"
-	adjective[13]="lesser"
-	adjective[14]="conservative"
-	adjective[15]="moderate"
-	adjective[16]="impatient"
-	adjective[17]="alright"
-	adjective[18]="reasonable"
-	adjective[19]="decent"
-	adjective[20]="unloved"
-	adjective[21]="failed"
-	adjective[22]="prospering"
-	adjective[23]="learned"
-	adjective[24]="disappointing"
-	adjective[25]="mundane"
-	adjective[26]="misunderstood"
-	adjective[27]="hairy"
-	adjective[28]="sartorial"
-	adjective[29]="swarthy"
+	adjectives={}
+	adjectives[1]="jaunty"
+	adjectives[2]="gibbous"
+	adjectives[3]="chattering"
+	adjectives[4]="tumescent"
+	adjectives[5]="unctuous"
+	adjectives[6]="effervesent"
+	adjectives[7]="subcutaneous"
+	adjectives[8]="deplorable"
+	adjectives[9]="analytic"
+	adjectives[10]="loathsome"
+	adjectives[11]="incomprehensible"
+	adjectives[12]="greater"
+	adjectives[13]="lesser"
+	adjectives[14]="conservative"
+	adjectives[15]="moderate"
+	adjectives[16]="impatient"
+	adjectives[17]="alright"
+	adjectives[18]="reasonable"
+	adjectives[19]="decent"
+	adjectives[20]="unloved"
+	adjectives[21]="failed"
+	adjectives[22]="prospering"
+	adjectives[23]="learned"
+	adjectives[24]="disappointing"
+	adjectives[25]="mundane"
+	adjectives[26]="misunderstood"
+	adjectives[27]="hairy"
+	adjectives[28]="sartorial"
+	adjectives[29]="swarthy"
 	
 	pronouns={}
 	pronouns[1]="half-"
@@ -154,7 +154,7 @@ function actortypes_i(l)
 	end
 		
 	--player attributes
-	local ad=flr(rnd(#adjective))+1
+	local ad=flr(rnd(#adjectives))+1
 	local pn=#pronouns if rnd(1)<=0.5 then pn=flr(rnd(#pronouns))+1 end
 	local sp=flr(rnd(#species))+1
 	local fe=flr(rnd(#feelings))+1
@@ -176,7 +176,7 @@ function actortypes_i(l)
 		actortypes[2][a].m=0
 		actortypes[2][a].ch2=sub(chars,ch2,ch2)
 		actortypes[2][a].c2=flr(rnd(14))+1
-		actortypes[2][a].ad=flr(rnd(#adjective))+1
+		actortypes[2][a].ad=flr(rnd(#adjectives))+1
 		actortypes[2][a].pn=#pronouns if rnd(1)<=0.5 then actortypes[2][a].pn=flr(rnd(#pronouns))+1 end
 		actortypes[2][a].sp=flr(rnd(#objects))+1
 		actortypes[2][a].fe=flr(rnd(#feelings))+1
@@ -187,20 +187,22 @@ function actortypes_i(l)
 		actortypes[3][a].ch=sub(chars,ch,ch)
 		actortypes[3][a].c=flr(rnd(14))+1
 		actortypes[3][a].m=2
-		actortypes[3][a].ad=flr(rnd(#adjective))+1
+		actortypes[3][a].ad=flr(rnd(#adjectives))+1
 		actortypes[3][a].pn=#pronouns if rnd(1)<=0.5 then actortypes[2][a].pn=flr(rnd(#pronouns))+1 end
 		actortypes[3][a].sp=flr(rnd(#species))+1
 		actortypes[3][a].fe=flr(rnd(#feelings))+1
 	end
-	
-	levelc=flr(rnd(3))	
 end
 
 function rooms_i(sa)
 	rooms={}
 	for b=0,3 do
 		rooms[b]={}
+		rooms[b].c=flr(rnd(6))
+		rooms[b].ad=flr(rnd(#adjectives))+1
+		rooms[b].pl=flr(rnd(#places))+1
 		for a=0,sa*sa-1 do
+			--sets sector of map to load
 			rooms[b][a]=flr(rnd(8))
 		end
 	end
@@ -215,14 +217,11 @@ function reset()
 end
 
 function loadsector(sx,sy,mx,my)
-	--sx sy=sector of room[] to be set
-	--mx my=sector from map to load into room[]
-	--sx=0-3 sy=0-3
-	--mx=0-7 my=0-3
+	--sx+sy=sector of room[] to be set
+	--mx+my=sector from map to load into room[]
 	for b=0,sector_s-1 do
-		for a=1,sector_s do
-			--room[a+sx*sector_s][b+sy*sector_s]=mget(a+mx*sector_s,b+my*sector_s)
-			room[a+sx*sector_s][b+sy*sector_s]=mget(a,b)
+		for a=0,sector_s-1 do
+			room[a+sx*sector_s][b+sy*sector_s]=mget(a+mx*sector_s,b+my*sector_s)
 		end
 	end
 end
@@ -231,22 +230,24 @@ function loadmap(rw,s)
 	--rw=# of cells in room
 	--s =# of sectors in room
 	room={}
-	for a=1,rw do
+	for a=0,rw-1 do
 		room[a]={}
-		for b=1,rw do
+		for b=0,rw-1 do
 			room[a][b]=0
 		end
 	end
 	for b=0,s-1 do
 		for a=0,s-1 do
-			loadsector(a,b,rooms[level][b*4+a],level)
+			--loadsector(a,b,rooms[level][b*4+a],level)
+			loadsector(a,b,rooms[level][b*4+a],flr(rnd(3))+1)
 		end
 	end
 end
 
 function loadactors(r)
-	for b=1,r do
-		for a=1,r do
+	--r=room width in cells
+	for b=0,r-1 do
+		for a=0,r-1 do
 			local cell=room[a][b]
 			if cell>0 then
 				makeactor(cell,a,b)
@@ -272,7 +273,7 @@ function makeactor(t,x,y)
 		add(actors.creatures,a)
 	end
 	if a.t==1 then
-		a.steps=0
+--		a.steps=0
 		a.attackpwr=2
 		a.target=nil
 	end
@@ -293,19 +294,15 @@ end
 function drawactor(a)
 	if a.secx==cam[1] then 
 		if	a.secy==cam[2] then 
-			--if a.t==2 then
 			if actortypes[a.t][level+1].ch2!=nil then
-				print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex,a.y*cellh+a.shakey,actortypes[2][level+1].c2)
+				print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx,a.y*cellh+a.shakey+camoffy,actortypes[2][level+1].c2)
 			end
-			print(actortypes[a.t][level+1].ch,a.x*cellw+a.shakex,a.y*cellh+a.shakey,actortypes[a.t][level+1].c)
+			print(actortypes[a.t][level+1].ch,a.x*cellw+a.shakex+camoffx,a.y*cellh+a.shakey+camoffy,actortypes[a.t][level+1].c)
 		end
 	end
---	print(a.x,a.x*cellw+cellw,a.y*cellh,a.c)
---	print(a.y,a.x*cellw,a.y*cellh+cellh,a.c)
 end
 
 function drawmenu(m)
---	rect(m.x,m.y,m.x+m.w,m.y+m.h,7)
 	for a=0,#m.me-1 do
 		print(m.me[a+1],m.x+cam[1],m.y+a*cellh+cam[2],6)
 	end
@@ -322,17 +319,17 @@ function direction(d)
 end
 
 function actoroob(a,dire)
-	if a.x+dire[1]<1       then dire[1]=room_w-2 end
-	if a.x+dire[1]>=room_w then dire[1]=-room_w+2 end
-	if a.y+dire[2]<1       then dire[2]=room_w-2 end
-	if a.y+dire[2]>=room_w then dire[2]=-room_w+2 end	
+	if a.x+dire[1]<0       then dire[1]=room_w-1 end
+	if a.x+dire[1]>=room_w then dire[1]=-room_w+1 end
+	if a.y+dire[2]<0       then dire[2]=room_w-1 end
+	if a.y+dire[2]>=room_w then dire[2]=-room_w+1 end	
 	return dire
 end
 
 function movetype(a)
 	local m=actortypes[a.t][level+1].m
 	if m==1 then
-		if a.t==1 then a.steps+=1 end
+--		if a.t==1 then a.steps+=1 end
 		return btn()
 --		return btnp()
 	end
@@ -343,21 +340,21 @@ end
 
 function followactor(a,t)
 	if t.secx==a.secx and t.secy==a.secy then
-	local xdist=t.x-a.x
-	local ydist=t.y-a.y
-	if abs(xdist)==abs(ydist) then
-		return 2^flr(rnd(4))
-	else
-		if abs(xdist)>abs(ydist) then
-			if xdist<0 then return 1
-			else return 2
-			end
+		local xdist=t.x-a.x
+		local ydist=t.y-a.y
+		if abs(xdist)==abs(ydist) then
+			return 2^flr(rnd(4))
 		else
-			if ydist<0 then return 4
-			else return 8
+			if abs(xdist)>abs(ydist) then
+				if xdist<0 then return 1
+				else return 2
+				end
+			else
+				if ydist<0 then return 4
+				else return 8
+				end
 			end
 		end
-	end
 	end
 end
 
@@ -429,15 +426,16 @@ function domenu(m)
 			m.me[1]="you face:"
 			if p.target!=2 then
 				m.me[2]=" a "..species[actortypes[p.target][level+1].sp]
+				m.me[3]=" it feels "..feelings[actortypes[p.target][level+1].fe]
 			else
 				m.me[2]=" a "..objects[actortypes[p.target][level+1].sp]
 			end
 		else
-			local n=flr(rnd(#adjective))+1
+			local n=flr(rnd(#adjectives))+1
 			local ty=actortypes[p.t][level+1]
 			m.me[1]="you are:"
-			m.me[2]=" a "..adjective[ty.ad].." "..pronouns[ty.pn]..species[ty.sp]
-			m.me[3]=" in a "..adjective[n].." "..places[flr(rnd(#places))+1]
+			m.me[2]=" a "..adjectives[ty.ad].." "..pronouns[ty.pn]..species[ty.sp]
+			m.me[3]=" in a "..adjectives[rooms[level].ad].." "..places[rooms[level].pl]
 			m.me[4]=" feeling *"..feelings[ty.fe].."*"
 		end
 	end
@@ -459,7 +457,7 @@ function shakeactor(a)
 	end
 end
 
-function levelchange(l)
+function changelevel(l)
 	actors={}
 	actors.creatures={}
 	if players[1]!=nil then
@@ -498,7 +496,7 @@ function state_i(s)
 		cam[2]=flr(p.y/sector_s)*sector_s*cellh
 		end
 		loadactors(room_w)
-		local n=flr(rnd(#adjective))+1
+		local n=flr(rnd(#adjectives))+1
 		if p!=nil then
 			makemenu(10,105,120,20)
 		end
@@ -529,7 +527,7 @@ function stateupdate(s)
 		if btnp(4) then
 			level+=1
 			if level>3 then level=0 end
-			levelchange(level)
+			changelevel(level)
 --			state_i(state)
 		end
 		end
@@ -550,9 +548,10 @@ function statedraw(s)
 		print("title\npress button to start",30,30,7)
 	end
 	if s==1 then
-		rectfill(cam[1],-2+cellh+cam[2],16*cellw-1+cam[1],16*cellh+cam[2],level+levelc)
+		--rectfill(cam[1],cam[2],cam[1]+sector_s*cellw,cam[2]+sector_s*cellh+1,level+levelc)
+		rectfill(cam[1],cam[2],cam[1]+sector_s*cellw,cam[2]+sector_s*cellh+1,rooms[level].c)
 		foreach(actors,drawactor)
-		rect(cam[1],-2+cellh+cam[2],16*cellw-1+cam[1],16*cellh+cam[2])
+		rect(cam[1],cam[2],cam[1]+sector_s*cellw+1,cam[2]+sector_s*cellh+2)
 		if not debug then
 		print("inventory:\n -potion",cam[1]+84,cam[2]+20,6)
 		print("  vending",cam[1]+84,cam[2]+40,6)
@@ -564,7 +563,7 @@ function statedraw(s)
 		--rect(-2+cellw,-2+cellh,64*cellw-1,64*cellh)
 	if debug then
 		for a=1,#debug_l do
-			print(debug_l[a],cam[1]+82,cam[2]+a*6,6)
+			print(debug_l[a],cam[1]+84,cam[2]+a*6,6)
 		end
 	end
 end
@@ -576,6 +575,8 @@ function _init()
 	room_w=sector_s*sector_a
 
 	cam={}
+	camoffx=2
+	camoffy=2
 	words()
 	
 	level=0
