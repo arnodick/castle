@@ -437,9 +437,10 @@ end
 function doactor(a)
 	if a.t==4 then
 		if p.x==a.x and p.y==a.y then
-			if not checkinventory(a.t) then
+			--if not checkinventory(a.t) then
 				add(p.inventory,a.t)
-			end
+			--else
+			--end
 			del(actors,a)
 			del(actors.items,a)
 		end
@@ -536,6 +537,7 @@ function state_i(s)
 --		sector_s=16
 --		sector_a=4 --6 is max here!
 --		room_w=sector_s*sector_a
+		--todo: make sector size input an array
 		rooms_i(16,4)
 		loadmap(rooms[level].room_w,rooms[level].sector_a)
 		players={}
@@ -553,7 +555,7 @@ function state_i(s)
 		local n=flr(rnd(#adjectives))+1
 		if p!=nil then
 			makemenu(1,10,105,120,20)
-			makemenu(2,84,20,40,60)
+			makemenu(2,86,2,40,60)
 		end
 		--del(adjective,adjective[n])
 	end
