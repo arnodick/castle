@@ -4,7 +4,7 @@ __lua__
 --cash castle
 --by ashley pringle
 
-debug=true
+debug=false
 debug_l={}
 debug_l[4]=0
 
@@ -17,9 +17,10 @@ function debug_u()
 	end
 	debug_l[5]="actors:"..#actors
 	debug_l[6]="creats:"..#actors.creatures
+	debug_l[7]="items:"..#actors.items
 	if p!=nil then
-	debug_l[7]="px="..p.x
-	debug_l[8]="py="..p.y
+	debug_l[8]="px="..p.x
+	debug_l[9]="py="..p.y
 --	debug_l[9]="pst="..p.steps
 	debug_l[10]="lvl="..level
 	end
@@ -142,13 +143,19 @@ function words()
 	places[14]="mountain"
 	places[15]="valley"
 	places[16]="spaceship"
+	
+	items={}
+	items[1]="potion"
+	items[2]="a butt"
+	items[3]="lazer"
+	items[4]="cash"
 end
 
 function actortypes_i(l)
-	chars="@abcdefghijklmnopqrstuvwxyz0123456789!#%^*():;,.{}"
+	chars="@abcdefghijklmnopqrstuvwxyz0123456789!#%^*():;,.{}$"
 	
 	actortypes={}
-	for a=1,3 do
+	for a=1,4 do
 		actortypes[a]={}
 		for b=1,4 do actortypes[a][b]={} end
 	end
@@ -192,12 +199,23 @@ function actortypes_i(l)
 		actortypes[3][a].sp=flr(rnd(#species))+1
 		actortypes[3][a].fe=flr(rnd(#feelings))+1
 	end
+	--item attributes
+--	local ch=12
+	for a=1,4 do
+		actortypes[4][a].ch="$"
+		actortypes[4][a].c=10
+		actortypes[4][a].m=0
+	end
 end
 
-function rooms_i(sa)
+function rooms_i(ss,sa)
 	rooms={}
 	for b=0,3 do
 		rooms[b]={}
+		rooms[b].sector_s=ss
+		rooms[b].sector_a=sa --6 is max here!
+		rooms[b].room_w=rooms[level].sector_s*rooms[level].sector_a
+
 		rooms[b].c=flr(rnd(6))
 		rooms[b].ad=flr(rnd(#adjectives))+1
 		rooms[b].pl=flr(rnd(#places))+1
@@ -213,22 +231,23 @@ function reset()
 	actortypes={}
 	actors={}
 	actors.creatures={}
+	actors.items={}
 	menus={}
 end
 
 function loadsector(sx,sy,mx,my)
 	--sx+sy=sector of room[] to be set
 	--mx+my=sector from map to load into room[]
-	for b=0,sector_s-1 do
-		for a=0,sector_s-1 do
-			room[a+sx*sector_s][b+sy*sector_s]=mget(a+mx*sector_s,b+my*sector_s)
+	for b=0,rooms[level].sector_s-1 do
+		for a=0,rooms[level].sector_s-1 do
+			room[a+sx*rooms[level].sector_s][b+sy*rooms[level].sector_s]=mget(a+mx*rooms[level].sector_s,b+my*rooms[level].sector_s)
 		end
 	end
 end
 
-function loadmap(rw,s)
+function loadmap(rw,sa)
 	--rw=# of cells in room
-	--s =# of sectors in room
+	--sa=# of sectors in room
 	room={}
 	for a=0,rw-1 do
 		room[a]={}
@@ -236,10 +255,10 @@ function loadmap(rw,s)
 			room[a][b]=0
 		end
 	end
-	for b=0,s-1 do
-		for a=0,s-1 do
-			--loadsector(a,b,rooms[level][b*4+a],level)
-			loadsector(a,b,rooms[level][b*4+a],flr(rnd(3))+1)
+	for ys=0,sa-1 do
+		for xs=0,sa-1 do
+			--loadsector(xs,ys,rooms[level][ys*sa+xs],flr(rnd(3))+1)
+			loadsector(xs,ys,rooms[level][ys*sa+xs],level)
 		end
 	end
 end
@@ -261,10 +280,15 @@ function makeactor(t,x,y)
 	a.t=t
 	a.x=x
 	a.y=y
-	a.secx=flr(a.x/sector_s)*sector_s*cellw
-	a.secy=flr(a.y/sector_s)*sector_s*cellh
+	a.secx=flr(a.x/rooms[level].sector_s)*rooms[level].sector_s*cellw
+	a.secy=flr(a.y/rooms[level].sector_s)*rooms[level].sector_s*cellh
+	--a.secx=0
+	--a.secy=0
 	a.shakex=0
 	a.shakey=0
+	if a.t==4 then
+		add(actors.items,a)
+	end
 	if a.t==3 or a.t==1 then
 		a.attack=0
 		a.attackdir=0
@@ -276,13 +300,17 @@ function makeactor(t,x,y)
 --		a.steps=0
 		a.attackpwr=2
 		a.target=nil
+		a.inventory={}
+		--add(a.inventory,4)
+		--add(a.inventory,flr(rnd(#items))+1)
 	end
 	add(actors,a)
 	return a
 end
 
-function makemenu(x,y,w,h)
+function makemenu(t,x,y,w,h)
 	m={}
+	m.t=t
 	m.x=x
 	m.y=y
 	m.w=w
@@ -308,6 +336,13 @@ function drawmenu(m)
 	end
 end
 
+function checkinventory(t)
+	for k,v in pairs(p.inventory) do
+		if v==t then return true end
+	end
+	return false
+end
+
 function direction(d)
 	local dire={}
 	dire[1]=0 dire[2]=0
@@ -319,10 +354,10 @@ function direction(d)
 end
 
 function actoroob(a,dire)
-	if a.x+dire[1]<0       then dire[1]=room_w-1 end
-	if a.x+dire[1]>=room_w then dire[1]=-room_w+1 end
-	if a.y+dire[2]<0       then dire[2]=room_w-1 end
-	if a.y+dire[2]>=room_w then dire[2]=-room_w+1 end	
+	if a.x+dire[1]<0       then dire[1]=rooms[level].room_w-1 end
+	if a.x+dire[1]>=rooms[level].room_w then dire[1]=-rooms[level].room_w+1 end
+	if a.y+dire[2]<0       then dire[2]=rooms[level].room_w-1 end
+	if a.y+dire[2]>=rooms[level].room_w then dire[2]=-rooms[level].room_w+1 end	
 	return dire
 end
 
@@ -386,12 +421,12 @@ end
 function moveactor(a,d)
 	if d!=0 then
 		local dire=actoroob(a,direction(d))
-		if room[a.x+dire[1]][a.y+dire[2]]==0 then
+		if room[a.x+dire[1]][a.y+dire[2]]==0 or room[a.x+dire[1]][a.y+dire[2]]==4  then
 			room[a.x][a.y]=0
 			a.x+=dire[1] a.y+=dire[2]
 			room[a.x][a.y]=a.t
-			a.secx=flr(a.x/sector_s)*sector_s*cellw
-			a.secy=flr(a.y/sector_s)*sector_s*cellh
+			a.secx=flr(a.x/rooms[level].sector_s)*rooms[level].sector_s*cellw
+			a.secy=flr(a.y/rooms[level].sector_s)*rooms[level].sector_s*cellh
 		else
 			a.target=room[a.x+dire[1]][a.y+dire[2]]
 		 return true
@@ -400,7 +435,15 @@ function moveactor(a,d)
 end
 
 function doactor(a)
-	if a.hit==0 then
+	if a.t==4 then
+		if p.x==a.x and p.y==a.y then
+			if not checkinventory(a.t) then
+				add(p.inventory,a.t)
+			end
+			del(actors,a)
+			del(actors.items,a)
+		end
+	elseif a.hit==0 then
 		local d=movetype(a)
 		a.target=nil
 		if moveactor(a,d) then
@@ -415,28 +458,35 @@ end
 
 function domenu(m)
 	m.me={}
-	if btnp(4) then
-		if debug then
-			m.me[1]="new level !!"
-		end
-	elseif players[1]==nil then
-		m.me[1]="you are dead!"
-	elseif btn() then
-		if p.target!=nil then
-			m.me[1]="you face:"
-			if p.target!=2 then
-				m.me[2]=" a "..species[actortypes[p.target][level+1].sp]
-				m.me[3]=" it feels "..feelings[actortypes[p.target][level+1].fe]
-			else
-				m.me[2]=" a "..objects[actortypes[p.target][level+1].sp]
+	if m.t==1 then
+		if btnp(4) then
+			if debug then
+				m.me[1]="new level !!"
 			end
-		else
-			local n=flr(rnd(#adjectives))+1
-			local ty=actortypes[p.t][level+1]
-			m.me[1]="you are:"
-			m.me[2]=" a "..adjectives[ty.ad].." "..pronouns[ty.pn]..species[ty.sp]
-			m.me[3]=" in a "..adjectives[rooms[level].ad].." "..places[rooms[level].pl]
-			m.me[4]=" feeling *"..feelings[ty.fe].."*"
+		elseif players[1]==nil then
+			m.me[1]="you are dead!"
+		elseif btn() then
+			if p.target!=nil then
+				m.me[1]="you face:"
+				if p.target==3 then
+					m.me[2]=" a "..species[actortypes[p.target][level+1].sp]
+					m.me[3]=" it feels *"..feelings[actortypes[p.target][level+1].fe].."*"
+				elseif p.target==2 then
+					m.me[2]=" a "..objects[actortypes[p.target][level+1].sp]
+				end
+			else
+				local n=flr(rnd(#adjectives))+1
+				local ty=actortypes[p.t][level+1]
+				m.me[1]="you are:"
+				m.me[2]=" a "..adjectives[ty.ad].." "..pronouns[ty.pn]..species[ty.sp]
+				m.me[3]=" in a "..adjectives[rooms[level].ad].." "..places[rooms[level].pl]
+				m.me[4]=" feeling *"..feelings[ty.fe].."*"
+			end
+		end
+	elseif m.t==2 then
+		m.me[1]="inventory:"
+		for a=1,#p.inventory do
+			m.me[a+1]=" -"..items[p.inventory[a]]
 		end
 	end
 end
@@ -460,14 +510,15 @@ end
 function changelevel(l)
 	actors={}
 	actors.creatures={}
+	actors.items={}
 	if players[1]!=nil then
 		p=players[1]
 		add(actors,p)
 		add(actors.creatures,p)
 	end
 --	actortypes_i(l)
-	loadmap(room_w,sector_a)
-	loadactors(room_w)
+	loadmap(rooms[level].room_w,rooms[level].sector_a)
+	loadactors(rooms[level].room_w)
 end
 
 function state_i(s)
@@ -476,29 +527,33 @@ function state_i(s)
 	reset()
 	
 	if s==0 then
-		players={}
-		add(players,makeactor(1,flr(rnd(room_w))+1,flr(rnd(room_w))+1))
+--		players={}
+		--add(players,makeactor(1,flr(rnd(rooms[level].room_w))+1,flr(rnd(rooms[level].room_w))+1))
+--		add(players,makeactor(1,1,1))
 	end
 	if s==1 then
 		actortypes_i(level)
 --		sector_s=16
 --		sector_a=4 --6 is max here!
 --		room_w=sector_s*sector_a
-		rooms_i(sector_a)
-		loadmap(room_w,sector_a)
+		rooms_i(16,4)
+		loadmap(rooms[level].room_w,rooms[level].sector_a)
+		players={}
+		add(players,makeactor(1,flr(rnd(rooms[level].room_w)),flr(rnd(rooms[level].room_w))))
 		if players[1]!=nil then
 			p=players[1]
-			add(actors,p)
-			add(actors.creatures,p)
+			--add(actors,p)
+			--add(actors.creatures,p)
 		end
 		if p!=nil then
-		cam[1]=flr(p.x/sector_s)*sector_s*cellw
-		cam[2]=flr(p.y/sector_s)*sector_s*cellh
+		cam[1]=flr(p.x/rooms[level].sector_s)*rooms[level].sector_s*cellw
+		cam[2]=flr(p.y/rooms[level].sector_s)*rooms[level].sector_s*cellh
 		end
-		loadactors(room_w)
+		loadactors(rooms[level].room_w)
 		local n=flr(rnd(#adjectives))+1
 		if p!=nil then
-			makemenu(10,105,120,20)
+			makemenu(1,10,105,120,20)
+			makemenu(2,84,20,40,60)
 		end
 		--del(adjective,adjective[n])
 	end
@@ -515,22 +570,23 @@ function stateupdate(s)
 		if btnp()>0 then
 		--if timer%4==0 then
 			foreach(actors.creatures,doactor)
+			foreach(actors.items,doactor)
 			foreach(menus,domenu)
 			debug_l[4]=0
 		end
 		foreach(actors.creatures,shakeactor)
 		if p!=nil then
-		cam[1]=flr(p.x/sector_s)*sector_s*cellw
-		cam[2]=flr(p.y/sector_s)*sector_s*cellh
+		cam[1]=flr(p.x/rooms[level].sector_s)*rooms[level].sector_s*cellw
+		cam[2]=flr(p.y/rooms[level].sector_s)*rooms[level].sector_s*cellh
 		end
-		if debug then
+		--if debug then
 		if btnp(4) then
 			level+=1
 			if level>3 then level=0 end
 			changelevel(level)
 --			state_i(state)
 		end
-		end
+		--end
 		if btnp(5) then
 			state=0
 			state_i(state)
@@ -549,13 +605,13 @@ function statedraw(s)
 	end
 	if s==1 then
 		--rectfill(cam[1],cam[2],cam[1]+sector_s*cellw,cam[2]+sector_s*cellh+1,level+levelc)
-		rectfill(cam[1],cam[2],cam[1]+sector_s*cellw,cam[2]+sector_s*cellh+1,rooms[level].c)
+		rectfill(cam[1],cam[2],cam[1]+rooms[level].sector_s*cellw,cam[2]+rooms[level].sector_s*cellh+1,rooms[level].c)
 		foreach(actors,drawactor)
-		rect(cam[1],cam[2],cam[1]+sector_s*cellw+1,cam[2]+sector_s*cellh+2)
+		rect(cam[1],cam[2],cam[1]+rooms[level].sector_s*cellw+1,cam[2]+rooms[level].sector_s*cellh+2)
 		if not debug then
-		print("inventory:\n -potion",cam[1]+84,cam[2]+20,6)
-		print("  vending",cam[1]+84,cam[2]+40,6)
-		print("  machine",cam[1]+84,cam[2]+47,6)
+		--print("inventory:\n -potion",cam[1]+84,cam[2]+20,6)
+		--print("  vending",cam[1]+84,cam[2]+40,6)
+		--print("  machine",cam[1]+84,cam[2]+47,6)
 		end
 		foreach(menus,drawmenu)
 	end
@@ -570,9 +626,9 @@ end
 
 function _init()
 	cellw=5 cellh=6
-	sector_s=16
-	sector_a=4 --6 is max here!
-	room_w=sector_s*sector_a
+--	sector_s=16
+--	sector_a=4 --6 is max here!
+--	room_w=sector_s*sector_a
 
 	cam={}
 	camoffx=2
@@ -725,19 +781,19 @@ __gff__
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __map__
 0200000000000000000000000000000202000000000000000000000000000002020000000000000000000000000000020200000000000000000000000000000202000000000000000000000000000002020000000000000000000000000000020200000000000000000000000000000202000000000000000000000000000002
-0000000000000202020200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000202000000020000000000000000020000000000000000000000020202020000000000000000000000000000
-0000000202000000000002000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002000000000000000000000002020000000000020000000000000002000200000000000000000000000000000000000000000000000000000000
-0000020000000000000000020000000000020200000000030000000000000000000000000000020202020202000000000000000002020202020202000000000000000000000000020000000000000000000200000000000000000000000000000000000002000000000000020000000000000000000000000202020200000000
-0000000000000000000000000000000000000200000000000000000000000000000000000000020000000002000000000000000000000000020202020000000000000000020000020202020000000000000000000202020202020200000200000000000300020200020202020000000000000000000202020202020200000000
-0000000000000000000000000000000000000200000000000002020200000000000002000000000202000002000000000000000200020000000000020200020000000000020200000202020000000000000000020200000000020000000000000000000000020200000002000000000000000000000002020200000200000200
-0000000000000000000000000000000000000002000000020200000200000000000000000000000000000200000000000002000000000000030000020202020000000002020000000002000000000200000002000200000000020200020000000000000002020200000002000000000000000000000200000000000200000200
-0000000000030000000000000002000000000000020000000000000202020000000000000200000003000202000000000000000002020200000000020200000000000000020200020202020000000000020000000202020000000202000000000000000002000200000002000000000000000202000000000003000202020000
+0000000000000202020200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000004000000000000000000000202000000020000000000000000020000000004000000000000020202020000000000000000000000000000
+0000000202000000000002000000000000000000000000000000000000000000000004000000020000000000000000000000000000000004000000000000000000000000000002000000000000000000000002020000000000020000000000000002000200000000000000000000000000000000000004000000000000000000
+0000020000000000000000020000000000020200000000030000000000000000000000000000020202020202000000000000000002020202020202000000000000000000000000020000000000000000000200000000000400000000000000000000000002000000000000020000000000000000000000000202020200000000
+0000000000000000000000000000000000000200000000000000000000000000000000000000020000000002000000000000000000000000020202020000000000000000020000020202020000000000000000000202040402020200000200000000000300020200020202020000000000000000000202020202020200000000
+0000000000000000000000000000000000000200000000040002020200000000000002000000000202000002000000000000000200020000000000020200020000000000020200000202020000000000000000020200000000020000000000000000000000020200000002000000000000000000000002020200000200000200
+0000000000000000040000000000000000040002000000020200000200000000000000000000000000000200000000000002000000000000030000020202020000000002020000000002000000000200000002000200000000020200020000000000000002020200000002000000000000000000000200000000000200000200
+0000040000030000000000000002000000000000020000000000000202020000000000000200000003000202000000000000000002020200000000020200000000000000020200020202020000000000020000000202020000000202000000000000000002000200000002000400000000000202000000000003000202020000
 0000000000000000000000000002000000000002020200020002020200000000000000000202020000000000020000000000000000000000000000000000000000000002020000020202020000000000020000000000000202020202000000000000000202000002020000000000000000000200000000000000000202020000
 0000020000000000000000000002000000020200000000020202000000000000000002000200000200000000000000000200000000000000020202000000000000000200000000000202000000000000020000000300000202020202000000000000000202020202020200000000000000000202020000000000000202020000
-0000020000000000000300000002000000020200000000020000000000000000000002000200000002000000000000000002000202020202020200000002000000020000000300000202000000000000020200000000000200000002000000000000020000020000000002000000020000000000020202000000020202000000
+0000020000000000000300000002000000020200000000020000000000000000000002000200000002000000000000000002000202020202020200000002000000020000000300000202000400000000020200000000000200000002000000000000020000020000000002000000020000000000020202040000020202000000
 0000000000000000000000000002000000000002020200000200000000000000000000000002020202020200000000000000000002000200020202000202000000020000000000000002000000000000000200000002020202020202000000000000020000020202020000020200020200000000000002000000020200000000
-0000000000000000000000000000000000000000000200020002000000000000000000000002000000000200000000000000000000000000000000000000020200000000000000020000000000000000000002000202000200000000000000000000000000000202020202000202000000000000000002020000000000000000
-0000000002000000000000000000000000000000000200000002000000000000000000000200000000000200000000000000000000000000000000000000000000000000000000020202000000000000000000000200020200000000000000000000000000000000000000000000000000000000000000000000000000000000
+0000000000000000000000000000000000000000000200020002000000000000000000000002000000000200000400000000000000000000000000000000020200000000000000020000000000000000000002000202000200000000000000000000000000000202020202000202000000000000000002020000000000000000
+0000000002000000000000000000000000000000000200000002000000000000000000000200000000000200000000000000000000000004000000000000000000000000000000020202000000000000000000000200020200000000000000000000000000000000000000000000000000000000000000000000000000000000
 0000000000000000000000000000000000000002020202020200000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000020002020200000000000000000000000000000000000000000000000000000000000000000202000000000000
 0200000000000000000000000000000202000000000000000000000000000002020000000000000000000000000000020200000000000000000000000000000202000000000000000000000000000002020000000000000000000000000000020200000000000000000000000000000202000000000000000000000000000002
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
