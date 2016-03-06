@@ -213,6 +213,7 @@ function actortypes_i(l)
 		actortypes[5][a].c=11
 		actortypes[5][a].m=0
 	end
+	--potion?
 	for a=1,4 do
 		actortypes[6][a].ch="~"
 		actortypes[6][a].c=13
@@ -352,6 +353,14 @@ function drawmenu(m)
 		--print(m.me[a+1],m.x+cam[1],m.y+(#m.me-1)*cellh-a*cellh+cam[2],6)
 		--a-=1
 	end
+end
+
+function taketurn()
+	foreach(actors.creatures,doactor)
+	foreach(actors.items,doactor)
+	foreach(actors.exits,doactor)
+	foreach(menus,domenu)
+	debug_l[4]=0
 end
 
 function checkinventory(t)
@@ -495,6 +504,12 @@ function destroyactors()
 	actors.exits={}
 end
 
+function doitem(t)
+	if t==4 then
+		actortypes[1][level+1].c=5
+	end
+end
+
 function domenu(m)
 	m.me={}
 	if m.t==1 then
@@ -534,6 +549,15 @@ function domenu(m)
 				local cur=" -"
 				if a==1 then cur=">>" end
 				m.me[a+1]=cur..items[actortypes[p.inventory[a]][level+1].sp]
+			end
+			if btnp(4) then
+				if p.inventory[1]!=nil then
+				doitem(p.inventory[1])
+				del(p.inventory,p.inventory[1])
+				controlstate=not controlstate
+				taketurn()
+				end
+				--controlstate=not controlstate
 			end
 		end
 	end
@@ -620,11 +644,7 @@ function stateupdate(s)
 		if not controlstate then
 		if btnp()>0 then
 		--if timer%4==0 then
-			foreach(actors.creatures,doactor)
-			foreach(actors.items,doactor)
-			foreach(actors.exits,doactor)
-			foreach(menus,domenu)
-			debug_l[4]=0
+			taketurn()
 		end
 		foreach(actors.creatures,shakeactor)
 		if p!=nil then
