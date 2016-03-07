@@ -28,7 +28,7 @@ function debug_u()
 	debug_l[11]=actortypes[2][level+1].ch
 	debug_l[12]=actortypes[2][level+1].ch2
 	end
-	debug_l[13]=controlstate
+	debug_l[13]=control_inv
 end
 
 function words()
@@ -349,10 +349,12 @@ end
 function drawmenu(m)
 	--local a=#m.me-1
 	--while a>=0 do
+	if not debug then
 	for a=0,#m.me-1 do
 		print(m.me[a+1],m.x+cam[1],m.y+a*cellh+cam[2],6)
 		--print(m.me[a+1],m.x+cam[1],m.y+(#m.me-1)*cellh-a*cellh+cam[2],6)
 		--a-=1
+	end
 	end
 end
 
@@ -499,7 +501,7 @@ function doitem(t)
 --		actortypes[1][level+1].c=5	
 		menus[2].t=3
 		menus[2].sel=1
-		controlstate=not controlstate
+		control_inv=not control_inv
 	end
 end
 
@@ -516,14 +518,24 @@ end
 
 function domenu(m)
 	m.me={}
-	--inv menu
+	--examine menu
 	if m.t==1 then
 		if players[1]==nil then
 			m.me[1]="you are dead!"
-		elseif btn() then
-			if p.target!=nil then
+		--elseif btn() then
+		elseif control_exam==true then
+			m.me[1]="examine:"
+			m.me[2]=" choose a direction"
+			if btnp(0) or btnp(1) or btnp(2) or btnp(3) then
+			--if btnp()>0 then
+			control_exam=not control_exam
+			local dire=actoroob(p,direction(btnp()))
+			p.target=room[p.x+dire[1]][p.y+dire[2]]
+			if p.target!=0 then
 				m.me[1]="you face:"
-				if p.target==3 then
+				if p.target==4 or p.target==6 then
+					m.me[2]=" a "..items[actortypes[p.target][level+1].sp]
+				elseif p.target==3 then
 					m.me[2]=" a "..species[actortypes[p.target][level+1].sp]
 					m.me[3]=" it feels *"..feelings[actortypes[p.target][level+1].fe].."*"
 				elseif p.target==2 then
@@ -537,35 +549,40 @@ function domenu(m)
 				m.me[3]=" in a "..adjectives[rooms[level].ad].." "..places[rooms[level].pl]
 				m.me[4]=" feeling *"..feelings[ty.fe].."*"
 			end
+			end
+			if btnp(5) then
+				control_exam=not control_exam
+				m.me={}
+			end
 		end
-	--use menu
+	--inventory menu
 	elseif m.t==2 then
-		if not controlstate then
+		if not control_inv then
 			m.me[1]="inventory:"
 			for a=1,#p.inventory do
 				m.me[a+1]=" -"..items[actortypes[p.inventory[a]][level+1].sp]
 			end
 		else
 			m.me[1]="use:"
-				m.me[2]=">>"..items[actortypes[p.inventory[1]][level+1].sp]
+			m.me[2]=">>"..items[actortypes[p.inventory[1]][level+1].sp]
 			if btnp(4) then
 				local it=p.inventory[1]
 				if it!=nil then
-				controlstate=not controlstate
+				control_inv=not control_inv
 				doitem(it)
 				del(p.inventory,p.inventory[1])
 				if it!=4 then
 					taketurn()
 				end
 				end
-				--controlstate=not controlstate
+				--control_inv=not control_inv
 			elseif btnp(5) then
 --				m.t=2
 				m.me[1]="inventory:"
 				for a=1,#p.inventory do
 					m.me[a+1]=" -"..items[actortypes[p.inventory[a]][level+1].sp]
 				end
-				controlstate=not controlstate
+				control_inv=not control_inv
 			end
 		end
 	--buy menu
@@ -586,7 +603,7 @@ function domenu(m)
 			for a=1,#p.inventory do
 				m.me[a+1]=" -"..items[actortypes[p.inventory[a]][level+1].sp]
 			end
-			controlstate=not controlstate
+			control_inv=not control_inv
 			taketurn()
 --			pickupitem(p,m.sel)
 		end
@@ -606,6 +623,7 @@ function shakeactor(a)
 	end
 	if a.hit>0 then
 		a.shakex=cos(timer*1/16)*2
+	else a.shakey=-abs(cos(timer*1/40))*2+1
 	end
 end
 
@@ -668,12 +686,14 @@ function stateupdate(s)
 		end
 	end
 	if s==1 then
-		if not controlstate then
+		if not control_inv and not control_exam then
 			if btnp(5) then
 				if p.inventory[1]!=nil then
-				controlstate=not controlstate
+				control_inv=not control_inv
 				end
 		--end
+			elseif btnp(4) then
+				control_exam=not control_exam
 			elseif btnp()>0 then
 		--if timer%4==0 then
 				taketurn()
@@ -744,7 +764,8 @@ function _init()
 	
 	level=0
 	state=0
-	controlstate=false
+	control_inv=false
+	control_exam=false
 	state_i(state)
 end
 
