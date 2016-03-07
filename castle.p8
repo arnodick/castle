@@ -331,6 +331,7 @@ function makemenu(t,x,y,w,h)
 	m.w=w
 	m.h=h
 	m.me={}
+	m.sel=1
 	add(menus,m)
 end
 
@@ -471,18 +472,7 @@ function doactor(a)
 		end
 	elseif a.t==4 or a.t==6 then
 		if p.x==a.x and p.y==a.y then
-			--if not checkinventory(a.t) then
-				local c=#p.inventory
-				while c>0 do
-					p.inventory[c+1]=p.inventory[c]
-					c-=1
-				end
-				p.inventory[1]=a.t
-				--add(p.inventory,a.t)
-			--else
-			--end
-			del(actors,a)
-			del(actors.items,a)
+			pickupitem(p,a)
 		end
 	elseif a.hit==0 then
 		local d=movetype(a)
@@ -506,17 +496,28 @@ end
 
 function doitem(t)
 	if t==4 then
-		actortypes[1][level+1].c=5
+--		actortypes[1][level+1].c=5	
+		menus[2].t=3
+		menus[2].sel=1
+		controlstate=not controlstate
 	end
+end
+
+function pickupitem(a,i)
+	local c=#a.inventory
+	while c>0 do
+		a.inventory[c+1]=a.inventory[c]
+		c-=1
+	end
+	a.inventory[1]=i.t
+	del(actors,i)
+	del(actors.items,i)
 end
 
 function domenu(m)
 	m.me={}
+	--inv menu
 	if m.t==1 then
-		--if btnp(4) then
-			--if debug then
-				--m.me[1]="new level !!"
-			--end
 		if players[1]==nil then
 			m.me[1]="you are dead!"
 		elseif btn() then
@@ -537,6 +538,7 @@ function domenu(m)
 				m.me[4]=" feeling *"..feelings[ty.fe].."*"
 			end
 		end
+	--use menu
 	elseif m.t==2 then
 		if not controlstate then
 			m.me[1]="inventory:"
@@ -545,20 +547,48 @@ function domenu(m)
 			end
 		else
 			m.me[1]="use:"
-			for a=1,#p.inventory do
-				local cur=" -"
-				if a==1 then cur=">>" end
-				m.me[a+1]=cur..items[actortypes[p.inventory[a]][level+1].sp]
-			end
+				m.me[2]=">>"..items[actortypes[p.inventory[1]][level+1].sp]
 			if btnp(4) then
-				if p.inventory[1]!=nil then
-				doitem(p.inventory[1])
-				del(p.inventory,p.inventory[1])
+				local it=p.inventory[1]
+				if it!=nil then
 				controlstate=not controlstate
-				taketurn()
+				doitem(it)
+				del(p.inventory,p.inventory[1])
+				if it!=4 then
+					taketurn()
+				end
 				end
 				--controlstate=not controlstate
+			elseif btnp(5) then
+--				m.t=2
+				m.me[1]="inventory:"
+				for a=1,#p.inventory do
+					m.me[a+1]=" -"..items[actortypes[p.inventory[a]][level+1].sp]
+				end
+				controlstate=not controlstate
 			end
+		end
+	--buy menu
+	elseif m.t==3 then
+		m.me[1]="buy:"
+		for a=1,#items do
+			local s=""
+			if a==m.sel then s=">>" else s=" -" end
+			m.me[a+1]=s..items[a]
+		end
+		if btnp(3) then m.sel+=1 if m.sel>#items then m.sel=1 end 
+		elseif btnp(2) then m.sel-=1 if m.sel<1 then m.sel=#items end
+		end
+		if btnp(4) then
+			makeactor(6,p.x,p.y)
+			m.t=2
+			m.me[1]="inventory:"
+			for a=1,#p.inventory do
+				m.me[a+1]=" -"..items[actortypes[p.inventory[a]][level+1].sp]
+			end
+			controlstate=not controlstate
+			taketurn()
+--			pickupitem(p,m.sel)
 		end
 	end
 end
@@ -638,19 +668,21 @@ function stateupdate(s)
 		end
 	end
 	if s==1 then
-		if btnp(5) then
-			controlstate=not controlstate
-		end
 		if not controlstate then
-		if btnp()>0 then
+			if btnp(5) then
+				if p.inventory[1]!=nil then
+				controlstate=not controlstate
+				end
+		--end
+			elseif btnp()>0 then
 		--if timer%4==0 then
-			taketurn()
-		end
-		foreach(actors.creatures,shakeactor)
-		if p!=nil then
-		cam[1]=flr(p.x/rooms[level].sector_s)*rooms[level].sector_s*cellw
-		cam[2]=flr(p.y/rooms[level].sector_s)*rooms[level].sector_s*cellh
-		end
+				taketurn()
+			end
+			foreach(actors.creatures,shakeactor)
+			if p!=nil then
+			cam[1]=flr(p.x/rooms[level].sector_s)*rooms[level].sector_s*cellw
+			cam[2]=flr(p.y/rooms[level].sector_s)*rooms[level].sector_s*cellh
+			end
 		else
 			foreach(menus,domenu)
 		end
