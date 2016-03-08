@@ -21,7 +21,6 @@ function debug_u()
 	if p!=nil then
 	debug_l[8]="px="..p.x
 	debug_l[9]="py="..p.y
---	debug_l[9]="pst="..p.steps
 	debug_l[10]="lvl="..level
 	end
 	if actortypes[2]!=nil then
@@ -159,8 +158,7 @@ function actortypes_i(l)
 	for a=1,6 do
 		actortypes[a]={}
 		for b=1,4 do actortypes[a][b]={} end
-	end
-		
+	end		
 	--player attributes
 	local ad=flr(rnd(#adjectives))+1
 	local pn=#pronouns if rnd(1)<=0.5 then pn=flr(rnd(#pronouns))+1 end
@@ -174,6 +172,7 @@ function actortypes_i(l)
 		actortypes[1][a].pn=pn
 		actortypes[1][a].sp=sp
 		actortypes[1][a].fe=fe
+		actortypes[1][a].solid=true
 	end
 	--terrain attributes
 	for a=1,4 do
@@ -188,6 +187,7 @@ function actortypes_i(l)
 		actortypes[2][a].pn=#pronouns if rnd(1)<=0.5 then actortypes[2][a].pn=flr(rnd(#pronouns))+1 end
 		actortypes[2][a].sp=flr(rnd(#objects))+1
 		actortypes[2][a].fe=flr(rnd(#feelings))+1
+		actortypes[2][a].solid=true
 	end
 	--enemy attributes
 	for a=1,4 do
@@ -199,6 +199,7 @@ function actortypes_i(l)
 		actortypes[3][a].pn=#pronouns if rnd(1)<=0.5 then actortypes[2][a].pn=flr(rnd(#pronouns))+1 end
 		actortypes[3][a].sp=flr(rnd(#species))+1
 		actortypes[3][a].fe=flr(rnd(#feelings))+1
+		actortypes[3][a].solid=true
 	end
 	--item attributes
 	for a=1,4 do
@@ -206,12 +207,15 @@ function actortypes_i(l)
 		actortypes[4][a].c=10
 		actortypes[4][a].m=0
 		actortypes[4][a].sp=1
+		actortypes[4][a].solid=false
+		actortypes[4][a].snd=4
 	end
 	--exit attributes
 	for a=1,4 do
 		actortypes[5][a].ch="&"
 		actortypes[5][a].c=11
 		actortypes[5][a].m=0
+		actortypes[5][a].solid=false
 	end
 	--potion?
 	for a=1,4 do
@@ -219,6 +223,7 @@ function actortypes_i(l)
 		actortypes[6][a].c=13
 		actortypes[6][a].m=0
 		actortypes[6][a].sp=2
+		actortypes[6][a].solid=false
 	end
 end
 
@@ -294,8 +299,6 @@ function makeactor(t,x,y)
 	a.y=y
 	a.secx=flr(a.x/rooms[level].sector_s)*rooms[level].sector_s*cellw
 	a.secy=flr(a.y/rooms[level].sector_s)*rooms[level].sector_s*cellh
-	--a.secx=0
-	--a.secy=0
 	a.shakex=0
 	a.shakey=0
 	if a.t==5 then
@@ -312,12 +315,8 @@ function makeactor(t,x,y)
 		add(actors.creatures,a)
 	end
 	if a.t==1 then
---		a.steps=0
 		a.attackpwr=2
-		a.target=nil
 		a.inventory={}
-		--add(a.inventory,4)
-		--add(a.inventory,flr(rnd(#items))+1)
 	end
 	add(actors,a)
 	return a
@@ -347,13 +346,9 @@ function drawactor(a)
 end
 
 function drawmenu(m)
-	--local a=#m.me-1
-	--while a>=0 do
 	if not debug then
 	for a=0,#m.me-1 do
 		print(m.me[a+1],m.x+cam[1],m.y+a*cellh+cam[2],6)
-		--print(m.me[a+1],m.x+cam[1],m.y+(#m.me-1)*cellh-a*cellh+cam[2],6)
-		--a-=1
 	end
 	end
 end
@@ -366,12 +361,12 @@ function taketurn()
 	debug_l[4]=0
 end
 
-function checkinventory(t)
-	for k,v in pairs(p.inventory) do
-		if v==t then return true end
-	end
-	return false
-end
+--function checkinventory(t)
+--	for k,v in pairs(p.inventory) do
+--		if v==t then return true end
+--	end
+--	return false
+--end
 
 function direction(d)
 	local dire={}
@@ -394,9 +389,7 @@ end
 function movetype(a)
 	local m=actortypes[a.t][level+1].m
 	if m==1 then
---		if a.t==1 then a.steps+=1 end
 		return btn()
---		return btnp()
 	end
 	if m==2 then
 		return followactor(a,p)
@@ -452,14 +445,13 @@ function moveactor(a,d)
 	if d!=0 then
 		local dire=actoroob(a,direction(d))
 		local cell=room[a.x+dire[1]][a.y+dire[2]]
-		if cell==0 or cell==4 or cell==5 or cell==6 then
+		if cell==0 or not actortypes[cell][level+1].solid then
 			room[a.x][a.y]=0
 			a.x+=dire[1] a.y+=dire[2]
 			room[a.x][a.y]=a.t
 			a.secx=flr(a.x/rooms[level].sector_s)*rooms[level].sector_s*cellw
 			a.secy=flr(a.y/rooms[level].sector_s)*rooms[level].sector_s*cellh
 		else
-			a.target=room[a.x+dire[1]][a.y+dire[2]]
 		 return true
 		end
 	end
@@ -478,7 +470,6 @@ function doactor(a)
 		end
 	elseif a.hit==0 then
 		local d=movetype(a)
-		a.target=nil
 		if moveactor(a,d) then
 			for cr in all(actors.creatures) do 
 				colactor(a,d,cr)
@@ -498,10 +489,11 @@ end
 
 function doitem(t)
 	if t==4 then
---		actortypes[1][level+1].c=5	
 		menus[2].t=3
 		menus[2].sel=1
 		control_inv=not control_inv
+	elseif t==6 then
+		p.hit=0
 	end
 end
 
@@ -512,6 +504,7 @@ function pickupitem(a,i)
 		c-=1
 	end
 	a.inventory[1]=i.t
+	sfx(actortypes[i.t][level+1].snd)
 	del(actors,i)
 	del(actors.items,i)
 end
@@ -522,66 +515,57 @@ function domenu(m)
 	if m.t==1 then
 		if players[1]==nil then
 			m.me[1]="you are dead!"
-		--elseif btn() then
 		elseif control_exam==true then
 			m.me[1]="examine:"
 			m.me[2]=" choose a direction"
-			if btnp(0) or btnp(1) or btnp(2) or btnp(3) then
-			--if btnp()>0 then
-			control_exam=not control_exam
-			local dire=actoroob(p,direction(btnp()))
-			p.target=room[p.x+dire[1]][p.y+dire[2]]
-			if p.target!=0 then
-				m.me[1]="you face:"
-				if p.target==4 or p.target==6 then
-					m.me[2]=" a "..items[actortypes[p.target][level+1].sp]
-				elseif p.target==3 then
-					m.me[2]=" a "..species[actortypes[p.target][level+1].sp]
-					m.me[3]=" it feels *"..feelings[actortypes[p.target][level+1].fe].."*"
-				elseif p.target==2 then
-					m.me[2]=" a "..objects[actortypes[p.target][level+1].sp]
+			if btnp()>0 and btnp()<16 then
+				control_exam=not control_exam
+				local dire=actoroob(p,direction(btnp()))
+				local target=room[p.x+dire[1]][p.y+dire[2]]
+				if target!=0 then
+					m.me[1]="you face:"
+					if target==4 or target==6 then
+						m.me[2]=" a "..items[actortypes[target][level+1].sp]
+					elseif target==3 then
+						m.me[2]=" a "..species[actortypes[target][level+1].sp]
+						m.me[3]=" it feels *"..feelings[actortypes[target][level+1].fe].."*"
+					elseif target==2 then
+						m.me[2]=" a "..objects[actortypes[target][level+1].sp]
+					end
+				else
+					local ty=actortypes[p.t][level+1]
+					m.me[1]="you are:"
+					m.me[2]=" a "..adjectives[ty.ad].." "..pronouns[ty.pn]..species[ty.sp]
+					m.me[3]=" in a "..adjectives[rooms[level].ad].." "..places[rooms[level].pl]
+					m.me[4]=" feeling *"..feelings[ty.fe].."*"
 				end
-			else
-				local n=flr(rnd(#adjectives))+1
-				local ty=actortypes[p.t][level+1]
-				m.me[1]="you are:"
-				m.me[2]=" a "..adjectives[ty.ad].." "..pronouns[ty.pn]..species[ty.sp]
-				m.me[3]=" in a "..adjectives[rooms[level].ad].." "..places[rooms[level].pl]
-				m.me[4]=" feeling *"..feelings[ty.fe].."*"
-			end
-			end
-			if btnp(5) then
+			elseif btnp(5) then
 				control_exam=not control_exam
 				m.me={}
 			end
 		end
 	--inventory menu
 	elseif m.t==2 then
+		local def={}
+		def[1]="inventory:"
+		for a=1,#p.inventory do
+			def[a+1]=" -"..items[actortypes[p.inventory[a]][level+1].sp]
+		end
 		if not control_inv then
-			m.me[1]="inventory:"
-			for a=1,#p.inventory do
-				m.me[a+1]=" -"..items[actortypes[p.inventory[a]][level+1].sp]
-			end
+			m.me=def
 		else
 			m.me[1]="use:"
 			m.me[2]=">>"..items[actortypes[p.inventory[1]][level+1].sp]
 			if btnp(4) then
 				local it=p.inventory[1]
-				if it!=nil then
 				control_inv=not control_inv
 				doitem(it)
 				del(p.inventory,p.inventory[1])
 				if it!=4 then
 					taketurn()
 				end
-				end
-				--control_inv=not control_inv
 			elseif btnp(5) then
---				m.t=2
-				m.me[1]="inventory:"
-				for a=1,#p.inventory do
-					m.me[a+1]=" -"..items[actortypes[p.inventory[a]][level+1].sp]
-				end
+				m.me=def
 				control_inv=not control_inv
 			end
 		end
@@ -593,19 +577,14 @@ function domenu(m)
 			if a==m.sel then s=">>" else s=" -" end
 			m.me[a+1]=s..items[a]
 		end
-		if btnp(3) then m.sel+=1 if m.sel>#items then m.sel=1 end 
-		elseif btnp(2) then m.sel-=1 if m.sel<1 then m.sel=#items end
-		end
-		if btnp(4) then
+		if btnp(2) then m.sel-=1 if m.sel<1 then m.sel=#items end
+		elseif btnp(3) then m.sel+=1 if m.sel>#items then m.sel=1 end
+		elseif btnp(4) then
 			makeactor(6,p.x,p.y)
 			m.t=2
-			m.me[1]="inventory:"
-			for a=1,#p.inventory do
-				m.me[a+1]=" -"..items[actortypes[p.inventory[a]][level+1].sp]
-			end
+--			m.me=def
 			control_inv=not control_inv
 			taketurn()
---			pickupitem(p,m.sel)
 		end
 	end
 end
@@ -618,12 +597,11 @@ function shakeactor(a)
 			a.shakey=cos(timer*1/6)*2
 		end
 		a.attack-=1
-	else
-		a.shakex=0 a.shakey=0
-	end
-	if a.hit>0 then
+	elseif a.hit>0 then
 		a.shakex=cos(timer*1/16)*2
-	else a.shakey=-abs(cos(timer*1/40))*2+1
+	else
+		a.shakex=0 --a.shakey=0
+		a.shakey=-abs(cos(timer*1/40))*2+1
 	end
 end
 
@@ -645,35 +623,21 @@ function state_i(s)
 	reset()
 	
 	if s==0 then
---		players={}
-		--add(players,makeactor(1,flr(rnd(rooms[level].room_w))+1,flr(rnd(rooms[level].room_w))+1))
---		add(players,makeactor(1,1,1))
 	end
 	if s==1 then
 		actortypes_i(level)
---		sector_s=16
---		sector_a=4 --6 is max here!
---		room_w=sector_s*sector_a
-		--todo: make sector size input an array
 		rooms_i(16,4)
 		loadmap(rooms[level].room_w,rooms[level].sector_a)
 		players={}
 		add(players,makeactor(1,flr(rnd(rooms[level].room_w)),flr(rnd(rooms[level].room_w))))
 		if players[1]!=nil then
 			p=players[1]
-			--add(actors,p)
-			--add(actors.creatures,p)
-		end
-		if p!=nil then
-		cam[1]=flr(p.x/rooms[level].sector_s)*rooms[level].sector_s*cellw
-		cam[2]=flr(p.y/rooms[level].sector_s)*rooms[level].sector_s*cellh
-		end
-		loadactors(rooms[level].room_w)
-		local n=flr(rnd(#adjectives))+1
-		if p!=nil then
+			cam[1]=flr(p.x/rooms[level].sector_s)*rooms[level].sector_s*cellw
+			cam[2]=flr(p.y/rooms[level].sector_s)*rooms[level].sector_s*cellh
 			makemenu(1,10,105,120,20)
 			makemenu(2,86,2,40,60)
 		end
+		loadactors(rooms[level].room_w)
 		--del(adjective,adjective[n])
 	end
 end
@@ -684,19 +648,27 @@ function stateupdate(s)
 			state=1
 			state_i(state)
 		end
-	end
-	if s==1 then
+	elseif s==1 then
 		if not control_inv and not control_exam then
 			if btnp(5) then
 				if p.inventory[1]!=nil then
 				control_inv=not control_inv
 				end
-		--end
 			elseif btnp(4) then
 				control_exam=not control_exam
 			elseif btnp()>0 then
-		--if timer%4==0 then
-				taketurn()
+			--if timer%4==0 then
+				local dire=actoroob(p,direction(btnp()))
+				local cell=room[p.x+dire[1]][p.y+dire[2]]
+				if cell!=2 then
+					taketurn()
+				else
+					sfx(3)
+					for b=1,2 do
+						if dire[b]!=0 then p.attackdir=b end
+					end
+					p.attack=6
+				end
 			end
 			foreach(actors.creatures,shakeactor)
 			if p!=nil then
@@ -711,13 +683,11 @@ function stateupdate(s)
 			level+=1
 			if level>3 then level=0 end
 			changelevel(level)
---			state_i(state)
-		end
-		end
-		--if btnp(5) then
+		--elseif btnp(5) then
 			--state=0
 			--state_i(state)
-		--end
+			end
+		end
 	end
 
 	camera(cam[1],cam[2])	
@@ -731,19 +701,11 @@ function statedraw(s)
 		print("title\npress button to start",30,30,7)
 	end
 	if s==1 then
-		--rectfill(cam[1],cam[2],cam[1]+sector_s*cellw,cam[2]+sector_s*cellh+1,level+levelc)
 		rectfill(cam[1],cam[2],cam[1]+rooms[level].sector_s*cellw,cam[2]+rooms[level].sector_s*cellh+1,rooms[level].c)
 		foreach(actors,drawactor)
 		rect(cam[1],cam[2],cam[1]+rooms[level].sector_s*cellw+1,cam[2]+rooms[level].sector_s*cellh+2)
-		if not debug then
-		--print("inventory:\n -potion",cam[1]+84,cam[2]+20,6)
-		--print("  vending",cam[1]+84,cam[2]+40,6)
-		--print("  machine",cam[1]+84,cam[2]+47,6)
-		end
 		foreach(menus,drawmenu)
 	end
---		if debug then print(xs,16*cellw+cellw,16*cellh+cellh) end
-		--rect(-2+cellw,-2+cellh,64*cellw-1,64*cellh)
 	if debug then
 		for a=1,#debug_l do
 			print(debug_l[a],cam[1]+84,cam[2]+a*6,6)
@@ -753,10 +715,6 @@ end
 
 function _init()
 	cellw=5 cellh=6
---	sector_s=16
---	sector_a=4 --6 is max here!
---	room_w=sector_s*sector_a
-
 	cam={}
 	camoffx=2
 	camoffy=2
@@ -945,8 +903,8 @@ __sfx__
 000300000f1300d120000000000012640156500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 000400002824025240212401b14017140141401014000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 000500000717008170000001727019270000000b1700a170000001127011170112701217012270131701327013170000000000000000000000000000000000000000000000000000000000000000000000000000
-000400000000000000000001307013070120701307000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000600000663004120040001300013000120001300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000300000f5400f540275402b54033340333403333033330333203332033310333103331033310000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
