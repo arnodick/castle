@@ -27,7 +27,7 @@ function debug_u()
 	debug_l[11]=actortypes[2][level+1].ch
 	debug_l[12]=actortypes[2][level+1].ch2
 	end
-	debug_l[13]=control_inv
+--	debug_l[13]=control_inv
 end
 
 function words()
@@ -224,6 +224,7 @@ function actortypes_i(l)
 		actortypes[6][a].m=0
 		actortypes[6][a].sp=2
 		actortypes[6][a].solid=false
+		actortypes[6][a].snd=5
 	end
 end
 
@@ -331,6 +332,7 @@ function makemenu(t,x,y,w,h)
 	m.h=h
 	m.me={}
 	m.sel=1
+	m.control=false
 	add(menus,m)
 end
 
@@ -346,6 +348,9 @@ function drawactor(a)
 end
 
 function drawmenu(m)
+	if m.control then
+		rect(cam[1]+m.x-2,cam[2]+m.y-2,cam[1]+m.x+m.w,cam[2]+m.y+m.h)
+	end
 	if not debug then
 	for a=0,#m.me-1 do
 		print(m.me[a+1],m.x+cam[1],m.y+a*cellh+cam[2],6)
@@ -491,7 +496,7 @@ function doitem(t)
 	if t==4 then
 		menus[2].t=3
 		menus[2].sel=1
-		control_inv=not control_inv
+		menus[2].control=not menus[2].control
 	elseif t==6 then
 		p.hit=0
 	end
@@ -515,11 +520,14 @@ function domenu(m)
 	if m.t==1 then
 		if players[1]==nil then
 			m.me[1]="you are dead!"
-		elseif control_exam==true then
+		elseif m.control==true then
 			m.me[1]="examine:"
 			m.me[2]=" choose a direction"
-			if btnp()>0 and btnp()<16 then
-				control_exam=not control_exam
+			if p.hit>0 then
+				m.me={}
+				m.me[1]=" status: stunned "..(p.hit-1).." turns"
+			elseif btnp()>0 and btnp()<16 then
+				m.control=not m.control
 				local dire=actoroob(p,direction(btnp()))
 				local target=room[p.x+dire[1]][p.y+dire[2]]
 				if target!=0 then
@@ -539,8 +547,9 @@ function domenu(m)
 					m.me[3]=" in a "..adjectives[rooms[level].ad].." "..places[rooms[level].pl]
 					m.me[4]=" feeling *"..feelings[ty.fe].."*"
 				end
-			elseif btnp(5) then
-				control_exam=not control_exam
+			end
+			if btnp(5) then
+				m.control=not m.control
 				m.me={}
 			end
 		end
@@ -551,14 +560,14 @@ function domenu(m)
 		for a=1,#p.inventory do
 			def[a+1]=" -"..items[actortypes[p.inventory[a]][level+1].sp]
 		end
-		if not control_inv then
+		if not m.control then
 			m.me=def
 		else
 			m.me[1]="use:"
 			m.me[2]=">>"..items[actortypes[p.inventory[1]][level+1].sp]
 			if btnp(4) then
 				local it=p.inventory[1]
-				control_inv=not control_inv
+				m.control=not m.control
 				doitem(it)
 				del(p.inventory,p.inventory[1])
 				if it!=4 then
@@ -566,7 +575,7 @@ function domenu(m)
 				end
 			elseif btnp(5) then
 				m.me=def
-				control_inv=not control_inv
+				m.control=not m.control
 			end
 		end
 	--buy menu
@@ -583,7 +592,7 @@ function domenu(m)
 			makeactor(6,p.x,p.y)
 			m.t=2
 --			m.me=def
-			control_inv=not control_inv
+			m.control=not m.control
 			taketurn()
 		end
 	end
@@ -634,8 +643,8 @@ function state_i(s)
 			p=players[1]
 			cam[1]=flr(p.x/rooms[level].sector_s)*rooms[level].sector_s*cellw
 			cam[2]=flr(p.y/rooms[level].sector_s)*rooms[level].sector_s*cellh
-			makemenu(1,10,105,120,20)
-			makemenu(2,86,2,40,60)
+			makemenu(1,2,105,120,22)
+			makemenu(2,86,2,40,96)
 		end
 		loadactors(rooms[level].room_w)
 		--del(adjective,adjective[n])
@@ -649,13 +658,13 @@ function stateupdate(s)
 			state_i(state)
 		end
 	elseif s==1 then
-		if not control_inv and not control_exam then
+		if not menus[1].control and not menus[2].control then
 			if btnp(5) then
 				if p.inventory[1]!=nil then
-				control_inv=not control_inv
+				menus[2].control=not menus[2].control
 				end
 			elseif btnp(4) then
-				control_exam=not control_exam
+				menus[1].control=not menus[1].control
 			elseif btnp()>0 then
 			--if timer%4==0 then
 				local dire=actoroob(p,direction(btnp()))
@@ -722,8 +731,6 @@ function _init()
 	
 	level=0
 	state=0
-	control_inv=false
-	control_exam=false
 	state_i(state)
 end
 
@@ -903,9 +910,9 @@ __sfx__
 000300000f1300d120000000000012640156500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 000400002824025240212401b14017140141401014000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 000500000717008170000001727019270000000b1700a170000001127011170112701217012270131701327013170000000000000000000000000000000000000000000000000000000000000000000000000000
-000600000663004120040001300013000120001300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000600002762001610046001300013000120001300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 000300000f5400f540275402b54033340333403333033330333203332033310333103331033310000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00050000090400905012530135100e0400e0501d5301f5100c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
