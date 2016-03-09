@@ -4,7 +4,7 @@ __lua__
 --cash castle
 --by ashley pringle
 
-debug=false
+debug=true
 debug_l={}
 debug_l[4]=0
 
@@ -180,8 +180,7 @@ function actortypes_i(l,r)
 		rltns[a].fe=fe
 		rltns[a].li=a --this is just to set up the below code that stops liking your own feeling
 		rltns[a].ha=a --samesies
-		del(ind,fe)
-		--del(feelings,feelings[fe])
+		del(ind,fe) --remove assigned feeling from temp index so it doens't get assigned to another actor
 	end
 	for a=1,r do
 		while rltns[a].li==a do
@@ -444,13 +443,18 @@ function movetype(a)
 	local m=actortypes[a.t][level+1].m
 	if m==1 then
 		return btn()
-	end
-	if m==2 then
-		return followactor(a,p)
+	elseif m==2 then
+		if rltns[actortypes[a.t][level+1].rl].ha==actortypes[p.t][level+1].rl then
+			return followactor(a,p)
+		else
+			return 2^flr(rnd(4))
+		end
 	end
 end
 
 function followactor(a,t)
+	--a=follower t=target
+	--returns a keystroke direction
 	if t!=nil then
 	if t.secx==a.secx and t.secy==a.secy then
 		local xdist=t.x-a.x
