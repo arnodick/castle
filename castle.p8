@@ -149,6 +149,13 @@ function words()
 	items[2]="potion"
 	items[3]="lazer"
 	items[4]="a butt"
+	
+	dial={}
+	dial[1]="chubby wubby!"
+	dial[2]="ceh'thoen vho..."
+	dial[3]="szrt. oreh mmern!"
+	dial[4]="my mom is mean!"
+	dial[5]="hello......."
 end
 
 function actortypes_i(l)
@@ -200,6 +207,7 @@ function actortypes_i(l)
 		actortypes[3][a].sp=flr(rnd(#species))+1
 		actortypes[3][a].fe=flr(rnd(#feelings))+1
 		actortypes[3][a].solid=true
+		actortypes[3][a].dial=flr(rnd(#dial))+1
 	end
 	--item attributes
 	for a=1,4 do
@@ -334,6 +342,7 @@ function makemenu(t,x,y,w,h)
 	m.me={}
 	m.sel=1
 	m.control=false
+	m.target=nil
 	add(menus,m)
 end
 
@@ -404,6 +413,7 @@ function movetype(a)
 end
 
 function followactor(a,t)
+	if t!=nil then
 	if t.secx==a.secx and t.secy==a.secy then
 		local xdist=t.x-a.x
 		local ydist=t.y-a.y
@@ -420,6 +430,7 @@ function followactor(a,t)
 				end
 			end
 		end
+	end
 	end
 end
 
@@ -440,6 +451,7 @@ function colactor(a,d,t)
 				room[t.x][t.y]=0
 				if t==p then
 					players[1]=nil
+					p=nil
 				end
 				del(actors,t)
 				del(actors.creatures,t)
@@ -466,15 +478,19 @@ end
 
 function doactor(a)
 	if a.t==5 then
+		if p!=nil then
 		if p.x==a.x and p.y==a.y then
 			sfx(actortypes[a.t][level+1].snd)
 			level+=1
 			if level>3 then level=0 end
 			changelevel(level)
 		end
+		end
 	elseif a.t==4 or a.t==6 then
+		if p!=nil then
 		if p.x==a.x and p.y==a.y then
 			pickupitem(p,a)
+		end
 		end
 	elseif a.hit==0 then
 		local d=movetype(a)
@@ -493,6 +509,13 @@ function destroyactors()
 	actors.creatures={}
 	actors.items={}
 	actors.exits={}
+end
+
+function dodialogue(m,t)
+	m.t=4
+	m.sel=1
+	m.control=not m.control
+	m.target=t
 end
 
 function doitem(t)
@@ -523,6 +546,8 @@ function domenu(m)
 	if m.t==1 then
 		if players[1]==nil then
 			m.me[1]="you are dead!"
+			m.me[2]=""
+			m.me[3]=" press button to continue"
 		elseif m.control==true then
 			m.me[1]="examine:"
 			m.me[2]=" choose a direction"
@@ -538,8 +563,7 @@ function domenu(m)
 					if target==4 or target==6 then
 						m.me[2]=" a "..items[actortypes[target][level+1].sp]
 					elseif target==3 then
-						m.me[2]=" a "..species[actortypes[target][level+1].sp]
-						m.me[3]=" it feels *"..feelings[actortypes[target][level+1].fe].."*"
+						dodialogue(m,target)
 					elseif target==2 then
 						m.me[2]=" a "..objects[actortypes[target][level+1].sp]
 					end
@@ -560,8 +584,10 @@ function domenu(m)
 	elseif m.t==2 then
 		local def={}
 		def[1]="inventory:"
+		if p!=nil then
 		for a=1,#p.inventory do
 			def[a+1]=" -"..items[actortypes[p.inventory[a]][level+1].sp]
+		end
 		end
 		if not m.control then
 			m.me=def
@@ -597,6 +623,27 @@ function domenu(m)
 --			m.me=def
 			m.control=not m.control
 			taketurn()
+		end
+	--talk menu
+	elseif m.t==4 then
+		if btnp(2) then m.sel-=1 if m.sel<1 then m.sel=2 end
+		elseif btnp(3) then m.sel+=1 if m.sel>2 then m.sel=1 end
+		end
+		m.me[1]="you face:"
+		m.me[2]=" a "..species[actortypes[m.target][level+1].sp]
+		local talk={} talk[1]="talk" talk[2]="argue"
+		for a=3,4 do
+			local s=""
+			if a-2==m.sel then s=" >>" else s="  -" end
+			m.me[a]=s..talk[a-2]
+		end
+		--m.me[3]=" it feels *"..feelings[actortypes[t][level+1].fe].."*"
+		--m.me[3]=" it says: \""..dial[actortypes[m.target][level+1].dial].."\""
+		--m.me[4]=" argue? button 1: yes"
+		if btnp(5) then
+			m.control=not m.control
+			m.me={}
+			m.t=1
 		end
 	end
 end
@@ -646,7 +693,7 @@ function state_i(s)
 			p=players[1]
 			cam[1]=flr(p.x/rooms[level].sector_s)*rooms[level].sector_s*cellw
 			cam[2]=flr(p.y/rooms[level].sector_s)*rooms[level].sector_s*cellh
-			makemenu(1,2,105,125,22)
+			makemenu(1,2,103,125,24)
 			makemenu(2,86,2,41,96)
 		end
 		loadactors(rooms[level].room_w)
@@ -662,6 +709,7 @@ function stateupdate(s)
 		end
 	elseif s==1 then
 		if not menus[1].control and not menus[2].control then
+			if p!=nil then
 			if btnp(5) then
 				if p.inventory[1]!=nil then
 				menus[2].control=not menus[2].control
@@ -681,6 +729,9 @@ function stateupdate(s)
 					end
 					p.attack=6
 				end
+			end
+			elseif btnp()>0 then
+			 state=0 state_i(state)
 			end
 			foreach(actors.creatures,shakeactor)
 			if p!=nil then
