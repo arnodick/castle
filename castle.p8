@@ -28,6 +28,12 @@ function debug_u()
 	debug_l[12]=actortypes[2][level+1].ch
 	debug_l[13]=actortypes[2][level+1].ch2
 	end
+	if rltns!=nil then
+	for a=1,#rltns do
+		debug_l[13+a]=feelings[rltns[a].fe].." li:"..feelings[rltns[rltns[a].li].fe].." ha:"..feelings[rltns[rltns[a].ha].fe]
+		--debug_l[13+a]=
+	end
+	end
 --	debug_l[13]=control_inv
 end
 
@@ -159,8 +165,34 @@ function words()
 	dial[5]="hello......."
 end
 
-function actortypes_i(l)
+function actortypes_i(l,r)
 	chars="@abcdefghijklmnopqrstuvwxyz0123456789!#%^*():;,.{}&$"
+
+	rltns={}
+	--temp index to delete feelings that have been selected already
+	local ind={}
+	for a=1,#feelings do
+		ind[a]=a
+	end
+	for a=1,r do
+		rltns[a]={}
+		local fe=ind[flr(rnd(#ind))+1]
+		rltns[a].fe=fe
+		rltns[a].li=a --this is just to set up the below code that stops liking your own feeling
+		rltns[a].ha=a --samesies
+		del(ind,fe)
+		--del(feelings,feelings[fe])
+	end
+	for a=1,r do
+		while rltns[a].li==a do
+			rltns[a].li=flr(rnd(r))+1
+		end
+		while rltns[a].ha==a or rltns[a].ha==rltns[a].li do
+			rltns[a].ha=flr(rnd(r))+1
+		end
+		--rltns[a].ha=flr(rnd(4))+1
+	end
+	--words()
 	
 	actortypes={}
 	for a=1,6 do
@@ -171,7 +203,8 @@ function actortypes_i(l)
 	local ad=flr(rnd(#adjectives))+1
 	local pn=#pronouns if rnd(1)<=0.5 then pn=flr(rnd(#pronouns))+1 end
 	local sp=flr(rnd(#species))+1
-	local fe=flr(rnd(#feelings))+1
+	--local fe=flr(rnd(#feelings))+1
+	local rl=flr(rnd(#rltns))+1
 	for a=1,4 do
 		actortypes[1][a].ch=sub(chars,1,1)
 		actortypes[1][a].c=7
@@ -179,7 +212,7 @@ function actortypes_i(l)
 		actortypes[1][a].ad=ad
 		actortypes[1][a].pn=pn
 		actortypes[1][a].sp=sp
-		actortypes[1][a].fe=fe
+		actortypes[1][a].rl=rl
 		actortypes[1][a].solid=true
 	end
 	--terrain attributes
@@ -206,7 +239,8 @@ function actortypes_i(l)
 		actortypes[3][a].ad=flr(rnd(#adjectives))+1
 		actortypes[3][a].pn=#pronouns if rnd(1)<=0.5 then actortypes[2][a].pn=flr(rnd(#pronouns))+1 end
 		actortypes[3][a].sp=flr(rnd(#species))+1
-		actortypes[3][a].fe=flr(rnd(#feelings))+1
+		--actortypes[3][a].fe=flr(rnd(#feelings))+1
+		actortypes[3][a].rl=flr(rnd(#rltns))+1
 		actortypes[3][a].solid=true
 		actortypes[3][a].dial=flr(rnd(#dial))+1
 	end
@@ -365,11 +399,11 @@ function drawmenu(m)
 	if m.control then
 		rect(cam[1]+m.x-2,cam[2]+m.y-2,cam[1]+m.x+m.w,cam[2]+m.y+m.h)
 	end
-	if not debug then
+	--if not debug then
 	local l=#m.me-1 if l>flr(m.h/cellh) then l=m.h/cellh end
 	for a=0,l do
 		print(m.me[a+1],m.x+cam[1],m.y+a*cellh+cam[2],6)
-	end
+	--end
 	end
 end
 
@@ -578,9 +612,9 @@ function domenu(m)
 				local target=room[p.x+dire[1]][p.y+dire[2]]
 				if target!=0 then
 					m.me[1]="you face:"
-					if target==4 or target==6 then
-						m.me[2]=" a "..items[actortypes[target][level+1].sp]
-					elseif target==3 then
+					--if target==4 or target==6 then
+						--m.me[2]=" a "..items[actortypes[target][level+1].sp]
+					if target==3 then
 						dodialogue(m,target)
 					elseif target==2 then
 						m.me[2]=" a "..objects[actortypes[target][level+1].sp]
@@ -590,7 +624,7 @@ function domenu(m)
 					m.me[1]="you are:"
 					m.me[2]=" a "..adjectives[ty.ad].." "..pronouns[ty.pn]..species[ty.sp]
 					m.me[3]=" in a "..adjectives[rooms[level].ad].." "..places[rooms[level].pl]
-					m.me[4]=" feeling *"..feelings[ty.fe].."*"
+					m.me[4]=" feeling *"..feelings[rltns[ty.rl].fe].."*"
 				end
 			end
 			if btnp(5) then
@@ -648,7 +682,7 @@ function domenu(m)
 		elseif btnp(3) then m.sel+=1 if m.sel>2 then m.sel=1 end
 		end
 		m.me[1]="you face:"
-		m.me[2]=" a "..species[actortypes[m.target][level+1].sp]
+		m.me[2]=" a "..species[actortypes[m.target][level+1].sp].." feeling *"..feelings[rltns[actortypes[m.target][level+1].rl].fe].."*"
 		local talk={} talk[1]="talk" talk[2]="argue"
 		for a=3,4 do
 			local s=""
@@ -702,7 +736,8 @@ function state_i(s)
 	if s==0 then
 	end
 	if s==1 then
-		actortypes_i(level)
+		rltns_c=5
+		actortypes_i(level,rltns_c)
 		rooms_i(16,4)
 		loadmap(rooms[level].room_w,rooms[level].sector_a)
 		players={}
@@ -760,14 +795,14 @@ function stateupdate(s)
 			foreach(menus,domenu)
 		end
 		if debug then
-		if btnp(4) then
-			level+=1
-			if level>3 then level=0 end
-			changelevel(level)
+		--if btnp(4) then
+		--	level+=1
+		--	if level>3 then level=0 end
+		--	changelevel(level)
 		--elseif btnp(5) then
 			--state=0
 			--state_i(state)
-			end
+		--	end
 		end
 	end
 
@@ -789,7 +824,8 @@ function statedraw(s)
 	end
 	if debug then
 		for a=1,#debug_l do
-			print(debug_l[a],cam[1]+84,cam[2]+a*6,6)
+			print(debug_l[a],cam[1]+0,cam[2]+(a-1)*6,6)
+			--x=84
 		end
 	end
 end
