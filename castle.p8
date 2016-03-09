@@ -323,11 +323,14 @@ function makeactor(t,x,y)
 		a.attackdir=0
 		a.attackpwr=3
 		a.hit=0
+		a.inventory={}
+		if rnd(1)<0.5 then
+			a.inventory[1]=4+flr(rnd(2))*2
+		end
 		add(actors.creatures,a)
 	end
 	if a.t==1 then
 		a.attackpwr=2
-		a.inventory={}
 	end
 	add(actors,a)
 	return a
@@ -446,10 +449,12 @@ function colactor(a,d,t)
 			a.attack=6
 			if t.hit==0 then
 				t.hit=a.attackpwr
+				dropitem(t)
 				moveactor(t,d)
 			else
 				sfx(1)
 				room[t.x][t.y]=0
+				dropitem(t)
 				if t==p then
 					players[1]=nil
 					p=nil
@@ -489,11 +494,15 @@ function doactor(a)
 		end
 		end
 	elseif a.t==4 or a.t==6 then
-		if p!=nil then
-		if p.x==a.x and p.y==a.y then
-			pickupitem(p,a)
+		--if p!=nil then
+		--if p.x==a.x and p.y==a.y then
+		for k,v in pairs(actors.creatures) do
+			if v.x==a.x and v.y==a.y then
+				pickupitem(v,a)
+			end
 		end
-		end
+		--end
+		--end
 	elseif a.hit==0 then
 		local d=movetype(a)
 		if moveactor(a,d) then
@@ -540,6 +549,13 @@ function pickupitem(a,i)
 	sfx(actortypes[i.t][level+1].snd)
 	del(actors,i)
 	del(actors.items,i)
+end
+
+function dropitem(a)
+	if a.inventory[1]!=nil then
+		makeactor(a.inventory[1],a.x,a.y)
+		del(a.inventory,a.inventory[1])
+	end
 end
 
 function domenu(m)
