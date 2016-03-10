@@ -320,7 +320,8 @@ function loadmap(rw,sa)
 	for ys=0,sa-1 do
 		for xs=0,sa-1 do
 			--loadsector(xs,ys,rooms[level][ys*sa+xs],flr(rnd(3))+1)
-			loadsector(xs,ys,rooms[level][ys*sa+xs],level)
+			--loadsector(xs,ys,rooms[level][ys*sa+xs],level)
+			loadsector(xs,ys,rooms[level][ys*sa+xs],flr(rnd(4)))
 		end
 	end
 end
@@ -563,7 +564,9 @@ function doactor(a)
 		end
 		--end
 		--end
-	elseif a.hit==0 then
+	elseif p!=nil then
+	if p.secx==a.secx and p.secy==a.secy then
+	if a.hit==0 then
 		local d=movetype(a)
 		if moveactor(a,d) then
 			for cr in all(actors.creatures) do 
@@ -572,6 +575,8 @@ function doactor(a)
 		end
 	else
 		a.hit-=1
+	end
+	end
 	end
 end
 
