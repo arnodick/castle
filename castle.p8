@@ -456,7 +456,7 @@ end
 function movetype(a)
 	local m=actortypes[a.t][level+1].m
 	if m==1 then
-		return btn()
+		return btnp()
 	elseif m==2 then
 		if p!=nil then
 			if rltns[actortypes[a.t][level+1].rl].ha!=actortypes[p.t][level+1].rl then
