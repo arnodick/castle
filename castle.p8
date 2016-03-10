@@ -4,7 +4,7 @@ __lua__
 --cash castle
 --by ashley pringle
 
-debug=true
+debug=false
 debug_l={}
 debug_l[4]=0
 
@@ -34,6 +34,7 @@ function debug_u()
 		--debug_l[13+a]=
 	end
 	end
+	--debug_l[20]=closestactor(p,actors.items)
 --	debug_l[13]=control_inv
 end
 
@@ -356,6 +357,7 @@ function makeactor(t,x,y)
 		a.attackdir=0
 		a.attackpwr=3
 		a.hit=0
+		a.tar=nil
 		a.inventory={}
 		if rnd(1)<0.5 then
 			a.inventory[1]=4+flr(rnd(2))*2
@@ -439,13 +441,33 @@ function actoroob(a,dire)
 	return dire
 end
 
+function closestactor(a,ar)
+	local d=0 local close={} local temp=0
+	for k,v in pairs(ar) do
+		temp=((v.x-a.x)^2)+((v.y-a.y)^2)
+		if temp<d or d==0 then
+			d=temp
+			close=v
+		end
+	end
+	return close
+end
+
 function movetype(a)
 	local m=actortypes[a.t][level+1].m
 	if m==1 then
 		return btn()
 	elseif m==2 then
-		if rltns[actortypes[a.t][level+1].rl].ha==actortypes[p.t][level+1].rl then
-			return followactor(a,p)
+		if p!=nil then
+			if rltns[actortypes[a.t][level+1].rl].ha!=actortypes[p.t][level+1].rl then
+				if actors.items[1]!=nil then
+					return followactor(a,closestactor(a,actors.items))
+				else
+					return 2^flr(rnd(4))
+				end
+			else
+				return followactor(a,p)
+			end
 		else
 			return 2^flr(rnd(4))
 		end
@@ -456,7 +478,7 @@ function followactor(a,t)
 	--a=follower t=target
 	--returns a keystroke direction
 	if t!=nil then
-	if t.secx==a.secx and t.secy==a.secy then
+	--if t.secx==a.secx and t.secy==a.secy then
 		local xdist=t.x-a.x
 		local ydist=t.y-a.y
 		if abs(xdist)==abs(ydist) then
@@ -472,7 +494,7 @@ function followactor(a,t)
 				end
 			end
 		end
-	end
+	--end
 	end
 end
 
