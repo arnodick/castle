@@ -418,11 +418,12 @@ end
 function drawactor(a)
 	if a.secx==cam[1] then 
 		if	a.secy==cam[2] then
-			--if a.tar!=nil then
+			if menus[1].control then
+			if a.tar!=nil then
 --		rect(a.tar.x*cellw,a.tar.y*cellh,a.tar.x*cellw+5,a.tar.y*cellh+5,8)
-			--	line(a.tar.x*cellw+3,a.tar.y*cellh+3,a.x*cellw+3,a.y*cellh+3,8)
-			--end
-
+				line(a.tar.x*cellw+3,a.tar.y*cellh+3,a.x*cellw+3,a.y*cellh+3,8)
+			end
+			end
 			if actortypes[a.t][level+1].ch2!=nil then
 				print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx,a.y*cellh+a.shakey+camoffy,actortypes[2][level+1].c2)
 			end
@@ -432,9 +433,14 @@ function drawactor(a)
 end
 
 function drawmenu(m)
+	rectfill(cam[1]+m.x-2,cam[2]+m.y-2,cam[1]+m.x+m.w,cam[2]+m.y+m.h,0)
+--	rect    (cam[1]+m.x-2,cam[2]+m.y-2,cam[1]+m.x+m.w,cam[2]+m.y+m.h,5)
 	if m.control then
-		rect(cam[1]+m.x-2,cam[2]+m.y-2,cam[1]+m.x+m.w,cam[2]+m.y+m.h)
+		rect(cam[1]+m.x-2,cam[2]+m.y-2,cam[1]+m.x+m.w,cam[2]+m.y+m.h,rooms[level].c+4)
 	end
+	--hacky background fix
+	rectfill(cam[1]+m.x-3,cam[2]+m.y-2,cam[1]+m.x-4,cam[2]+m.y+m.h,0)
+	rectfill(cam[1]+m.x-2,cam[2]+m.y-3,cam[1]+m.x+m.w,cam[2]+m.y-4,0)
 	--if not debug then
 	local l=#m.me-1 if l>flr(m.h/cellh) then l=m.h/cellh end
 	for a=0,l do
@@ -503,6 +509,7 @@ function movetype(a)
 		tars[1]=closestactor(a,actors.items)
 		tars[2]=closestactor(a,actors.creatures)
 --		tars[2]=actors.creatures[1]
+		if actors.items[1]!=nil then
 		for b=1,2 do
 			d[b]=comparedistance(a,tars[b])
 		end
@@ -515,6 +522,7 @@ function movetype(a)
 			return followactor(a,tars[1])
 		else
 			return 2^flr(rnd(4))
+		end
 		end
 --		if p!=nil then
 --			if rltns[actortypes[a.t][level+1].rl].ha!=actortypes[p.t][level+1].rl then
@@ -628,6 +636,7 @@ function doactor(a)
 		local d=movetype(a)
 		if moveactor(a,d) then
 			for cr in all(actors.creatures) do 
+			--for cr in all(actors) do 
 				colactor(a,d,cr)
 			end
 		end
@@ -700,12 +709,12 @@ function domenu(m)
 				local dire=actoroob(p,direction(btnp()))
 				local target=room[p.x+dire[1]][p.y+dire[2]]
 				if target!=0 then
-					m.me[1]="you face:"
 					--if target==4 or target==6 then
 						--m.me[2]=" a "..items[actortypes[target][level+1].sp]
 					if target==3 or target==7 or target==8 then
 						dodialogue(m,target)
 					elseif target==2 then
+						m.me[1]="you face:"
 						m.me[2]=" a "..objects[actortypes[target][level+1].sp]
 					end
 				else
@@ -770,7 +779,16 @@ function domenu(m)
 		if btnp(2) then m.sel-=1 if m.sel<1 then m.sel=2 end
 		elseif btnp(3) then m.sel+=1 if m.sel>2 then m.sel=1 end
 		end
-		m.me[1]="you face:"
+--		local dire=actoroob(p,direction(btnp()))
+--		local target=room[p.x+dire[1]][p.y+dire[2]]
+		if rltns[actortypes[p.t][level+1].rl].ha==actortypes[m.target][level+1].rl then
+			m.me[1]="you hate >( !!"
+		elseif rltns[actortypes[p.t][level+1].rl].li==actortypes[m.target][level+1].rl then
+			m.me[1]="you looooove <3"
+		else
+			m.me[1]="you face:"
+		end
+		--m.me[1]="you face:"
 		m.me[2]=" a "..species[actortypes[m.target][level+1].sp].." feeling *"..feelings[rltns[actortypes[m.target][level+1].rl].fe].."*"
 		local talk={} talk[1]="talk" talk[2]="argue"
 		for a=3,4 do
@@ -908,7 +926,7 @@ function statedraw(s)
 	if s==1 then
 		rectfill(cam[1],cam[2],cam[1]+rooms[level].sector_s*cellw,cam[2]+rooms[level].sector_s*cellh+1,rooms[level].c)
 		foreach(actors,drawactor)
-		rect(cam[1],cam[2],cam[1]+rooms[level].sector_s*cellw+1,cam[2]+rooms[level].sector_s*cellh+2)
+		rect(cam[1],cam[2],cam[1]+rooms[level].sector_s*cellw+1,cam[2]+rooms[level].sector_s*cellh+2,rooms[level].c+4)
 		foreach(menus,drawmenu)
 	end
 	if debug then
