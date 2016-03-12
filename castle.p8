@@ -743,17 +743,28 @@ function domenu(m)
 			m.me=def
 		else
 			m.me[1]="use:"
-			m.me[2]=">>"..items[actortypes[p.inventory[1]][level+1].sp]
-			if btnp(4) then
-				local it=p.inventory[1]
+			local ma=#p.inventory if ma>3 then ma=3 end
+			for a=1,ma do
+				local s=""
+				if a==m.sel then s=">>" else s=" -" end
+				m.me[a+1]=s..items[actortypes[p.inventory[a]][level+1].sp]
+			end
+			if btnp(2) then m.sel-=1 if m.sel<1 then m.sel=ma end
+			elseif btnp(3) then m.sel+=1 if m.sel>ma then m.sel=1 end
+			elseif btnp(4) then
+			--m.me[2]=">>"..items[actortypes[p.inventory[1]][level+1].sp]
+			--if btnp(4) then
+				local it=p.inventory[m.sel]
 				m.control=not m.control
+				m.sel=1
 				doitem(it)
-				del(p.inventory,p.inventory[1])
+				del(p.inventory,it)
 				if it!=4 then
 					taketurn()
 				end
 			elseif btnp(5) then
 				m.me=def
+				m.sel=1
 				m.control=not m.control
 			end
 		end
@@ -772,6 +783,7 @@ function domenu(m)
 			m.t=2
 --			m.me=def
 			m.control=not m.control
+			m.sel=1
 			taketurn()
 		end
 	--talk menu
