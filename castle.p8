@@ -385,7 +385,7 @@ function makeactor(t,x,y)
 	if a.t==8 or a.t==7 or a.t==3 or a.t==1 then
 		a.attack=0
 		a.attackdir=0
-		a.attackpwr=3
+		a.attackpwr=2
 		a.hit=0
 		a.tar=nil
 		a.inventory={}
@@ -569,26 +569,36 @@ function colactor(a,d,t)
 	local dire=direction(d)
 	if t!=a then
 		if a.x+dire[1]==t.x and a.y+dire[2]==t.y then
-			sfx(0)
-			for b=1,2 do
-				if dire[b]!=0 then a.attackdir=b end
-			end
-			a.attack=6
-			if t.hit==0 then
-				t.hit=a.attackpwr
-				dropitem(t)
-				moveactor(t,d)
-			else
-				sfx(1)
-				room[t.x][t.y]=0
-				dropitem(t)
-				if t==p then
-					players[1]=nil
-					p=nil
+			--local cell=room[a.x+dire[1]][a.y+dire[2]]
+			--if cell==1 or cell==3 or cell==7 or cell==8 then
+				sfx(0)
+				for b=1,2 do
+					if dire[b]!=0 then a.attackdir=b end
 				end
-				del(actors,t)
-				del(actors.creatures,t)
-			end
+				a.attack=6
+				if t.hit==0 then
+					if rltns[actortypes[a.t][level+1].rl].li==actortypes[t.t][level+1].rl then
+						a.attackpwr=1
+					else
+						a.attackpwr=2
+					end
+					t.hit=a.attackpwr
+					dropitem(t)
+					moveactor(t,d)
+				else
+					sfx(1)
+					room[t.x][t.y]=0
+					dropitem(t)
+					if t==p then
+						players[1]=nil
+						p=nil
+					end
+					del(actors,t)
+					del(actors.creatures,t)
+				end
+			--else
+			--	moveactor(a,2^flr(rnd(4)))
+			--end
 		end
 	end
 end
@@ -635,7 +645,7 @@ function doactor(a)
 	if a.hit==0 then
 		local d=movetype(a)
 		if moveactor(a,d) then
-			for cr in all(actors.creatures) do 
+			for cr in all(actors.creatures) do
 			--for cr in all(actors) do 
 				colactor(a,d,cr)
 			end
@@ -661,11 +671,11 @@ function dodialogue(m,t)
 	m.target=t
 end
 
-function doitem(t)
+function doitem(m,t)
 	if t==4 then
-		menus[2].t=3
-		menus[2].sel=1
-		menus[2].control=not menus[2].control
+		m.t=3
+		m.sel=1
+		m.control=not menus[2].control
 	elseif t==6 then
 		p.hit=0
 	end
@@ -690,8 +700,62 @@ function dropitem(a)
 	end
 end
 
+function controlmenu(m,mi,ma,def)
+	if m.control then
+		for a=1,mi-1 do
+			m.me[a]=def[a]
+		end
+		for a=1,ma do
+			local s=""
+			if a==m.sel then s=">>" else s=" -" end
+			if m.t==2 then
+				m.me[a+1]=s..items[actortypes[p.inventory[a]][level+1].sp]
+			elseif m.t==3 then
+				m.me[a+1]=s..items[a]
+			elseif m.t==4 then
+				local talk={} talk[1]="talk" talk[2]="argue"
+				m.me[a+2]=s..talk[a]
+			end
+		end
+		if btnp(2) then m.sel-=1 if m.sel<1 then m.sel=ma end
+		elseif btnp(3) then m.sel+=1 if m.sel>ma then m.sel=1 end
+		elseif btnp(4) then
+			if m.t==2 then
+				local it=p.inventory[m.sel]
+				m.control=not m.control
+				m.sel=1
+				doitem(m,it)
+				del(p.inventory,it)
+				if it!=4 then
+					taketurn()
+				end
+			elseif m.t==3 then
+				makeactor(6,p.x,p.y)
+				m.t=2
+				m.control=not m.control
+				m.sel=1
+				taketurn()
+			elseif m.t==4 then
+
+			end
+		elseif btnp(5) then
+			if m.t!=3 then
+				m.control=not m.control
+				m.sel=1
+				if m.t==4 then m.t=1 def={}  end
+				m.me=def
+			end
+		end
+	else
+		m.sel=1
+		if m.t==4 then m.t=1 def={} end
+		m.me=def
+	end
+end
+
 function domenu(m)
 	m.me={}
+	local def={}
 	--examine menu
 	if m.t==1 then
 		if players[1]==nil then
@@ -709,8 +773,6 @@ function domenu(m)
 				local dire=actoroob(p,direction(btnp()))
 				local target=room[p.x+dire[1]][p.y+dire[2]]
 				if target!=0 then
-					--if target==4 or target==6 then
-						--m.me[2]=" a "..items[actortypes[target][level+1].sp]
 					if target==3 or target==7 or target==8 then
 						dodialogue(m,target)
 					elseif target==2 then
@@ -732,90 +794,29 @@ function domenu(m)
 		end
 	--inventory menu
 	elseif m.t==2 then
-		local def={}
 		def[1]="inventory:"
 		if p!=nil then
-		for a=1,#p.inventory do
-			def[a+1]=" -"..items[actortypes[p.inventory[a]][level+1].sp]
-		end
-		end
-		if not m.control then
-			m.me=def
-		else
-			m.me[1]="use:"
+			for a=1,#p.inventory do
+				def[a+1]=" -"..items[actortypes[p.inventory[a]][level+1].sp]
+			end
 			local ma=#p.inventory if ma>3 then ma=3 end
-			for a=1,ma do
-				local s=""
-				if a==m.sel then s=">>" else s=" -" end
-				m.me[a+1]=s..items[actortypes[p.inventory[a]][level+1].sp]
-			end
-			if btnp(2) then m.sel-=1 if m.sel<1 then m.sel=ma end
-			elseif btnp(3) then m.sel+=1 if m.sel>ma then m.sel=1 end
-			elseif btnp(4) then
-			--m.me[2]=">>"..items[actortypes[p.inventory[1]][level+1].sp]
-			--if btnp(4) then
-				local it=p.inventory[m.sel]
-				m.control=not m.control
-				m.sel=1
-				doitem(it)
-				del(p.inventory,it)
-				if it!=4 then
-					taketurn()
-				end
-			elseif btnp(5) then
-				m.me=def
-				m.sel=1
-				m.control=not m.control
-			end
+			controlmenu(m,2,ma,def)
 		end
 	--buy menu
 	elseif m.t==3 then
-		m.me[1]="buy:"
-		for a=1,#items do
-			local s=""
-			if a==m.sel then s=">>" else s=" -" end
-			m.me[a+1]=s..items[a]
-		end
-		if btnp(2) then m.sel-=1 if m.sel<1 then m.sel=#items end
-		elseif btnp(3) then m.sel+=1 if m.sel>#items then m.sel=1 end
-		elseif btnp(4) then
-			makeactor(6,p.x,p.y)
-			m.t=2
---			m.me=def
-			m.control=not m.control
-			m.sel=1
-			taketurn()
-		end
+		def[1]="buy:"
+		controlmenu(m,2,#items,def)
 	--talk menu
 	elseif m.t==4 then
-		if btnp(2) then m.sel-=1 if m.sel<1 then m.sel=2 end
-		elseif btnp(3) then m.sel+=1 if m.sel>2 then m.sel=1 end
-		end
---		local dire=actoroob(p,direction(btnp()))
---		local target=room[p.x+dire[1]][p.y+dire[2]]
 		if rltns[actortypes[p.t][level+1].rl].ha==actortypes[m.target][level+1].rl then
-			m.me[1]="you hate >( !!"
+			def[1]="you hate >( !!"
 		elseif rltns[actortypes[p.t][level+1].rl].li==actortypes[m.target][level+1].rl then
-			m.me[1]="you looooove <3"
+			def[1]="you looooove <3"
 		else
-			m.me[1]="you face:"
+			def[1]="you face:"
 		end
-		--m.me[1]="you face:"
-		m.me[2]=" a "..species[actortypes[m.target][level+1].sp].." feeling *"..feelings[rltns[actortypes[m.target][level+1].rl].fe].."*"
-		local talk={} talk[1]="talk" talk[2]="argue"
-		for a=3,4 do
-			local s=""
-			if a-2==m.sel then s=" >>" else s="  -" end
-			m.me[a]=s..talk[a-2]
-		end
-		--m.me[3]=" it feels *"..feelings[actortypes[t][level+1].fe].."*"
-		--m.me[3]=" it says: \""..dial[actortypes[m.target][level+1].dial].."\""
-		--m.me[4]=" argue? button 1: yes"
-		if btnp(5) then
-			m.control=not m.control
-			m.me={}
-			m.t=1
-		end
+		def[2]=" a "..species[actortypes[m.target][level+1].sp].." feeling *"..feelings[rltns[actortypes[m.target][level+1].rl].fe].."*"
+		controlmenu(m,3,2,def)
 	end
 end
 
@@ -994,12 +995,12 @@ __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000088880888
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080000008
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000088880888
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080080008
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080080008
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000088880888
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
