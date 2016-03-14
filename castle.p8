@@ -422,6 +422,7 @@ function drawactor(a)
 			if a.tar!=nil then
 --		rect(a.tar.x*cellw,a.tar.y*cellh,a.tar.x*cellw+5,a.tar.y*cellh+5,8)
 				line(a.tar.x*cellw+3,a.tar.y*cellh+3,a.x*cellw+3,a.y*cellh+3,8)
+--				print(comparedistance(a.tar,a),a.x*cellw+cellw,a.y*cellh+cellh,8)
 			end
 			end
 			if actortypes[a.t][level+1].ch2!=nil then
@@ -483,7 +484,7 @@ function actoroob(a,dire)
 end
 
 function comparedistance(a,t)
-	return ((t.x-a.x)^2)+((t.y-a.y)^2)
+	return sqrt( ((t.x-a.x)^2)+((t.y-a.y)^2) )
 end
 
 function closestactor(a,ar)
@@ -671,13 +672,15 @@ function dodialogue(m,t)
 	m.target=t
 end
 
-function doitem(m,t)
-	if t==4 then
-		m.t=3
-		m.sel=1
-		m.control=not menus[2].control
-	elseif t==6 then
+function doitem(m,it)
+	quitmenu(m,m.t,false)
+	del(p.inventory,it)
+	if it==4 then
+		quitmenu(m,3,false)
+	elseif it==6 then
 		p.hit=0
+		--m.me={}
+		taketurn()
 	end
 end
 
@@ -721,35 +724,59 @@ function controlmenu(m,mi,ma,def)
 		elseif btnp(3) then m.sel+=1 if m.sel>ma then m.sel=1 end
 		elseif btnp(4) then
 			if m.t==2 then
-				local it=p.inventory[m.sel]
-				m.control=not m.control
-				m.sel=1
-				doitem(m,it)
-				del(p.inventory,it)
-				if it!=4 then
-					taketurn()
-				end
+			--use item
+				doitem(m,p.inventory[m.sel])
 			elseif m.t==3 then
+			--buy item
 				makeactor(6,p.x,p.y)
-				m.t=2
-				m.control=not m.control
-				m.sel=1
-				taketurn()
+				quitmenu(m,2,true)
 			elseif m.t==4 then
-
+			--talk
+				if m.sel==1 then
+					sfx(flr(rnd(2))+8)
+					quitmenu(m,1,true)
+					m.me={}
+					m.me[1]="they say:"
+					local trl=actortypes[m.target][level+1].rl
+					local prl=actortypes[p.t][level+1].rl
+					if     rltns[trl].ha==prl then
+						m.me[2]=" no i hate you!"
+					elseif rltns[prl].ha==trl then
+						m.me[2]=" you're mean..."
+						m.me[3]="*"..species[actortypes[m.target][level+1].sp].." now hates you!*"
+						rltns[actortypes[m.target][level+1].rl].ha=actortypes[p.t][level+1].rl
+						while rltns[actortypes[m.target][level+1].rl].li==prl do
+							rltns[actortypes[m.target][level+1].rl].li=flr(rnd(#rltns))+1
+						end
+					elseif rltns[trl].li==prl then
+						m.me[2]=" i like you! ;)"
+					else
+						m.me[2]=" no talk.. only get cash."
+					end
+				else
+				end
 			end
 		elseif btnp(5) then
 			if m.t!=3 then
-				m.control=not m.control
-				m.sel=1
-				if m.t==4 then m.t=1 def={}  end
+				local mt=m.t
+				if mt==4 then mt=1 def={} end
 				m.me=def
+				quitmenu(m,mt,false)
 			end
 		end
 	else
 		m.sel=1
 		if m.t==4 then m.t=1 def={} end
 		m.me=def
+	end
+end
+
+function quitmenu(m,ty,tu)
+	m.control=not m.control
+	m.sel=1
+	m.t=ty
+	if tu then
+		taketurn()
 	end
 end
 
@@ -767,7 +794,7 @@ function domenu(m)
 			m.me[2]=" choose a direction"
 			if p.hit>0 then
 				m.me={}
-				m.me[1]=" status: stunned "..(p.hit-1).." turns"
+				m.me[1]=" status: stunned "..(p.hit).." turns"
 			elseif btnp()>0 and btnp()<16 then
 				m.control=not m.control
 				local dire=actoroob(p,direction(btnp()))
@@ -784,7 +811,7 @@ function domenu(m)
 					m.me[1]="you are:"
 					m.me[2]=" a "..adjectives[ty.ad].." "..pronouns[ty.pn]..species[ty.sp]
 					m.me[3]=" in a "..adjectives[rooms[level].ad].." "..places[rooms[level].pl]
-					m.me[4]=" feeling *"..ty.rl..feelings[rltns[ty.rl].fe].."*"
+					m.me[4]=" feeling *"..feelings[rltns[ty.rl].fe].."*"
 				end
 			end
 			if btnp(5) then
@@ -1143,8 +1170,8 @@ __sfx__
 00050000090500906012540135200e0500e0601d5401f5200c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 000500001f240201401f2301c1301823014130102200c1100a1100711003110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 000700000161002500036100250000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000500000714008150000001724019250000000b1500a140000001124011150112401215012240131501324013150000000000000000000000000000000000000000000000000000000000000000000000000000
+0006000015050191401605000000120501414000000100501d1402375000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
