@@ -331,7 +331,13 @@ function loadsector(sx,sy,mx,my)
 	--mx+my=sector from map to load into room[]
 	for b=0,rooms[level].sector_s-1 do
 		for a=0,rooms[level].sector_s-1 do
-			room[a+sx*rooms[level].sector_s][b+sy*rooms[level].sector_s]=mget(a+mx*rooms[level].sector_s,b+my*rooms[level].sector_s)
+			--room[a+sx*rooms[level].sector_s][b+sy*rooms[level].sector_s]=mget(a+mx*rooms[level].sector_s,b+my*rooms[level].sector_s)
+			local rand=rnd(1)
+			local cell=0
+			if rand<0.2 then cell=2 end
+			if rand<0.01 then cell=3 end
+			if rand<0.005 then cell=4 end
+			room[a+sx*rooms[level].sector_s][b+sy*rooms[level].sector_s]=cell
 		end
 	end
 end
@@ -515,10 +521,13 @@ function movetype(a)
 			d[b]=comparedistance(a,tars[b])
 		end
 		if d[2]<d[1]
-		and rltns[actortypes[a.t][level+1].rl].ha==actortypes[tars[2].t][level+1].rl then
+		and rltns[actortypes[a.t][level+1].rl].ha==actortypes[tars[2].t][level+1].rl 
+		and d[2]<6 then
 			a.tar=tars[2]
 			return followactor(a,tars[2])
-		elseif actors.items[1]!=nil then
+		elseif actors.items[1]!=nil
+		and d[1]<20
+		then
 			a.tar=tars[1]
 			return followactor(a,tars[1])
 		else
@@ -582,9 +591,9 @@ function colactor(a,d,t)
 						a.attackpwr=1
 					else
 						a.attackpwr=2
+						dropitem(t)
 					end
 					t.hit=a.attackpwr
-					dropitem(t)
 					moveactor(t,d)
 				else
 					sfx(1)
@@ -615,6 +624,8 @@ function moveactor(a,d)
 			room[a.x][a.y]=a.t
 			a.secx=flr(a.x/rooms[level].sector_s)*rooms[level].sector_s*cellw
 			a.secy=flr(a.y/rooms[level].sector_s)*rooms[level].sector_s*cellh
+		elseif cell==2 then
+			moveactor(a,2^flr(rnd(4)))
 		else
 		 return true
 		end
@@ -673,14 +684,14 @@ function dodialogue(m,t)
 end
 
 function doitem(m,it)
-	quitmenu(m,m.t,false)
 	del(p.inventory,it)
 	if it==4 then
-		quitmenu(m,3,false)
+		changemenu(m,3)
 	elseif it==6 then
 		p.hit=0
-		--m.me={}
-		taketurn()
+		quitmenu(m,m.t,true)
+--		m.me={}
+--		m.me[1]="recovered!"
 	end
 end
 
@@ -771,10 +782,14 @@ function controlmenu(m,mi,ma,def)
 	end
 end
 
-function quitmenu(m,ty,tu)
-	m.control=not m.control
+function changemenu(m,ty)
 	m.sel=1
 	m.t=ty
+end
+
+function quitmenu(m,ty,tu)
+	m.control=not m.control
+	changemenu(m,ty)
 	if tu then
 		taketurn()
 	end
@@ -885,7 +900,7 @@ function state_i(s)
 	if s==1 then
 		rltns_c=4
 		actortypes_i(level,rltns_c)
-		rooms_i(16,4)
+		rooms_i(10,4)
 		loadmap(rooms[level].room_w,rooms[level].sector_a)
 		players={}
 		add(players,makeactor(1,flr(rnd(rooms[level].room_w)),flr(rnd(rooms[level].room_w))))
