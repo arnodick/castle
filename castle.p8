@@ -337,6 +337,7 @@ function loadsector(sx,sy,mx,my)
 			if rand<0.2 then cell=2 end
 			if rand<0.01 then cell=3 end
 			if rand<0.005 then cell=4 end
+--			if a==0 or a==15 or b==0 or b==15 then cell=0 end
 			room[a+sx*rooms[level].sector_s][b+sy*rooms[level].sector_s]=cell
 		end
 	end
@@ -422,8 +423,18 @@ function makemenu(t,x,y,w,h)
 end
 
 function drawactor(a)
-	if a.secx==cam[1] then 
-		if	a.secy==cam[2] then
+	if p!=nil then
+	if comparedistance(a,p)<9 then
+		if actortypes[a.t][level+1].ch2!=nil then
+			print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[2][level+1].c2)
+		end
+	if comparedistance(a,p)<6 then
+	--if flr(a.x/8)==flr(p.x/8) then
+		--if flr(a.y/8)==flr(p.y/8) then
+	--if a.secx==cam[1] then 
+		--if	a.secy==cam[2] then
+			print(actortypes[a.t][level+1].ch,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[a.t][level+1].c)
+			
 			if menus[1].control then
 			if a.tar!=nil then
 --		rect(a.tar.x*cellw,a.tar.y*cellh,a.tar.x*cellw+5,a.tar.y*cellh+5,8)
@@ -431,12 +442,16 @@ function drawactor(a)
 --				print(comparedistance(a.tar,a),a.x*cellw+cellw,a.y*cellh+cellh,8)
 			end
 			end
-			if actortypes[a.t][level+1].ch2!=nil then
-				print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx,a.y*cellh+a.shakey+camoffy,actortypes[2][level+1].c2)
-			end
-			print(actortypes[a.t][level+1].ch,a.x*cellw+a.shakex+camoffx,a.y*cellh+a.shakey+camoffy,actortypes[a.t][level+1].c)
+
 		end
 	end
+	else
+		if actortypes[a.t][level+1].ch2!=nil then
+			print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx,a.y*cellh+a.shakey+camoffy,actortypes[2][level+1].c2)
+		end
+			print(actortypes[a.t][level+1].ch,a.x*cellw+a.shakex+camoffx,a.y*cellh+a.shakey+camoffy,actortypes[a.t][level+1].c)
+	end
+	
 end
 
 function drawmenu(m)
@@ -526,7 +541,7 @@ function movetype(a)
 			a.tar=tars[2]
 			return followactor(a,tars[2])
 		elseif actors.items[1]!=nil
-		and d[1]<20
+		and d[1]<6
 		then
 			a.tar=tars[1]
 			return followactor(a,tars[1])
@@ -594,7 +609,7 @@ function colactor(a,d,t)
 						dropitem(t)
 					end
 					t.hit=a.attackpwr
-					moveactor(t,d)
+					moveactor(t,2^flr(rnd(4)))
 				else
 					sfx(1)
 					room[t.x][t.y]=0
@@ -653,7 +668,8 @@ function doactor(a)
 		--end
 		--end
 	elseif p!=nil then
-	if p.secx==a.secx and p.secy==a.secy then
+	--if p.secx==a.secx and p.secy==a.secy then
+	if comparedistance(a,p)<8 then
 	if a.hit==0 then
 		local d=movetype(a)
 		if moveactor(a,d) then
@@ -900,7 +916,7 @@ function state_i(s)
 	if s==1 then
 		rltns_c=4
 		actortypes_i(level,rltns_c)
-		rooms_i(10,4)
+		rooms_i(16,4)
 		loadmap(rooms[level].room_w,rooms[level].sector_a)
 		players={}
 		add(players,makeactor(1,flr(rnd(rooms[level].room_w)),flr(rnd(rooms[level].room_w))))
@@ -979,7 +995,6 @@ function statedraw(s)
 		print("title\npress button to start",30,30,7)
 	end
 	if s==1 then
-		rectfill(cam[1],cam[2],cam[1]+rooms[level].sector_s*cellw,cam[2]+rooms[level].sector_s*cellh+1,rooms[level].c)
 		foreach(actors,drawactor)
 		rect(cam[1],cam[2],cam[1]+rooms[level].sector_s*cellw+1,cam[2]+rooms[level].sector_s*cellh+2,rooms[level].c+4)
 		foreach(menus,drawmenu)
