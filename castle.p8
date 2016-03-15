@@ -244,10 +244,14 @@ function actortypes_i(l,r)
 		actortypes[3][a].solid=true
 		actortypes[3][a].dial=flr(rnd(#dial))+1
 	end
-	--item attributes
+	--cash attributes
 	for a=1,4 do
-		actortypes[4][a].ch="$"
+--		ch=flr(rnd(#chars)+1)
+		ch2=flr(rnd(#chars)+1)
+		actortypes[4][a].ch=sub(chars,16,16)
+		actortypes[4][a].ch2=sub(chars,ch2,ch2)
 		actortypes[4][a].c=10
+		actortypes[4][a].c2=10
 		actortypes[4][a].m=0
 		actortypes[4][a].sp=1
 		actortypes[4][a].solid=false
@@ -460,7 +464,8 @@ function drawactor(a)
 	if p!=nil then
 	if comparedistance(a,p)<7 then
 		if actortypes[a.t][level+1].ch2!=nil then
-			print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[2][level+1].c2)
+			--print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[2][level+1].c2) --keeping this in case it was giving good colour results?
+			print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[a.t][level+1].c2)
 		end
 	if comparedistance(a,p)<4 then
 	--if flr(a.x/8)==flr(p.x/8) then
@@ -892,8 +897,8 @@ function domenu(m)
 			for a=1,#p.inventory do
 				def[a+1]=" -"..items[actortypes[p.inventory[a]][level+1].sp]
 			end
-			local ma=#p.inventory if ma>3 then ma=3 end
-			controlmenu(m,2,ma,def)
+			--local ma=#p.inventory if ma>3 then ma=3 end
+			controlmenu(m,2,#p.inventory,def)
 		end
 	--buy menu
 	elseif m.t==3 then
