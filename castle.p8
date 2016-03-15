@@ -4,7 +4,7 @@ __lua__
 --cash castle
 --by ashley pringle
 
-debug=false
+debug=true
 debug_l={}
 debug_l[4]=0
 
@@ -245,13 +245,10 @@ function actortypes_i(l,r)
 		actortypes[3][a].dial=flr(rnd(#dial))+1
 	end
 	--cash attributes
+	local ch=flr(rnd(#chars)+1)
 	for a=1,4 do
---		ch=flr(rnd(#chars)+1)
-		ch2=flr(rnd(#chars)+1)
 		actortypes[4][a].ch=sub(chars,16,16)
-		actortypes[4][a].ch2=sub(chars,ch2,ch2)
 		actortypes[4][a].c=10
-		actortypes[4][a].c2=10
 		actortypes[4][a].m=0
 		actortypes[4][a].sp=1
 		actortypes[4][a].solid=false
@@ -462,7 +459,7 @@ end
 
 function drawactor(a)
 	if p!=nil then
-	if comparedistance(a,p)<7 then
+	if comparedistance(a,p)<6 then
 		if actortypes[a.t][level+1].ch2!=nil then
 			--print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[2][level+1].c2) --keeping this in case it was giving good colour results?
 			print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[a.t][level+1].c2)
@@ -1037,7 +1034,23 @@ end
 function statedraw(s)
 	cls()
 	if s==0 then
-		print("title\npress button to start",30,30,7)
+		local tx=-1 local col=1 local td=17
+		if timer>255 then col=6 end
+		if timer>510 then td=10 col=10 end
+		print("     ccccc aaaaa sssss h   h",tx,4*cellh,8+(timer/td)%col)
+		print("     c     a   a s     h   h",tx,5*cellh,8+((timer+10)/td)%col)
+		print("     c     aaaaa  sss  hhhhh",tx,6*cellh,8+((timer+20)/td)%col)
+		print("     c     a   a     s h   h",tx,7*cellh,8+((timer+30)/td)%col)
+		print("     ccccc a   a sssss h   h",tx,8*cellh,8+((timer+40)/td)%col)
+		print("ccccc aaaaa sssss ttttt l    eeeee",tx,10*cellh,8+((timer+50)/td)%col)
+		print("c     a   a s       t   l    e",tx,11*cellh,8+((timer+60)/td)%col)
+		print("c     aaaaa  sss    t   l    eee",tx,12*cellh,8+((timer+70)/td)%col)
+		print("c     a   a     s   t   l    e",tx,13*cellh,8+((timer+80)/td)%col)
+		print("ccccc a   a sssss   t   llll eeeee",tx,14*cellh,8+((timer+90)/td)%col)
+		
+		if flr(timer/20)%2==0 and timer>510 then
+		print("press button to start",25,17*cellh,7)
+		end
 	end
 	if s==1 then
 		foreach(actors,drawactor)
