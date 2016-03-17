@@ -885,9 +885,9 @@ function domenu(m)
 			m.me[2]="you got "..cash.." cash"
 			m.me[3]=" press button to continue"
 		elseif m.target!=nil then
-			m.me[1]=species[actortypes[m.target.t][level+1].sp].." screams:"
+			m.me[1]=species[actortypes[m.target][level+1].sp].." screams:"
 			m.me[2]=" blargharaghghr!!!..."
-			m.me[3]="*"..species[actortypes[m.target.t][level+1].sp].." now hates you!*"
+			m.me[3]="*"..species[actortypes[m.target][level+1].sp].." now hates you!*"
 		elseif m.control==true then
 			m.me[1]="examine:"
 			m.me[2]=" choose a direction"
