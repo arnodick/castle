@@ -457,6 +457,7 @@ function makemenu(t,x,y,w,h)
 	m.h=h
 	m.me={}
 	m.sel=1
+	m.display=false
 	m.control=false
 	m.target=nil
 	add(menus,m)
@@ -504,18 +505,23 @@ function drawmenu(m)
 	rectfill(cam[1]+m.x-3,cam[2]+m.y-2,cam[1]+m.x-4,cam[2]+m.y+m.h,0)
 	rectfill(cam[1]+m.x-2,cam[2]+m.y-3,cam[1]+m.x+m.w,cam[2]+m.y-4,0)
 	--if not debug then
+	if m.display then
 	local l=#m.me-1 if l>flr(m.h/cellh) then l=m.h/cellh end
 	for a=0,l do
 		print(m.me[a+1],m.x+cam[1],m.y+a*cellh+cam[2],6)
 	--end
 	end
+	end
 end
 
 function taketurn()
+	menus[1].display=false
+	menus[2].display=true
+	menus[1].me={}
 	foreach(actors.creatures,doactor)
 	foreach(actors.items,doactor)
 	foreach(actors.exits,doactor)
-	foreach(menus,domenu)
+--	foreach(menus,domenu)
 	debug_l[4]=0
 end
 
@@ -661,18 +667,25 @@ function colactor(a,d,t)
 					moveactor(t,2^flr(rnd(4)))
 				else
 					sfx(1)
+					local mes={}
 					room[t.x][t.y]=0
 					dropitem(t)
 					if a==p then
-						menus[1].target=t
+						--menus[1].target=t
+						mes[1]=species[actortypes[t.t][level+1].sp].." screams:"
+						mes[2]=" blargharaghghr!!!..."
+						mes[3]="*"..species[actortypes[t.t][level+1].sp].." now hates you!*"
 						rltns[actortypes[t.t][level+1].rl].ha=actortypes[p.t][level+1].rl
 					end
 					if t==p then
-						cash=countcash(p)
+						mes[1]="you are dead!"
+						mes[2]="you got "..countcash(p).." cash"
+						mes[3]=" press button to continue"
 						players[1]=nil
 						p=nil
 						sfx(21)
 					end
+					sendtomenu(menus[1],mes)
 					del(actors,t)
 					del(actors.creatures,t)
 				end
@@ -875,20 +888,18 @@ function quitmenu(m,ty,tu)
 	end
 end
 
+function sendtomenu(m,me)
+	m.display=true
+	m.me=me
+end
+
 function domenu(m)
-	m.me={}
+	--m.me={}
 	local def={}
 	--examine menu
 	if m.t==1 then
-		if players[1]==nil then
-			m.me[1]="you are dead!"
-			m.me[2]="you got "..cash.." cash"
-			m.me[3]=" press button to continue"
-		elseif m.target!=nil then
-			m.me[1]=species[actortypes[m.target][level+1].sp].." screams:"
-			m.me[2]=" blargharaghghr!!!..."
-			m.me[3]="*"..species[actortypes[m.target][level+1].sp].." now hates you!*"
-		elseif m.control==true then
+		if m.control==true then
+			m.display=true
 			m.me[1]="examine:"
 			m.me[2]=" choose a direction"
 			--if p.hit>0 then
@@ -922,6 +933,7 @@ function domenu(m)
 	elseif m.t==2 then
 		def[1]="inventory:"
 		if p!=nil then
+			m.display=true
 			for a=1,#p.inventory do
 				def[a+1]=" -"..items[actortypes[p.inventory[a]][level+1].sp]
 			end
@@ -1021,7 +1033,7 @@ function stateupdate(s)
 						menus[2].control=not menus[2].control
 					end
 				elseif btnp(4) then
-					menus[1].target=nil
+					--menus[1].target=nil
 					menus[1].control=not menus[1].control
 				elseif btnp()>0 then
 				--if timer%4==0 then
@@ -1051,6 +1063,7 @@ function stateupdate(s)
 		else
 			foreach(menus,domenu)
 		end
+		
 		if debug then
 		--if btnp(4) then
 		--	level+=1
