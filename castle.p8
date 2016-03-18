@@ -4,7 +4,7 @@ __lua__
 --cash castle
 --by ashley pringle
 
-debug=false
+debug=true
 debug_l={}
 debug_l[4]=0
 
@@ -356,7 +356,7 @@ function loadsector(sx,sy,mx,my)
 			end
 			if mc==10 then if rand<0.1 then cell=4 end end
 			local en={} en[0]=3 en[1]=7 en[2]=8
-			if rand<0.03 then cell=en[flr(rnd(3))] end
+			if rand<0.02 then cell=en[flr(rnd(3))] end
 			if rand<0.001 then cell=4 end
 			if cell==3 or cell==4 or cell==7 or cell==8 then
 				room[a+sx*ss][b+sy*ss]=cell
