@@ -394,6 +394,9 @@ function loadactors(r)
 			end
 		end
 	end
+	if actors.exits[1]==nil then
+		makeactor(5,flr(rnd(r)),flr(rnd(r)))
+	end
 end
 
 function makeactor(t,x,y)
