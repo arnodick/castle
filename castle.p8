@@ -191,9 +191,7 @@ function actortypes_i(l,r)
 		while rltns[a].ha==a or rltns[a].ha==rltns[a].li do
 			rltns[a].ha=flr(rnd(r))+1
 		end
-		--rltns[a].ha=flr(rnd(4))+1
 	end
-	--words()
 	
 	actortypes={}
 	for a=1,10 do
@@ -204,7 +202,6 @@ function actortypes_i(l,r)
 	local ad=flr(rnd(#adjectives))+1
 	local pn=#pronouns if rnd(1)<=0.5 then pn=flr(rnd(#pronouns))+1 end
 	local sp=flr(rnd(#species))+1
-	--local fe=flr(rnd(#feelings))+1
 	local rl=flr(rnd(#rltns))+1
 	for a=1,4 do
 		actortypes[1][a].ch=sub(chars,1,1)
@@ -222,13 +219,9 @@ function actortypes_i(l,r)
 		local ch2=flr(rnd(#chars)+1)
 		actortypes[2][a].ch=sub(chars,ch,ch)
 		actortypes[2][a].c=flr(rnd(14))+1
-		--actortypes[2][a].m=0
 		actortypes[2][a].ch2=sub(chars,ch2,ch2)
 		actortypes[2][a].c2=flr(rnd(14))+1
-		--actortypes[2][a].ad=flr(rnd(#adjectives))+1
-		--actortypes[2][a].pn=#pronouns if rnd(1)<=0.5 then actortypes[2][a].pn=flr(rnd(#pronouns))+1 end
 		actortypes[2][a].sp=flr(rnd(#objects))+1
-		--actortypes[2][a].fe=flr(rnd(#feelings))+1
 		actortypes[2][a].solid=true
 	end
 	--enemy attributes
@@ -240,7 +233,6 @@ function actortypes_i(l,r)
 		actortypes[3][a].ad=flr(rnd(#adjectives))+1
 		actortypes[3][a].pn=#pronouns if rnd(1)<=0.5 then actortypes[2][a].pn=flr(rnd(#pronouns))+1 end
 		actortypes[3][a].sp=flr(rnd(#species))+1
-		--actortypes[3][a].fe=flr(rnd(#feelings))+1
 		actortypes[3][a].rl=flr(rnd(#rltns))+1
 		actortypes[3][a].solid=true
 		actortypes[3][a].dial=flr(rnd(#dial))+1
@@ -281,7 +273,6 @@ function actortypes_i(l,r)
 		actortypes[7][a].ad=flr(rnd(#adjectives))+1
 		actortypes[7][a].pn=#pronouns if rnd(1)<=0.5 then actortypes[2][a].pn=flr(rnd(#pronouns))+1 end
 		actortypes[7][a].sp=flr(rnd(#species))+1
-		--actortypes[3][a].fe=flr(rnd(#feelings))+1
 		actortypes[7][a].rl=flr(rnd(#rltns))+1
 		actortypes[7][a].solid=true
 		actortypes[7][a].dial=flr(rnd(#dial))+1
@@ -295,7 +286,6 @@ function actortypes_i(l,r)
 		actortypes[8][a].ad=flr(rnd(#adjectives))+1
 		actortypes[8][a].pn=#pronouns if rnd(1)<=0.5 then actortypes[2][a].pn=flr(rnd(#pronouns))+1 end
 		actortypes[8][a].sp=flr(rnd(#species))+1
-		--actortypes[3][a].fe=flr(rnd(#feelings))+1
 		actortypes[8][a].rl=flr(rnd(#rltns))+1
 		actortypes[8][a].solid=true
 		actortypes[8][a].dial=flr(rnd(#dial))+1
@@ -306,28 +296,17 @@ function actortypes_i(l,r)
 		local ch2=flr(rnd(#chars)+1)
 		actortypes[9][a].ch=sub(chars,ch,ch)
 		actortypes[9][a].c=flr(rnd(14))+1
-		--actortypes[9][a].m=0
 		actortypes[9][a].ch2=sub(chars,ch2,ch2)
 		actortypes[9][a].c2=flr(rnd(14))+1
-		--actortypes[9][a].ad=flr(rnd(#adjectives))+1
-		--actortypes[9][a].pn=#pronouns if rnd(1)<=0.5 then actortypes[2][a].pn=flr(rnd(#pronouns))+1 end
 		actortypes[9][a].sp=flr(rnd(#objects))+1
-		--actortypes[9][a].fe=flr(rnd(#feelings))+1
 		actortypes[9][a].solid=true
 	end
 	--ground attributes
 	for a=1,4 do
 		local ch=48
-		--local ch2=flr(rnd(#chars)+1)
 		actortypes[10][a].ch=sub(chars,ch,ch)
 		actortypes[10][a].c=flr(rnd(14))+1
-		--actortypes[10][a].m=0
-		--actortypes[10][a].ch2=sub(chars,ch2,ch2)
-		--actortypes[10][a].c2=flr(rnd(14))+1
-		--actortypes[10][a].ad=flr(rnd(#adjectives))+1
-		--actortypes[10][a].pn=#pronouns if rnd(1)<=0.5 then actortypes[2][a].pn=flr(rnd(#pronouns))+1 end
 		actortypes[10][a].sp=flr(rnd(#objects))+1
-		--actortypes[10][a].fe=flr(rnd(#feelings))+1
 		actortypes[10][a].solid=false
 	end
 end
@@ -497,20 +476,17 @@ end
 
 function drawmenu(m)
 	rectfill(cam[1]+m.x-2,cam[2]+m.y-2,cam[1]+m.x+m.w,cam[2]+m.y+m.h,0)
---	rect    (cam[1]+m.x-2,cam[2]+m.y-2,cam[1]+m.x+m.w,cam[2]+m.y+m.h,5)
-	if m.control then
-		rect(cam[1]+m.x-2,cam[2]+m.y-2,cam[1]+m.x+m.w,cam[2]+m.y+m.h,rooms[level].c+4)
-	end
 	--hacky background fix
 	rectfill(cam[1]+m.x-3,cam[2]+m.y-2,cam[1]+m.x-4,cam[2]+m.y+m.h,0)
 	rectfill(cam[1]+m.x-2,cam[2]+m.y-3,cam[1]+m.x+m.w,cam[2]+m.y-4,0)
-	--if not debug then
-	if m.display then
-	local l=#m.me-1 if l>flr(m.h/cellh) then l=m.h/cellh end
-	for a=0,l do
-		print(m.me[a+1],m.x+cam[1],m.y+a*cellh+cam[2],6)
-	--end
+	if m.control then
+		rect(cam[1]+m.x-2,cam[2]+m.y-2,cam[1]+m.x+m.w,cam[2]+m.y+m.h,rooms[level].c+4)
 	end
+	if m.display then
+		local l=#m.me-1 if l>flr(m.h/cellh) then l=m.h/cellh end
+		for a=0,l do
+			print(m.me[a+1],m.x+cam[1],m.y+a*cellh+cam[2],6)
+		end
 	end
 end
 
@@ -524,13 +500,6 @@ function taketurn()
 --	foreach(menus,domenu)
 	debug_l[4]=0
 end
-
---function checkinventory(t)
---	for k,v in pairs(p.inventory) do
---		if v==t then return true end
---	end
---	return false
---end
 
 function direction(d)
 	local dire={}
@@ -594,30 +563,15 @@ function movetype(a)
 				return 2^flr(rnd(4))
 			end
 		end
---		if p!=nil then
---			if rltns[actortypes[a.t][level+1].rl].ha!=actortypes[p.t][level+1].rl then
---				if actors.items[1]!=nil then
---					return followactor(a,closestactor(a,actors.items))
---				else
---					return 2^flr(rnd(4))
---				end
---			else
---				return followactor(a,p)
---			end
---		else
---			return 2^flr(rnd(4))
---		end
 	end
 end
 
 function followactor(a,t)
 	--a=follower t=target
-	--returns a keystroke direction
+	--returns keystroke direction
 	if t!=nil then
-	--if t.secx==a.secx and t.secy==a.secy then
 		local xdist=t.x-a.x local ydist=t.y-a.y
 		if abs(xdist)==abs(ydist) then
-			--return 2^flr(rnd(4))
 			if xdist<0 then return 1
 			else return 2
 			end
@@ -629,9 +583,7 @@ function followactor(a,t)
 			if ydist<0 then return 4
 			else return 8
 			end
-		--end
 		end
-	--end
 	end
 end
 
@@ -649,49 +601,36 @@ function colactor(a,d,t)
 	local dire=direction(d)
 	if t!=a then
 		if a.x+dire[1]==t.x and a.y+dire[2]==t.y then
-			--local cell=room[a.x+dire[1]][a.y+dire[2]]
-			--if cell==1 or cell==3 or cell==7 or cell==8 then
-				sfx(0)
-				for b=1,2 do
-					if dire[b]!=0 then a.attackdir=b end
+			sfx(0)
+			for b=1,2 do
+				if dire[b]!=0 then a.attackdir=b end
+			end
+			a.attack=6
+			if t.hit==0 then
+				t.hit=a.attackpwr
+				moveactor(t,2^flr(rnd(4)))
+			else
+				sfx(1)
+				local mes={}
+				room[t.x][t.y]=0
+				dropitem(t)
+				if a==p then
+					mes[1]=species[actortypes[t.t][level+1].sp].." screams:"
+					mes[2]=" blargharaghghr!!!..."
+					mes[3]="*"..species[actortypes[t.t][level+1].sp].." now hates you!*"
+					rltns[actortypes[t.t][level+1].rl].ha=actortypes[p.t][level+1].rl
+				elseif t==p then
+					mes[1]="you are dead!"
+					mes[2]="you got "..countcash(p).." cash"
+					mes[3]=" press button to continue"
+					players[1]=nil
+					p=nil
+					sfx(21)
 				end
-				a.attack=6
-				if t.hit==0 then
-					--if rltns[actortypes[a.t][level+1].rl].li==actortypes[t.t][level+1].rl then
-					--	a.attackpwr=1
-					--else
-					--	a.attackpwr=2
-						--dropitem(t)
-					--end
-					t.hit=a.attackpwr
-					moveactor(t,2^flr(rnd(4)))
-				else
-					sfx(1)
-					local mes={}
-					room[t.x][t.y]=0
-					dropitem(t)
-					if a==p then
-						--menus[1].target=t
-						mes[1]=species[actortypes[t.t][level+1].sp].." screams:"
-						mes[2]=" blargharaghghr!!!..."
-						mes[3]="*"..species[actortypes[t.t][level+1].sp].." now hates you!*"
-						rltns[actortypes[t.t][level+1].rl].ha=actortypes[p.t][level+1].rl
-					end
-					if t==p then
-						mes[1]="you are dead!"
-						mes[2]="you got "..countcash(p).." cash"
-						mes[3]=" press button to continue"
-						players[1]=nil
-						p=nil
-						sfx(21)
-					end
-					sendtomenu(menus[1],mes)
-					del(actors,t)
-					del(actors.creatures,t)
-				end
-			--else
-			--	moveactor(a,2^flr(rnd(4)))
-			--end
+				sendtomenu(menus[1],mes)
+				del(actors,t)
+				del(actors.creatures,t)
+			end
 		end
 	end
 end
@@ -701,7 +640,6 @@ function moveactor(a,d)
 		local dire=actoroob(a,direction(d))
 		local cell=room[a.x+dire[1]][a.y+dire[2]]
 		if cell==0 or not actortypes[cell][level+1].solid then
---			sfx(7)
 			room[a.x][a.y]=0
 			a.x+=dire[1] a.y+=dire[2]
 			room[a.x][a.y]=a.t
@@ -726,23 +664,17 @@ function doactor(a)
 			end
 		end
 	elseif a.t==4 or a.t==6 then
-		--if p!=nil then
-		--if p.x==a.x and p.y==a.y then
-		for k,v in pairs(actors.creatures) do
+		for v in all(actors.creatures) do
 			if v.x==a.x and v.y==a.y then
 				pickupitem(v,a)
 			end
 		end
-		--end
-		--end
 	elseif p!=nil then
-	--if p.secx==a.secx and p.secy==a.secy then
 		if comparedistance(a,p)<6 then
 			if a.hit==0 then
 				local d=movetype(a)
 				if moveactor(a,d) then
 					for cr in all(actors.creatures) do
-			--for cr in all(actors) do 
 					colactor(a,d,cr)
 					end
 				end
@@ -774,8 +706,6 @@ function doitem(m,it)
 	elseif it==6 then
 		p.hit=0
 		quitmenu(m,m.t,true)
---		m.me={}
---		m.me[1]="recovered!"
 	end
 end
 
@@ -985,7 +915,6 @@ function changelevel(l)
 		add(actors,p)
 		add(actors.creatures,p)
 	end
---	actortypes_i(l)
 	loadmap(rooms[level].room_w,rooms[level].sector_a)
 	loadactors(rooms[level].room_w)
 end
@@ -1033,7 +962,6 @@ function stateupdate(s)
 						menus[2].control=not menus[2].control
 					end
 				elseif btnp(4) then
-					--menus[1].target=nil
 					menus[1].control=not menus[1].control
 				elseif btnp()>0 then
 				--if timer%4==0 then
@@ -1081,28 +1009,36 @@ function stateupdate(s)
 	debug_u()
 end
 
+function drawtitle(tx,yl,st,td,col)
+	local title={}
+	title[1] ="     ccccc aaaaa sssss h   h"
+	title[2] ="     c     a   a s     h   h"
+	title[3] ="     c     aaaaa  sss  hhhhh"
+	title[4] ="     c     a   a     s h   h"
+	title[5] ="     ccccc a   a sssss h   h"
+	title[6] =""
+	title[7] ="ccccc aaaaa sssss ttttt l    eeeee"
+	title[8] ="c     a   a s       t   l    e"    
+	title[9] ="c     aaaaa  sss    t   l    eee"  
+	title[10]="c     a   a     s   t   l    e"    
+	title[11]="ccccc a   a sssss   t   llll eeeee"
+	local ind=0
+	for a=0,2 do
+		if timer>st*2^a then ind=a+1 end
+	end
+	for a=1,#title do
+		print(title[a],tx,(yl+a)*cellh,8+((timer+(a-1)*10)/td[ind+1])%col[ind+1])
+	end
+	if flr(timer/20)%2==0 and timer>st*2 then
+		print("press button to start",25,17*cellh,7)
+	end
+	if timer==1140 then timer=0 end
+end
+
 function statedraw(s)
 	cls()
 	if s==0 then
-		local tx=-1 local col=1 local td=17
-		if timer>255 then col=6 end
-		if timer>510 then td=10 col=10 end
-		if timer>1020 then td=30 col=10 end
-		if timer==1140 then timer=0 end
-		print("     ccccc aaaaa sssss h   h",tx,4*cellh,8+(timer/td)%col)
-		print("     c     a   a s     h   h",tx,5*cellh,8+((timer+10)/td)%col)
-		print("     c     aaaaa  sss  hhhhh",tx,6*cellh,8+((timer+20)/td)%col)
-		print("     c     a   a     s h   h",tx,7*cellh,8+((timer+30)/td)%col)
-		print("     ccccc a   a sssss h   h",tx,8*cellh,8+((timer+40)/td)%col)
-		print("ccccc aaaaa sssss ttttt l    eeeee",tx,10*cellh,8+((timer+50)/td)%col)
-		print("c     a   a s       t   l    e",tx,11*cellh,8+((timer+60)/td)%col)
-		print("c     aaaaa  sss    t   l    eee",tx,12*cellh,8+((timer+70)/td)%col)
-		print("c     a   a     s   t   l    e",tx,13*cellh,8+((timer+80)/td)%col)
-		print("ccccc a   a sssss   t   llll eeeee",tx,14*cellh,8+((timer+90)/td)%col)
-		
-		if flr(timer/20)%2==0 and timer>510 then
-		print("press button to start",25,17*cellh,7)
-		end
+		drawtitle(-1,3,255,{16,16,10,30},{1,6,10,10})
 	end
 	if s==1 then
 		foreach(actors,drawactor)
@@ -1112,7 +1048,6 @@ function statedraw(s)
 	if debug then
 		for a=1,#debug_l do
 			print(debug_l[a],cam[1]+0,cam[2]+(a-1)*6,6)
-			--x=84
 		end
 	end
 end
