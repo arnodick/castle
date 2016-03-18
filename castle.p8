@@ -449,7 +449,7 @@ function drawactor(a)
 			--print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[2][level+1].c2) --keeping this in case it was giving good colour results?
 			print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[a.t][level+1].c2)
 		end
-		if comparedistance(a,p)<5 then
+		if comparedistance(a,p)<6 then
 	--if flr(a.x/8)==flr(p.x/8) then
 		--if flr(a.y/8)==flr(p.y/8) then
 	--if a.secx==cam[1] then 
@@ -765,7 +765,7 @@ function controlmenu(m,mi,ma,def)
 					local en={} en[1]=3 en[2]=7 en[3]=8
 					local r=flr(rnd(#en))+1
 					m.me={}
-					m.me[1]="they say:"
+--					m.me[1]="they say:"
 					local trl=actortypes[m.target][level+1].rl
 					local prl=actortypes[p.t][level+1].rl
 					if     rltns[trl].ha==prl then
