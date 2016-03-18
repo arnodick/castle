@@ -4,7 +4,7 @@ __lua__
 --cash castle
 --by ashley pringle
 
-debug=true
+debug=false
 debug_l={}
 debug_l[4]=0
 
@@ -540,32 +540,36 @@ function closestactor(a,ar)
 	return close
 end
 
+function settarget(a)
+	local tars={} local d={}
+	tars[1]=closestactor(a,actors.items)
+	tars[2]=closestactor(a,actors.creatures)
+	if actors.items[1]!=nil then
+		for b=1,2 do
+			d[b]=comparedistance(a,tars[b])
+		end
+		if d[2]<d[1]
+		and rltns[actortypes[a.t][level+1].rl].ha==actortypes[tars[2].t][level+1].rl 
+		and d[2]<8 then
+			a.tar=tars[2]
+			return followactor(a,tars[2])
+		elseif actors.items[1]!=nil
+		and d[1]<8then
+			a.tar=tars[1]
+			return followactor(a,tars[1])
+		else
+			a.tar=nil
+			return 2^flr(rnd(4))
+		end
+	end
+end
+
 function movetype(a)
 	local m=actortypes[a.t][level+1].m
 	if m==1 then
 		return btnp()
 	elseif m==2 then
-		local tars={} local d={}
-		tars[1]=closestactor(a,actors.items)
-		tars[2]=closestactor(a,actors.creatures)
-		if actors.items[1]!=nil then
-			for b=1,2 do
-				d[b]=comparedistance(a,tars[b])
-			end
-			if d[2]<d[1]
-			and rltns[actortypes[a.t][level+1].rl].ha==actortypes[tars[2].t][level+1].rl 
-			and d[2]<8 then
-				a.tar=tars[2]
-				return followactor(a,tars[2])
-			elseif actors.items[1]!=nil
-			and d[1]<8
-			then
-				a.tar=tars[1]
-				return followactor(a,tars[1])
-			else
-				return 2^flr(rnd(4))
-			end
-		end
+		return settarget(a)
 	end
 end
 
@@ -965,6 +969,13 @@ function stateupdate(s)
 						menus[2].control=not menus[2].control
 					end
 				elseif btnp(4) then
+					for v in all(actors.creatures) do
+						if v!=p then
+							if comparedistance(v,p)<6 then
+								settarget(v)
+							end
+						end
+					end
 					menus[1].control=not menus[1].control
 				elseif btnp()>0 then
 				--if timer%4==0 then
