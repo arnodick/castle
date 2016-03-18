@@ -416,7 +416,7 @@ function makeactor(t,x,y)
 		a.attackdir=0
 		a.attackpwr=2
 		a.hit=0
-		a.tar=a
+		a.tar=nil
 		a.inventory={}
 		if rnd(1)<0.5 then
 			a.inventory[1]=4+flr(rnd(2))*2
@@ -458,7 +458,9 @@ function drawactor(a)
 			
 			if menus[1].control then
 				if a.tar!=nil then
+--		rect(a.tar.x*cellw,a.tar.y*cellh,a.tar.x*cellw+5,a.tar.y*cellh+5,8)
 					line(a.tar.x*cellw+3+2,a.tar.y*cellh+3+2,a.x*cellw+3+2,a.y*cellh+3+2,8)
+--				print(comparedistance(a.tar,a),a.x*cellw+cellw,a.y*cellh+cellh,8)
 				end
 			end
 		end
@@ -495,7 +497,6 @@ function taketurn()
 	foreach(actors.creatures,doactor)
 	foreach(actors.items,doactor)
 	foreach(actors.exits,doactor)
---	foreach(actors.creatures,settarget)
 --	foreach(menus,domenu)
 	debug_l[4]=0
 end
@@ -536,9 +537,11 @@ function closestactor(a,ar)
 	return close
 end
 
-function settarget(a)
---	if comparedistance(a,p)<6 then
-	if actortypes[a.t][level+1].m==2 then
+function movetype(a)
+	local m=actortypes[a.t][level+1].m
+	if m==1 then
+		return btnp()
+	elseif m==2 then
 		local tars={} local d={}
 		tars[1]=closestactor(a,actors.items)
 		tars[2]=closestactor(a,actors.creatures)
@@ -550,31 +553,15 @@ function settarget(a)
 			and rltns[actortypes[a.t][level+1].rl].ha==actortypes[tars[2].t][level+1].rl 
 			and d[2]<8 then
 				a.tar=tars[2]
-				--return followactor(a,tars[2])
+				return followactor(a,tars[2])
 			elseif actors.items[1]!=nil
-			and d[1]<8then
+			and d[1]<8
+			then
 				a.tar=tars[1]
-				--return followactor(a,tars[1])
+				return followactor(a,tars[1])
 			else
-				a.tar=nil
-				--return 2^flr(rnd(4))
+				return 2^flr(rnd(4))
 			end
-		end
-	end
-	return a.tar
---	end
-end
-
-function movetype(a)
-	local m=actortypes[a.t][level+1].m
-	if m==1 then
-		return btnp()
-	elseif m==2 then
---		settarget(a)
-		if settarget(a)!=nil then
-			return followactor(a,a.tar)
-		else
-			return 2^flr(rnd(4))
 		end
 	end
 end
