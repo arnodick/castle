@@ -554,7 +554,7 @@ function settarget(a)
 			a.tar=tars[2]
 			return followactor(a,tars[2])
 		elseif actors.items[1]!=nil
-		and d[1]<8then
+		and d[1]<8 then
 			a.tar=tars[1]
 			return followactor(a,tars[1])
 		else
