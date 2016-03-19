@@ -494,9 +494,11 @@ function drawmenu(m)
 end
 
 function taketurn()
-	menus[1].display=false
-	menus[2].display=true
-	menus[1].me={}
+	for m in all(menus) do
+		m.display=false
+--	menus[2].display=true
+		m.me={}
+	end
 	foreach(actors.creatures,doactor)
 	foreach(actors.items,doactor)
 	foreach(actors.exits,doactor)
@@ -677,6 +679,9 @@ function doactor(a)
 			end
 		end
 	elseif p!=nil then
+		if a==p then
+			sendtomenu(menus[2],listinventory(p))
+		end
 		if comparedistance(a,p)<6 then
 			if a.hit==0 then
 				local d=movetype(a)
@@ -760,6 +765,7 @@ function controlmenu(m,mi,ma,def)
 			if m.t==2 then
 			--use item
 				doitem(m,p.inventory[m.sel])
+				sendtomenu(menus[2],listinventory(p))
 			elseif m.t==3 then
 			--buy item
 				makeactor(6,p.x,p.y)
@@ -825,6 +831,15 @@ function quitmenu(m,ty,tu)
 	end
 end
 
+function listinventory(a)
+	me={}
+	me[1]="inventory:"
+	for b=1,#a.inventory do
+		me[b+1]=" -"..items[actortypes[a.inventory[b]][level+1].sp]
+	end
+	return me
+end
+
 function sendtomenu(m,me)
 	m.display=true
 	m.me=me
@@ -868,12 +883,12 @@ function domenu(m)
 		end
 	--inventory menu
 	elseif m.t==2 then
-		def[1]="inventory:"
+--		def[1]="inventory:"
 		if p!=nil then
-			m.display=true
-			for a=1,#p.inventory do
-				def[a+1]=" -"..items[actortypes[p.inventory[a]][level+1].sp]
-			end
+--			m.display=true
+--			for a=1,#p.inventory do
+--				def[a+1]=" -"..items[actortypes[p.inventory[a]][level+1].sp]
+--			end
 			--local ma=#p.inventory if ma>3 then ma=3 end
 			controlmenu(m,2,#p.inventory,def)
 		end
