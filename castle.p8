@@ -676,6 +676,9 @@ function doactor(a)
 		for v in all(actors.creatures) do
 			if v.x==a.x and v.y==a.y then
 				pickupitem(v,a)
+				if v==p then
+					sendtomenu(menus[2],listinventory(p))
+				end
 			end
 		end
 	elseif p!=nil then
