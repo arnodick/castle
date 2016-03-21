@@ -18,19 +18,22 @@ function debug_u()
 	debug_l[5]="actors:"..#actors
 	debug_l[6]="creats:"..#actors.creatures
 	debug_l[7]="items:"..#actors.items
+	debug_l[8]="cursors:"..#actors.cursors
 	if p!=nil then
-	debug_l[8]="inv:"..#p.inventory
-	debug_l[9]="px="..p.x
-	debug_l[10]="py="..p.y
-	debug_l[11]="lvl="..level
+	debug_l[9]="inv:"..#p.inventory
+--	debug_l[10]="px="..p.x
+--	debug_l[11]="py="..p.y
+	debug_l[10]="curx="..cur.x
+	debug_l[11]="cury="..cur.y
+	debug_l[12]="lvl="..level
 	end
 	if actortypes[2]!=nil then
-	debug_l[12]=actortypes[2][level+1].ch
-	debug_l[13]=actortypes[2][level+1].ch2
+	debug_l[13]=actortypes[2][level+1].ch
+	debug_l[14]=actortypes[2][level+1].ch2
 	end
 	if rltns!=nil then
 	for a=1,#rltns do
-		debug_l[13+a]=feelings[rltns[a].fe].." li:"..feelings[rltns[rltns[a].li].fe].." ha:"..feelings[rltns[rltns[a].ha].fe]
+		debug_l[14+a]=feelings[rltns[a].fe].." li:"..feelings[rltns[rltns[a].li].fe].." ha:"..feelings[rltns[rltns[a].ha].fe]
 		--debug_l[13+a]=
 	end
 	end
@@ -167,7 +170,7 @@ function words()
 end
 
 function actortypes_i(l,r)
-	chars="@abcdefghijklmnopqrstuvwxyz0123456789!#%^*():;,.{}&$"
+	chars="@abcdefghijklmnopqrstuvwxyz0123456789!#%^*():;,.{}&$ "
 
 	rltns={}
 	--temp index to delete feelings that have been selected already
@@ -311,14 +314,13 @@ function actortypes_i(l,r)
 	end
 		--cursor abilities
 	for a=1,4 do
-		--local ch=48
-		actortypes[11][a].ch=sub(chars,20,20)
+		actortypes[11][a].ch=sub(chars,#chars,#chars)
 		actortypes[11][a].c=8
 --		actortypes[10][a].sp=flr(rnd(#objects))+1
 		actortypes[11][a].solid=false
 		actortypes[11][a].m=1
-		actortypes[11][a].display=false
-		actortypes[11][a].control=false
+		--actortypes[11][a].display=false
+		--actortypes[11][a].control=false
 	end
 end
 
@@ -437,6 +439,10 @@ function makeactor(t,x,y)
 		end
 		add(actors.creatures,a)
 	end
+	if a.t==11 then
+		a.hit=0
+		add(actors.cursors,a)
+	end
 	add(actors,a)
 	return a
 end
@@ -494,6 +500,10 @@ function drawmenu(m)
 	rectfill(cam[1]+m.x-2,cam[2]+m.y-3,cam[1]+m.x+m.w,cam[2]+m.y-4,0)
 	if m.control then
 		rect(cam[1]+m.x-2,cam[2]+m.y-2,cam[1]+m.x+m.w,cam[2]+m.y+m.h,rooms[level].c+4)
+		if m.t==1 then
+			--draw cursor
+			rect(cur.x*cellw+camoffx,cur.y*cellh+camoffy,cur.x*cellw+cellw+camoffx+1,cur.y*cellh+cellh+camoffy+1,8)
+		end
 	end
 	if m.display then
 		local l=#m.me-1 if l>flr(m.h/cellh) then l=m.h/cellh end
@@ -511,7 +521,6 @@ function taketurn()
 	foreach(actors.creatures,doactor)
 	foreach(actors.items,doactor)
 	foreach(actors.exits,doactor)
---	foreach(menus,domenu)
 	debug_l[4]=0
 end
 
@@ -658,7 +667,7 @@ function moveactor(a,d)
 	if d!=0 then
 		local dire=actoroob(a,direction(d))
 		local cell=room[a.x+dire[1]][a.y+dire[2]]
-		if cell==0 or not actortypes[cell][level+1].solid then
+		if cell==0 or not actortypes[cell][level+1].solid or a.t==11  then
 			room[a.x][a.y]=0
 			a.x+=dire[1] a.y+=dire[2]
 			room[a.x][a.y]=a.t
@@ -695,7 +704,7 @@ function doactor(a)
 		if a==p then
 			sendtomenu(menus[2],listinventory(p))
 		end
-		if comparedistance(a,p)<6 then
+		if comparedistance(a,p)<6 or a.t==11 then
 			if a.hit==0 then
 				local d=movetype(a)
 				if moveactor(a,d) then
@@ -715,6 +724,7 @@ function destroyactors()
 	actors.creatures={}
 	actors.items={}
 	actors.exits={}
+	actors.cursors={}
 end
 
 function dodialogue(m,t)
@@ -863,26 +873,29 @@ function domenu(m)
 	--examine menu
 	if m.t==1 then
 		if m.control==true then
-			sendtomenu(m,{"examine:"," choose a direction"})
-			if btnp()>0 and btnp()<16 then
-				m.control=not m.control
-				local dire=actoroob(p,direction(btnp()))
-				local target=room[p.x+dire[1]][p.y+dire[2]]
-				if target!=0 then
-					if target==3 or target==7 or target==8 then
-						dodialogue(m,target)
-					elseif target==2 or target==9 then
-						m.me[1]="you face:"
-						m.me[2]=" a "..objects[actortypes[target][level+1].sp]
-					end
-				else
-					local ty=actortypes[p.t][level+1]
-					m.me[1]="you are:"
-					m.me[2]=" a "..adjectives[ty.ad].." "..pronouns[ty.pn]..species[ty.sp]
-					m.me[3]=" in a "..adjectives[rooms[level].ad].." "..places[rooms[level].pl]
-					m.me[4]=" feeling *"..feelings[rltns[ty.rl].fe].."*"
-				end
+--			sendtomenu(m,{"examine:"," choose a direction"})
+			local mes={}
+--				m.control=not m.control
+--				local dire=actoroob(p,direction(btnp()))
+			local target=room[cur.x][cur.y]
+			if target!=0 then
+--					if target==3 or target==7 or target==8 then
+--						dodialogue(m,target)
+					--else
+--				mes[1]="you see:"
+--						mes[2]=" a "..objects[actortypes[target][level+1].sp]
+--			if target==2 or target==9 then
+				mes[1]="you see:"
+				--mes[2]=" a "..objects[actortypes[target][level+1].sp]
+				mes[2]=" thing"
+			else
+				local ty=actortypes[p.t][level+1]
+				mes[1]="you are:"
+				mes[2]=" a "..adjectives[ty.ad].." "..pronouns[ty.pn]..species[ty.sp]
+				mes[3]=" in a "..adjectives[rooms[level].ad].." "..places[rooms[level].pl]
+				mes[4]=" feeling *"..feelings[rltns[ty.rl].fe].."*"
 			end
+			sendtomenu(m,mes)
 			if btnp(5) then
 				m.control=not m.control
 				m.me={}
@@ -937,6 +950,7 @@ function changelevel(l)
 		add(actors,p)
 		add(actors.creatures,p)
 	end
+	cur=makeactor(11,p.x,p.y)
 	loadmap(rooms[level].room_w,rooms[level].sector_a)
 	loadactors(rooms[level].room_w)
 end
@@ -980,10 +994,12 @@ function stateupdate(s)
 	elseif s==1 then
 		if not menus[1].control and not menus[2].control then
 			if p!=nil then
+				--control inventory
 				if btnp(5) then
 					if p.inventory[1]!=nil then
 						menus[2].control=not menus[2].control
 					end
+				--control examine
 				elseif btnp(4) then
 					for v in all(actors.creatures) do
 						if v!=p then
@@ -992,8 +1008,9 @@ function stateupdate(s)
 							end
 						end
 					end
-					cur.display=not cur.display
+--					cur.display=not cur.display
 					menus[1].control=not menus[1].control
+					cur.x=p.x cur.y=p.y
 				elseif btnp()>0 then
 				--if timer%4==0 then
 					local dire=actoroob(p,direction(btnp()))
@@ -1020,6 +1037,7 @@ function stateupdate(s)
 				cam[2]=flr(p.y/rooms[level].sector_s)*rooms[level].sector_s*cellh
 			end
 		else
+			foreach(actors.cursors,doactor)
 			foreach(menus,domenu)
 		end
 		
