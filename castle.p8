@@ -667,7 +667,9 @@ function moveactor(a,d)
 	if d!=0 then
 		local dire=actoroob(a,direction(d))
 		local cell=room[a.x+dire[1]][a.y+dire[2]]
-		if cell==0 or not actortypes[cell][level+1].solid or a.t==11  then
+		if a.t==11 then
+			a.x+=dire[1] a.y+=dire[2]
+		elseif cell==0 or not actortypes[cell][level+1].solid then
 			room[a.x][a.y]=0
 			a.x+=dire[1] a.y+=dire[2]
 			room[a.x][a.y]=a.t
@@ -878,22 +880,19 @@ function domenu(m)
 --				m.control=not m.control
 --				local dire=actoroob(p,direction(btnp()))
 			local target=room[cur.x][cur.y]
-			if target!=0 then
---					if target==3 or target==7 or target==8 then
---						dodialogue(m,target)
-					--else
---				mes[1]="you see:"
---						mes[2]=" a "..objects[actortypes[target][level+1].sp]
---			if target==2 or target==9 then
-				mes[1]="you see:"
-				--mes[2]=" a "..objects[actortypes[target][level+1].sp]
-				mes[2]=" thing"
-			else
+			if target==0 then
 				local ty=actortypes[p.t][level+1]
 				mes[1]="you are:"
 				mes[2]=" a "..adjectives[ty.ad].." "..pronouns[ty.pn]..species[ty.sp]
 				mes[3]=" in a "..adjectives[rooms[level].ad].." "..places[rooms[level].pl]
 				mes[4]=" feeling *"..feelings[rltns[ty.rl].fe].."*"
+			elseif target==3 or target==7 or target==8 then
+--				dodialogue(m,target)
+				mes[1]="you see:"
+				mes[2]=" a "..species[actortypes[target][level+1].sp]
+			elseif target==2 or target==9 then	
+				mes[1]="you see:"
+				mes[2]=" a "..objects[actortypes[target][level+1].sp]
 			end
 			sendtomenu(m,mes)
 			if btnp(5) then
