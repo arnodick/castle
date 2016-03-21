@@ -194,7 +194,7 @@ function actortypes_i(l,r)
 	end
 	
 	actortypes={}
-	for a=1,10 do
+	for a=1,11 do
 		actortypes[a]={}
 		for b=1,4 do actortypes[a][b]={} end
 	end		
@@ -309,6 +309,17 @@ function actortypes_i(l,r)
 		actortypes[10][a].sp=flr(rnd(#objects))+1
 		actortypes[10][a].solid=false
 	end
+		--cursor abilities
+	for a=1,4 do
+		--local ch=48
+		actortypes[11][a].ch=sub(chars,20,20)
+		actortypes[11][a].c=8
+--		actortypes[10][a].sp=flr(rnd(#objects))+1
+		actortypes[11][a].solid=false
+		actortypes[11][a].m=1
+		actortypes[11][a].display=false
+		actortypes[11][a].control=false
+	end
 end
 
 function rooms_i(ss,sa)
@@ -356,7 +367,7 @@ function loadsector(sx,sy,mx,my)
 			end
 			if mc==10 then if rand<0.1 then cell=4 end end
 			local en={} en[0]=3 en[1]=7 en[2]=8
-			if rand<0.02 then cell=en[flr(rnd(3))] end
+			if rand<0.03 then cell=en[flr(rnd(3))] end
 			if rand<0.001 then cell=4 end
 			if cell==3 or cell==4 or cell==7 or cell==8 then
 				room[a+sx*ss][b+sy*ss]=cell
@@ -447,34 +458,33 @@ end
 
 function drawactor(a)
 	if p!=nil then
-	if comparedistance(a,p)<8 then
-		if actortypes[a.t][level+1].ch2!=nil then
-			--print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[2][level+1].c2) --keeping this in case it was giving good colour results?
-			print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[a.t][level+1].c2)
-		end
-		if comparedistance(a,p)<6 then
-	--if flr(a.x/8)==flr(p.x/8) then
-		--if flr(a.y/8)==flr(p.y/8) then
-	--if a.secx==cam[1] then 
-		--if	a.secy==cam[2] then
-			print(actortypes[a.t][level+1].ch,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[a.t][level+1].c)
+		if comparedistance(a,p)<8 then
+			if actortypes[a.t][level+1].ch2!=nil then
+				--print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[2][level+1].c2) --keeping this in case it was giving good colour results?
+				print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[a.t][level+1].c2)
+			end
+			if comparedistance(a,p)<6 then
+		--if flr(a.x/8)==flr(p.x/8) then
+			--if flr(a.y/8)==flr(p.y/8) then
+		--if a.secx==cam[1] then 
+			--if	a.secy==cam[2] then
+				print(actortypes[a.t][level+1].ch,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[a.t][level+1].c)
 			
-			if menus[1].control then
-				if a.tar!=nil then
---		rect(a.tar.x*cellw,a.tar.y*cellh,a.tar.x*cellw+5,a.tar.y*cellh+5,8)
-					line(a.tar.x*cellw+3+2,a.tar.y*cellh+3+2,a.x*cellw+3+2,a.y*cellh+3+2,8)
---				print(comparedistance(a.tar,a),a.x*cellw+cellw,a.y*cellh+cellh,8)
+				if menus[1].control then
+					if a.tar!=nil then
+	--		rect(a.tar.x*cellw,a.tar.y*cellh,a.tar.x*cellw+5,a.tar.y*cellh+5,8)
+						line(a.tar.x*cellw+3+2,a.tar.y*cellh+3+2,a.x*cellw+3+2,a.y*cellh+3+2,8)
+	--				print(comparedistance(a.tar,a),a.x*cellw+cellw,a.y*cellh+cellh,8)
+					end
 				end
 			end
 		end
-	end
 	else
 		if actortypes[a.t][level+1].ch2!=nil then
 			print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[2][level+1].c2)
 		end
 			print(actortypes[a.t][level+1].ch,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[a.t][level+1].c)
 	end
-	
 end
 
 function drawmenu(m)
@@ -949,6 +959,7 @@ function state_i(s)
 		add(players,makeactor(1,flr(rnd(rooms[level].room_w)),flr(rnd(rooms[level].room_w))))
 		if players[1]!=nil then
 			p=players[1]
+			cur=makeactor(11,p.x,p.y)
 			cam[1]=flr(p.x/rooms[level].sector_s)*rooms[level].sector_s*cellw
 			cam[2]=flr(p.y/rooms[level].sector_s)*rooms[level].sector_s*cellh
 			makemenu(1,2,103,125,24)
@@ -981,6 +992,7 @@ function stateupdate(s)
 							end
 						end
 					end
+					cur.display=not cur.display
 					menus[1].control=not menus[1].control
 				elseif btnp()>0 then
 				--if timer%4==0 then
