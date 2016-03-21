@@ -502,7 +502,9 @@ function drawmenu(m)
 		rect(cam[1]+m.x-2,cam[2]+m.y-2,cam[1]+m.x+m.w,cam[2]+m.y+m.h,rooms[level].c+4)
 		if m.t==1 then
 			--draw cursor
-			rect(cur.x*cellw+camoffx,cur.y*cellh+camoffy,cur.x*cellw+cellw+camoffx+1,cur.y*cellh+cellh+camoffy+1,8)
+			if flr(timer/10)%2==0 then
+				rect(cur.x*cellw+camoffx,cur.y*cellh+camoffy,cur.x*cellw+cellw+camoffx+1,cur.y*cellh+cellh+camoffy+1,8)
+			end
 		end
 	end
 	if m.display then
@@ -648,6 +650,7 @@ function colactor(a,d,t)
 					mes[3]="*"..species[actortypes[t.t][level+1].sp].." now hates you!*"
 					rltns[actortypes[t.t][level+1].rl].ha=actortypes[p.t][level+1].rl
 				elseif t==p then
+					sendtomenu(menus[2],listinventory(p))
 					mes[1]="you are dead!"
 					mes[2]="you got "..countcash(p).." cash"
 					mes[3]=" press button to continue"
@@ -732,7 +735,7 @@ end
 function dodialogue(m,t)
 	m.t=4
 	m.sel=1
-	m.control=not m.control
+--	m.control=not m.control
 	m.target=t
 end
 
@@ -890,6 +893,10 @@ function domenu(m)
 --				dodialogue(m,target)
 				mes[1]="you see:"
 				mes[2]=" a "..species[actortypes[target][level+1].sp]
+				mes[3]="button 1 to interact"
+				if btnp(4) then
+					dodialogue(m,target)
+				end
 			elseif target==2 or target==9 then	
 				mes[1]="you see:"
 				mes[2]=" a "..objects[actortypes[target][level+1].sp]
