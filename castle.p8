@@ -496,7 +496,6 @@ end
 function taketurn()
 	for m in all(menus) do
 		m.display=false
---	menus[2].display=true
 		m.me={}
 	end
 	foreach(actors.creatures,doactor)
@@ -598,8 +597,8 @@ end
 
 function countcash(a)
 	local c=0
-	for a=1,#p.inventory do
-		if p.inventory[a]==4 then
+	for b=1,#a.inventory do
+		if a.inventory[b]==4 then
 			c+=1
 		end
 	end
@@ -624,6 +623,7 @@ function colactor(a,d,t)
 				room[t.x][t.y]=0
 				dropitem(t)
 				if a==p then
+					
 					mes[1]=species[actortypes[t.t][level+1].sp].." screams:"
 					mes[2]=" blargharaghghr!!!..."
 					mes[3]="*"..species[actortypes[t.t][level+1].sp].." now hates you!*"
@@ -849,17 +849,11 @@ function sendtomenu(m,me)
 end
 
 function domenu(m)
-	--m.me={}
 	local def={}
 	--examine menu
 	if m.t==1 then
 		if m.control==true then
-			m.display=true
-			m.me[1]="examine:"
-			m.me[2]=" choose a direction"
-			--if p.hit>0 then
-			--	m.me={}
-			--	m.me[1]=" status: stunned "..(p.hit).." turns"
+			sendtomenu(m,{"examine:"," choose a direction"})
 			if btnp()>0 and btnp()<16 then
 				m.control=not m.control
 				local dire=actoroob(p,direction(btnp()))
@@ -886,13 +880,7 @@ function domenu(m)
 		end
 	--inventory menu
 	elseif m.t==2 then
---		def[1]="inventory:"
 		if p!=nil then
---			m.display=true
---			for a=1,#p.inventory do
---				def[a+1]=" -"..items[actortypes[p.inventory[a]][level+1].sp]
---			end
-			--local ma=#p.inventory if ma>3 then ma=3 end
 			controlmenu(m,2,#p.inventory,def)
 		end
 	--buy menu
@@ -911,7 +899,6 @@ function domenu(m)
 		def[2]=" a "..species[actortypes[m.target][level+1].sp]--.." feeling *"..feelings[rltns[actortypes[m.target][level+1].rl].fe].."*"
 		controlmenu(m,3,2,def)
 	elseif m.t==5 then
-		--def[1]={}
 		def[1]=" is best!" def[2]=" rules!" def[3]=" = superior!" def[4]=" is right!"
 		controlmenu(m,1,4,def)
 	end
@@ -1011,8 +998,8 @@ function stateupdate(s)
 				end
 			elseif btnp()>8 then
 			 state=0 state_i(state)
-			else
-				taketurn()
+			--else
+				--taketurn()
 				--if timer%4==0 then taketurn() end
 			end
 			foreach(actors.creatures,shakeactor)
