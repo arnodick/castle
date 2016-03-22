@@ -754,10 +754,10 @@ function destroyactors()
 	actors.cursors={}
 end
 
-function dodialogue(m,t)
-	changemenu(m,4)
-	m.target=t
-end
+--function dodialogue(m,t)
+--	changemenu(m,4)
+--	m.target=t
+--end
 
 function doitem(m,it)
 	del(p.inventory,it)
@@ -785,70 +785,6 @@ function dropitem(a)
 	if a.inventory[1]!=nil then
 		makeactor(a.inventory[1],a.x,a.y)
 		del(a.inventory,a.inventory[1])
-	end
-end
-
-function controlmenu(m,mi,ma,me)
-	if m.control then
-		m.me=me
-		for a=1,ma do
-			local s=" -"
-			if a==m.sel then s=">>" end
-			m.me[a+mi-1]=s..m.me[a+mi-1]
-		end
-		if btnp(2) then m.sel-=1 if m.sel<1 then m.sel=ma end
-		elseif btnp(3) then m.sel+=1 if m.sel>ma then m.sel=1 end
-		elseif btnp(4) then
-			if m.t==2 then
-			--use item
-				doitem(m,p.inventory[m.sel])
---				sendtomenu(menus[2],listinventory(p.inventory,"inventory:"))
-			elseif m.t==3 then
-			--buy item
-				makeactor(6,p.x,p.y)
-				quitmenu(m,2,true)
-			elseif m.t==4 then
-			--talk
-				if m.sel==1 then
-					sfx(flr(rnd(2))+8)
-					quitmenu(m,1,true)
-					local en={} en[1]=3 en[2]=7 en[3]=8
-					local r=flr(rnd(#en))+1
-					
-					if players[1]!=nil then
-					local trl=actortypes[m.target][level+1].rl
-					local prl=actortypes[p.t][level+1].rl
-					if     rltns[trl].ha==prl then
-						sendtomenu(m,{"they say:"," no i hate you!"})
-					elseif rltns[prl].ha==trl then
-						sendtomenu(m,{"they say:"," you're mean...","*"..species[actortypes[m.target][level+1].sp].." now hates you!*"})
-
-						rltns[actortypes[m.target][level+1].rl].ha=actortypes[p.t][level+1].rl
-						while rltns[actortypes[m.target][level+1].rl].li==prl do
-							rltns[actortypes[m.target][level+1].rl].li=flr(rnd(#rltns))+1
-						end
-					elseif rltns[trl].li==prl then
-						sendtomenu(m,{"they say:"," i like you! ;)"," "..species[actortypes[en[r]][level+1].sp].." hates "..feelings[rltns[actortypes[en[r]][level+1].rl].ha].."!"})
-					else
-						sendtomenu(m,{"they say:"," "..species[actortypes[en[r]][level+1].sp].." hates "..feelings[rltns[actortypes[en[r]][level+1].rl].ha].."!"})
-					end
-					end
-				else
-					changemenu(m,5)
-				end
-			elseif m.t==5 then
-				--argument stuff here
-			end
-		elseif btnp(5) then
-			local mt=m.t
-			if mt==4 then mt=1 end
-			if mt==5 then mt=1 end
-			if mt==1 then
-				quitmenu(m,mt,false,tut)
-			else
-				quitmenu(m,mt,false,listinventory(p.inventory,"inventory:"))
-			end
-		end
 	end
 end
 
@@ -896,7 +832,9 @@ function domenu(m)
 			elseif target==3 or target==7 or target==8 then
 				sendtomenu(m,{"you see:"," a "..species[ty.sp],">>button 1 to interact"})
 				if btnp(4) then
-					dodialogue(m,target)
+--					dodialogue(m,target)
+					changemenu(m,4)
+					m.target=target
 				end
 			elseif target==2 or target==9 then	
 				sendtomenu(m,{"you see:"," a "..objects[ty.sp]})
@@ -919,7 +857,7 @@ function domenu(m)
 			buy[a+1]=items[a]
 		end
 		controlmenu(m,2,#items,buy)
-	--talk menu
+	--dialogue menu
 	elseif m.t==4 then
 		local flav=""
 		local prl=rltns[actortypes[p.t][level+1].rl]
@@ -938,6 +876,77 @@ function domenu(m)
 			arg[a]=feelings[rltns[a].fe].." is best!"
 		end
 		controlmenu(m,1,4,arg)
+	end
+end
+
+function controlmenu(m,mi,ma,me)
+	if m.control then
+		m.me=me
+		for a=1,ma do
+			local s=" -"
+			if a==m.sel then s=">>" end
+			m.me[a+mi-1]=s..m.me[a+mi-1]
+		end
+		if btnp(2) then m.sel-=1 if m.sel<1 then m.sel=ma end
+		elseif btnp(3) then m.sel+=1 if m.sel>ma then m.sel=1 end
+		elseif btnp(4) then
+			if m.t==2 then
+				--use item
+				doitem(m,p.inventory[m.sel])
+			elseif m.t==3 then
+				--buy item
+				makeactor(6,p.x,p.y)
+				quitmenu(m,2,true)
+			elseif m.t==4 then
+				--dialogue
+				if m.sel==1 then
+					--talk choice
+					sfx(flr(rnd(2))+8)
+					quitmenu(m,1,true)
+					local en={} en[1]=3 en[2]=7 en[3]=8
+					local r=flr(rnd(#en))+1
+					if players[1]!=nil then
+						local trl=actortypes[m.target][level+1].rl
+						local prl=actortypes[p.t][level+1].rl
+						if     rltns[trl].ha==prl then
+							--they hate you
+							sendtomenu(m,{"they say:"," no i hate you!"})
+						elseif rltns[prl].ha==trl then
+							--you hate them
+							sendtomenu(m,{"they say:"," you're mean...","*"..species[actortypes[m.target][level+1].sp].." now hates you!*"})
+
+					--now they hate you
+							rltns[actortypes[m.target][level+1].rl].ha=actortypes[p.t][level+1].rl
+							while rltns[actortypes[m.target][level+1].rl].li==prl do
+								rltns[actortypes[m.target][level+1].rl].li=flr(rnd(#rltns))+1
+							end
+						elseif rltns[trl].li==prl then
+							--they like you
+							sendtomenu(m,{"they say:"," i like you! ;)"," "..species[actortypes[en[r]][level+1].sp].." hates "..feelings[rltns[actortypes[en[r]][level+1].rl].ha].."!"})
+						else
+							--mutual ambivalence
+							sendtomenu(m,{"they say:"," "..species[actortypes[en[r]][level+1].sp].." hates "..feelings[rltns[actortypes[en[r]][level+1].rl].ha].."!"})
+						end
+					end
+				else
+					--argue choice
+					changemenu(m,5)
+				end
+			elseif m.t==5 then
+				--argueing stuff here
+			end
+		elseif btnp(5) then
+			--quit control menu
+			--todo: make default menu attr?
+			local mt=m.t
+			if mt==4 then mt=1 end
+			if mt==5 then mt=1 end
+			if mt==1 then
+				quitmenu(m,mt,false,tut)
+			else
+				quitmenu(m,mt,false,listinventory(p.inventory,"inventory:"))
+			end
+		end
 	end
 end
 
