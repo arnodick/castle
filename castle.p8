@@ -167,6 +167,8 @@ function words()
 	dial[3]="szrt. oreh mmern!"
 	dial[4]="my mom is mean!"
 	dial[5]="hello......."
+	
+	tut={"","","button 1 to examine","button 2 to inventory"}
 end
 
 function actortypes_i(l,r)
@@ -562,11 +564,28 @@ function closestactor(a,ar)
 	return close
 end
 
+function closesthated(a,ar)
+	local d=-1 local close={} local temp=0
+	for v in all(ar) do
+		temp=comparedistance(a,v)
+		if temp<d or d==-1 then
+--			if temp.hate==v.rl then
+			if v!=a then
+			d=temp
+			close=v
+			end
+--			end
+		end
+	end
+	return close
+end
+
 function settarget(a)
 	local tars={} local d={}
 	tars[1]=closestactor(a,actors.items)
 	tars[2]=closestactor(a,actors.creatures)
 	if actors.items[1]!=nil then
+
 		for b=1,2 do
 			d[b]=comparedistance(a,tars[b])
 		end
@@ -638,6 +657,9 @@ function colactor(a,d,t)
 			if t.hit==0 then
 				t.hit=a.attackpwr
 				moveactor(t,2^flr(rnd(4)))
+				if t==p then
+					sendtomenu(menus[1],tut)
+				end
 			else
 				sfx(1)
 				local mes={}
@@ -709,7 +731,7 @@ function doactor(a)
 		if a==p then
 			sendtomenu(menus[2],listinventory(p))
 		end
-		if comparedistance(a,p)<6 or a.t==11 then
+		if comparedistance(a,p)<5.2 or a.t==11 then
 			if a.hit==0 then
 				local d=movetype(a)
 				if moveactor(a,d) then
@@ -807,6 +829,7 @@ function controlmenu(m,mi,ma,def)
 					local r=flr(rnd(#en))+1
 					m.me={}
 --					m.me[1]="they say:"
+					if players[1]!=nil then
 					local trl=actortypes[m.target][level+1].rl
 					local prl=actortypes[p.t][level+1].rl
 					if     rltns[trl].ha==prl then
@@ -823,6 +846,7 @@ function controlmenu(m,mi,ma,def)
 						m.me[3]=" "..species[actortypes[en[r]][level+1].sp].." hates "..feelings[rltns[actortypes[en[r]][level+1].rl].ha].."!"
 					else
 						m.me[2]=" "..species[actortypes[en[r]][level+1].sp].." hates "..feelings[rltns[actortypes[en[r]][level+1].rl].ha].."!"
+					end
 					end
 				else
 					changemenu(m,5)
@@ -904,7 +928,7 @@ function domenu(m)
 			sendtomenu(m,mes)
 			if btnp(5) then
 				m.control=not m.control
-				m.me={}
+				sendtomenu(m,tut)
 			end
 		end
 	--inventory menu
@@ -983,6 +1007,7 @@ function state_i(s)
 			cam[1]=flr(p.x/rooms[level].sector_s)*rooms[level].sector_s*cellw
 			cam[2]=flr(p.y/rooms[level].sector_s)*rooms[level].sector_s*cellh
 			makemenu(1,2,103,125,24)
+			sendtomenu(menus[1],tut)
 			makemenu(2,86,2,41,96)
 		end
 		cash=0
