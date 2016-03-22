@@ -672,7 +672,7 @@ function colactor(a,d,t)
 					mes[3]="*"..species[actortypes[t.t][level+1].sp].." now hates you!*"
 					rltns[actortypes[t.t][level+1].rl].ha=actortypes[p.t][level+1].rl
 				elseif t==p then
-					sendtomenu(menus[2],listinventory(p,"inventory:"))
+					sendtomenu(menus[2],listinventory(p.inventory,"inventory:"))
 					mes[1]="you are dead!"
 					mes[2]="you got "..countcash(p).." cash"
 					mes[3]=" press button to continue"
@@ -723,13 +723,13 @@ function doactor(a)
 			if v.x==a.x and v.y==a.y then
 				pickupitem(v,a)
 				if v==p then
-					sendtomenu(menus[2],listinventory(p,"inventory:"))
+					sendtomenu(menus[2],listinventory(p.inventory,"inventory:"))
 				end
 			end
 		end
 	elseif p!=nil then
 		if a==p then
-			sendtomenu(menus[2],listinventory(p,"inventory:"))
+			sendtomenu(menus[2],listinventory(p.inventory,"inventory:"))
 		end
 		if comparedistance(a,p)<5 or a.t==11 then
 			if a.hit==0 then
@@ -755,9 +755,7 @@ function destroyactors()
 end
 
 function dodialogue(m,t)
-	m.t=4
-	m.sel=1
---	m.control=not m.control
+	changemenu(m,4)
 	m.target=t
 end
 
@@ -767,7 +765,7 @@ function doitem(m,it)
 		changemenu(m,3)
 	elseif it==6 then
 		p.hit=0
-		quitmenu(m,m.t,true)
+		quitmenu(m,m.t,true,listinventory(p.inventory,"inventory"))
 	end
 end
 
@@ -790,24 +788,13 @@ function dropitem(a)
 	end
 end
 
-function controlmenu(m,mi,ma,def)
+function controlmenu(m,mi,ma,me)
 	if m.control then
-		for a=1,mi-1 do
-			m.me[a]=def[a]
-		end
+		m.me=me
 		for a=1,ma do
-			local s=""
-			if a==m.sel then s=">>" else s=" -" end
-			if m.t==2 then
-				m.me[a+1]=s..items[actortypes[p.inventory[a]][level+1].sp]
-			elseif m.t==3 then
-				m.me[a+1]=s..items[a]
-			elseif m.t==4 then
-				local talk={} talk[1]="talk" talk[2]="argue"
-				m.me[a+2]=s..talk[a]
-			elseif m.t==5 then
-				m.me[a]=s..feelings[rltns[a].fe]..def[a]
-			end
+			local s=" -"
+			if a==m.sel then s=">>" end
+			m.me[a+mi-1]=s..m.me[a+mi-1]
 		end
 		if btnp(2) then m.sel-=1 if m.sel<1 then m.sel=ma end
 		elseif btnp(3) then m.sel+=1 if m.sel>ma then m.sel=1 end
@@ -815,7 +802,7 @@ function controlmenu(m,mi,ma,def)
 			if m.t==2 then
 			--use item
 				doitem(m,p.inventory[m.sel])
-				sendtomenu(menus[2],listinventory(p,"inventory:"))
+--				sendtomenu(menus[2],listinventory(p.inventory,"inventory:"))
 			elseif m.t==3 then
 			--buy item
 				makeactor(6,p.x,p.y)
@@ -827,8 +814,7 @@ function controlmenu(m,mi,ma,def)
 					quitmenu(m,1,true)
 					local en={} en[1]=3 en[2]=7 en[3]=8
 					local r=flr(rnd(#en))+1
---					m.me={}
---					m.me[1]="they say:"
+					
 					if players[1]!=nil then
 					local trl=actortypes[m.target][level+1].rl
 					local prl=actortypes[p.t][level+1].rl
@@ -854,18 +840,15 @@ function controlmenu(m,mi,ma,def)
 				--argument stuff here
 			end
 		elseif btnp(5) then
-			if m.t!=3 then
-				local mt=m.t
-				if mt==4 then mt=1 def={} end
-				if mt==5 then mt=1 def={} end
-				m.me=def
-				quitmenu(m,mt,false)
+			local mt=m.t
+			if mt==4 then mt=1 end
+			if mt==5 then mt=1 end
+			if mt==1 then
+				quitmenu(m,mt,false,tut)
+			else
+				quitmenu(m,mt,false,listinventory(p.inventory,"inventory:"))
 			end
 		end
---	else
---		m.sel=1
---		if m.t==4 then m.t=1 end--def={} end
---		m.me=def
 	end
 end
 
@@ -874,20 +857,21 @@ function changemenu(m,ty)
 	m.t=ty
 end
 
-function quitmenu(m,ty,tu)
+function quitmenu(m,ty,tu,me)
 	m.control=false
 	changemenu(m,ty)
+	sendtomenu(m,me)
 	if tu then
 		taketurn()
 	end
 end
 
-function listinventory(a,title)
+function listinventory(l,title)
 --todo: make this take a title input "inventory:" or "use:" etc
 	me={}
 	me[1]=title
-	for b=1,#a.inventory do
-		me[b+1]=" -"..items[actortypes[a.inventory[b]][level+1].sp]
+	for b=1,#l do
+		me[b+1]=" "..items[actortypes[l[b]][level+1].sp]
 	end
 	return me
 end
@@ -898,7 +882,6 @@ function sendtomenu(m,me)
 end
 
 function domenu(m)
-	local def={}
 	--examine menu
 	if m.t==1 then
 		if m.control==true then
@@ -921,34 +904,40 @@ function domenu(m)
 				sendtomenu(m,{""})
 			end
 			if btnp(5) then
-				m.control=not m.control
-				sendtomenu(m,tut)
+				quitmenu(m,m.t,false,tut)
 			end
 		end
 	--inventory menu
 	elseif m.t==2 then
 		if p!=nil then
-			def[1]="use:"
-			controlmenu(m,2,#p.inventory,def)
+			controlmenu(m,2,#p.inventory,listinventory(p.inventory,"use:"))
 		end
 	--buy menu
 	elseif m.t==3 then
-		def[1]="buy:"
-		controlmenu(m,2,#items,def)
+		local buy={} buy[1]="buy:"
+		for a=1,#items do
+			buy[a+1]=items[a]
+		end
+		controlmenu(m,2,#items,buy)
 	--talk menu
 	elseif m.t==4 then
-		if     rltns[actortypes[p.t][level+1].rl].ha==actortypes[m.target][level+1].rl then
-			def[1]="you hate >( !!"
-		elseif rltns[actortypes[p.t][level+1].rl].li==actortypes[m.target][level+1].rl then
-			def[1]="you looooove <3"
+		local flav=""
+		local prl=rltns[actortypes[p.t][level+1].rl]
+		local trl=actortypes[m.target][level+1].rl
+		if prl.ha==trl then
+			flav="you hate >( !!"
+		elseif prl.li==trl then
+			flav="you looooove <3"
 		else
-			def[1]="you face:"
+			flav="you face:"
 		end
-		def[2]=" a "..species[actortypes[m.target][level+1].sp]--.." feeling *"..feelings[rltns[actortypes[m.target][level+1].rl].fe].."*"
-		controlmenu(m,3,2,def)
+		controlmenu(m,3,2,{flav," a "..species[actortypes[m.target][level+1].sp].." feeling *"..feelings[rltns[actortypes[m.target][level+1].rl].fe].."*","talk","argue"})
 	elseif m.t==5 then
-		def[1]=" is best!" def[2]=" rules!" def[3]=" = superior!" def[4]=" is right!"
-		controlmenu(m,1,4,def)
+		local arg={}
+		for a=1,#rltns do
+			arg[a]=feelings[rltns[a].fe].." is best!"
+		end
+		controlmenu(m,1,4,arg)
 	end
 end
 
@@ -1022,7 +1011,7 @@ function stateupdate(s)
 			if p!=nil then
 				--control inventory
 				if btnp(5) then
-					sendtomenu(menus[2],listinventory(p,"inventory:"))
+					sendtomenu(menus[2],listinventory(p.inventory,"inventory:"))
 					if p.inventory[1]!=nil then
 						menus[2].control=not menus[2].control
 					end
