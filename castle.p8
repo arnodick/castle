@@ -466,7 +466,7 @@ end
 
 function drawactor(a)
 	if p!=nil then
-		if comparedistance(a,p)<8 then
+		if comparedistance(a,p)<11 then
 			if actortypes[a.t][level+1].ch2!=nil then
 				--print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[2][level+1].c2) --keeping this in case it was giving good colour results?
 				print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[a.t][level+1].c2)
@@ -731,7 +731,7 @@ function doactor(a)
 		if a==p then
 			sendtomenu(menus[2],listinventory(p))
 		end
-		if comparedistance(a,p)<5.2 or a.t==11 then
+		if comparedistance(a,p)<4.9 or a.t==11 then
 			if a.hit==0 then
 				local d=movetype(a)
 				if moveactor(a,d) then
@@ -827,25 +827,24 @@ function controlmenu(m,mi,ma,def)
 					quitmenu(m,1,true)
 					local en={} en[1]=3 en[2]=7 en[3]=8
 					local r=flr(rnd(#en))+1
-					m.me={}
+--					m.me={}
 --					m.me[1]="they say:"
 					if players[1]!=nil then
 					local trl=actortypes[m.target][level+1].rl
 					local prl=actortypes[p.t][level+1].rl
 					if     rltns[trl].ha==prl then
-						m.me[2]=" no i hate you!"
+						sendtomenu(m,{"they say:"," no i hate you!"})
 					elseif rltns[prl].ha==trl then
-						m.me[2]=" you're mean..."
-						m.me[3]="*"..species[actortypes[m.target][level+1].sp].." now hates you!*"
+						sendtomenu(m,{"they say:"," you're mean...","*"..species[actortypes[m.target][level+1].sp].." now hates you!*"})
+
 						rltns[actortypes[m.target][level+1].rl].ha=actortypes[p.t][level+1].rl
 						while rltns[actortypes[m.target][level+1].rl].li==prl do
 							rltns[actortypes[m.target][level+1].rl].li=flr(rnd(#rltns))+1
 						end
 					elseif rltns[trl].li==prl then
-						m.me[2]=" i like you! ;)"
-						m.me[3]=" "..species[actortypes[en[r]][level+1].sp].." hates "..feelings[rltns[actortypes[en[r]][level+1].rl].ha].."!"
+						sendtomenu(m,{"they say:"," i like you! ;)"," "..species[actortypes[en[r]][level+1].sp].." hates "..feelings[rltns[actortypes[en[r]][level+1].rl].ha].."!"})
 					else
-						m.me[2]=" "..species[actortypes[en[r]][level+1].sp].." hates "..feelings[rltns[actortypes[en[r]][level+1].rl].ha].."!"
+						sendtomenu(m,{"they say:"," "..species[actortypes[en[r]][level+1].sp].." hates "..feelings[rltns[actortypes[en[r]][level+1].rl].ha].."!"})
 					end
 					end
 				else
@@ -863,10 +862,10 @@ function controlmenu(m,mi,ma,def)
 				quitmenu(m,mt,false)
 			end
 		end
-	else
-		m.sel=1
-		if m.t==4 then m.t=1 def={} end
-		m.me=def
+--	else
+--		m.sel=1
+--		if m.t==4 then m.t=1 end--def={} end
+--		m.me=def
 	end
 end
 
@@ -884,6 +883,7 @@ function quitmenu(m,ty,tu)
 end
 
 function listinventory(a)
+--todo: make this take a title input "inventory:" or "use:" etc
 	me={}
 	me[1]="inventory:"
 	for b=1,#a.inventory do
@@ -907,7 +907,7 @@ function domenu(m)
 --				m.control=not m.control
 --				local dire=actoroob(p,direction(btnp()))
 			local target=room[cur.x][cur.y]
-			if target==0 then
+			if target==1 then
 				local ty=actortypes[p.t][level+1]
 				mes[1]="you are:"
 				mes[2]=" a "..adjectives[ty.ad].." "..pronouns[ty.pn]..species[ty.sp]
@@ -934,6 +934,7 @@ function domenu(m)
 	--inventory menu
 	elseif m.t==2 then
 		if p!=nil then
+			def[1]="use:"
 			controlmenu(m,2,#p.inventory,def)
 		end
 	--buy menu
@@ -1027,6 +1028,7 @@ function stateupdate(s)
 			if p!=nil then
 				--control inventory
 				if btnp(5) then
+					sendtomenu(menus[2],listinventory(p))
 					if p.inventory[1]!=nil then
 						menus[2].control=not menus[2].control
 					end
