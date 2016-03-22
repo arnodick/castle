@@ -796,10 +796,10 @@ end
 function quitmenu(m,ty,tu,me)
 	m.control=false
 	changemenu(m,ty)
-	sendtomenu(m,me)
 	if tu then
 		taketurn()
 	end
+	sendtomenu(m,me)
 end
 
 function listinventory(l,title)
@@ -933,7 +933,19 @@ function controlmenu(m,mi,ma,me)
 					changemenu(m,5)
 				end
 			elseif m.t==5 then
-				--argueing stuff here
+				--arguing
+				if m.sel==actortypes[m.target][level+1].rl then
+					--they like you now
+					--todo: for now this works but it's technically making them have the same feelings as you, not making them like you
+					actortypes[m.target][level+1].rl=actortypes[p.t][level+1].rl
+					quitmenu(m,1,false,{"the x says:"," hm, good point ..","*x now likes you!*"})
+--					sendtomenu(m,{"the x says:"," hm, good point ..","*x now likes you!*"})
+				elseif m.sel==rltns[actortypes[m.target][level+1].rl].ha
+					rltns[actortypes[m.target][level+1].rl].ha=actortypes[p.t][level+1].rl
+					quitmenu(m,1,true,{"they howl:"," how dare you say such thiiiiing!"})
+				else
+					quitmenu(m,1,true,{"they murmur:"," yeah sure uh see ya later..."})
+				end
 			end
 		elseif btnp(5) then
 			--quit control menu
