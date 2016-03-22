@@ -731,7 +731,7 @@ function doactor(a)
 		if a==p then
 			sendtomenu(menus[2],listinventory(p))
 		end
-		if comparedistance(a,p)<4.9 or a.t==11 then
+		if comparedistance(a,p)<5 or a.t==11 then
 			if a.hit==0 then
 				local d=movetype(a)
 				if moveactor(a,d) then
