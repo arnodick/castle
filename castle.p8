@@ -875,10 +875,11 @@ function domenu(m)
 		controlmenu(m,3,2,{flav," a "..species[actortypes[m.target][level+1].sp].." feeling *"..feelings[rltns[actortypes[m.target][level+1].rl].fe].."*","talk","argue"})
 	elseif m.t==5 then
 		local arg={}
-		for a=1,#rltns do
-			arg[a]=feelings[rltns[a].fe].." is best!"
+--		for a=1,#rltns do
+		for a=1,#p.args do
+			arg[a]=feelings[rltns[p.args[a]].fe].." is best!"
 		end
-		controlmenu(m,1,4,arg)
+		controlmenu(m,1,#p.args,arg)
 	end
 end
 
@@ -942,6 +943,7 @@ function controlmenu(m,mi,ma,me)
 					--todo: for now this works but it's technically making them have the same feelings as you, not making them like you
 					actortypes[m.target][level+1].rl=actortypes[p.t][level+1].rl
 					actortypes[m.target][level+1].m=1
+					del(p.args,m.sel)
 					quitmenu(m,1,false,{"the x says:"," hm good point ..","*x now likes you!*"})
 --					sendtomenu(m,{"the x says:"," hm, good point ..","*x now likes you!*"})
 				elseif m.sel==rltns[actortypes[m.target][level+1].rl].ha then
