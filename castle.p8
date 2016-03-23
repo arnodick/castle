@@ -233,7 +233,9 @@ function actortypes_i(l,r)
 	for a=1,4 do
 		ch=flr(rnd(#chars)+1)
 		actortypes[3][a].ch=sub(chars,ch,ch)
+		actortypes[3][a].ch2=sub(chars,ch,ch)
 		actortypes[3][a].c=flr(rnd(14))+1
+		actortypes[3][a].c2=5
 		actortypes[3][a].m=2
 		actortypes[3][a].ad=flr(rnd(#adjectives))+1
 		actortypes[3][a].pn=#pronouns if rnd(1)<=0.5 then actortypes[2][a].pn=flr(rnd(#pronouns))+1 end
@@ -274,6 +276,8 @@ function actortypes_i(l,r)
 		ch=flr(rnd(#chars)+1)
 		actortypes[7][a].ch=sub(chars,ch,ch)
 		actortypes[7][a].c=flr(rnd(14))+1
+		actortypes[7][a].ch2=sub(chars,ch,ch)
+		actortypes[7][a].c2=5
 		actortypes[7][a].m=2
 		actortypes[7][a].ad=flr(rnd(#adjectives))+1
 		actortypes[7][a].pn=#pronouns if rnd(1)<=0.5 then actortypes[2][a].pn=flr(rnd(#pronouns))+1 end
@@ -287,7 +291,9 @@ function actortypes_i(l,r)
 		ch=flr(rnd(#chars)+1)
 		actortypes[8][a].ch=sub(chars,ch,ch)
 		actortypes[8][a].c=flr(rnd(14))+1
-		actortypes[8][a].m=2
+		actortypes[8][a].ch2=sub(chars,ch,ch)
+		actortypes[8][a].c2=5
+		actortypes[8][a].m=2		
 		actortypes[8][a].ad=flr(rnd(#adjectives))+1
 		actortypes[8][a].pn=#pronouns if rnd(1)<=0.5 then actortypes[2][a].pn=flr(rnd(#pronouns))+1 end
 		actortypes[8][a].sp=flr(rnd(#species))+1
@@ -329,6 +335,9 @@ function actortypes_i(l,r)
 		ch=flr(rnd(#chars)+1)
 		actortypes[12][a].ch=sub(chars,ch,ch)
 		actortypes[12][a].c=flr(rnd(14))+1
+		actortypes[12][a].ch2=sub(chars,ch,ch)
+		actortypes[12][a].c2=5
+	
 		actortypes[12][a].m=2
 		actortypes[12][a].ad=flr(rnd(#adjectives))+1
 		actortypes[12][a].pn=#pronouns if rnd(1)<=0.5 then actortypes[2][a].pn=flr(rnd(#pronouns))+1 end
@@ -489,7 +498,7 @@ end
 
 function drawactor(a)
 	if p!=nil then
-		if comparedistance(a,p)<11 then
+		if comparedistance(a,p)<10 then
 			if actortypes[a.t][level+1].ch2!=nil then
 				--print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[2][level+1].c2) --keeping this in case it was giving good colour results?
 				print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[a.t][level+1].c2)
@@ -514,17 +523,16 @@ function drawactor(a)
 		if actortypes[a.t][level+1].ch2!=nil then
 			print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[2][level+1].c2)
 		end
-			print(actortypes[a.t][level+1].ch,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[a.t][level+1].c)
+		print(actortypes[a.t][level+1].ch,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[a.t][level+1].c)
 	end
 end
 
-function drawmenu(m)
-	rectfill(cam[1]+m.x-2,cam[2]+m.y-2,cam[1]+m.x+m.w,cam[2]+m.y+m.h,0)
+function drawmenu(m)	
 	--hacky background fix
-	rectfill(cam[1]+m.x-3,cam[2]+m.y-2,cam[1]+m.x-4,cam[2]+m.y+m.h,0)
-	rectfill(cam[1]+m.x-2,cam[2]+m.y-3,cam[1]+m.x+m.w,cam[2]+m.y-4,0)
+--	rectfill(cam[1]+m.x-3,cam[2]+m.y-2,cam[1]+m.x-4,cam[2]+m.y+m.h,0)
+--	rectfill(cam[1]+m.x-2,cam[2]+m.y-3,cam[1]+m.x+m.w,cam[2]+m.y-4,0)
 	if m.control then
-		rect(cam[1]+m.x-2,cam[2]+m.y-2,cam[1]+m.x+m.w,cam[2]+m.y+m.h,rooms[level].c+4)
+
 		if m.t==1 then
 			--draw cursor
 			if flr(timer/10)%2==0 then
@@ -533,6 +541,8 @@ function drawmenu(m)
 		end
 	end
 	if m.display then
+		rectfill(cam[1]+m.x-2,cam[2]+m.y-2,cam[1]+m.x+m.w,cam[2]+m.y+m.h,0)
+		rect(cam[1]+m.x-2,cam[2]+m.y-2,cam[1]+m.x+m.w,cam[2]+m.y+m.h,rooms[level].c+4)
 		local l=#m.me-1 if l>flr(m.h/cellh) then l=m.h/cellh end
 		for a=0,l do
 			print(m.me[a+1],m.x+cam[1],m.y+a*cellh+cam[2],6)
@@ -755,10 +765,10 @@ function doactor(a)
 			end
 		end
 	elseif p!=nil then
-		if a==p then
-			sendtomenu(menus[2],listinventory(p.inventory,"inventory:"))
-		end
-		if comparedistance(a,p)<5.5 or a.t==11 then
+--		if a==p then
+--			sendtomenu(menus[2],listinventory(p.inventory,"inventory:"))
+--		end
+		if comparedistance(a,p)<11 or a.t==11 then
 			if a.hit==0 then
 				local d=movetype(a)
 				if moveactor(a,d) then
@@ -1069,28 +1079,29 @@ function stateupdate(s)
 			if p!=nil then
 				--control inventory
 				if btnp(5) then
-					sendtomenu(menus[2],listinventory(p.inventory,"inventory:"))
 					if p.inventory[1]!=nil then
+						sendtomenu(menus[2],listinventory(p.inventory,"use:"))
 						menus[2].control=not menus[2].control
 					end
 				--control examine
 				elseif btnp(4) then
 					for v in all(actors.creatures) do
 						if v!=p then
-							if comparedistance(v,p)<6 then
+							if comparedistance(v,p)<5.5 then
 								settarget(v)
 							end
 						end
 					end
 --					cur.display=not cur.display
 					menus[1].control=not menus[1].control
+					sendtomenu(menus[2],listinventory(p.inventory,"inventory:"))
 					cur.x=p.x cur.y=p.y
 				elseif btnp()>0 then
 				--if timer%4==0 then
 					local dire=actoroob(p,direction(btnp()))
 					local cell=room[p.x+dire[1]][p.y+dire[2]]
 					if cell!=2 and cell!=9 then
-						taketurn()
+						
 					else
 						sfx(3)
 						for b=1,2 do
@@ -1098,6 +1109,7 @@ function stateupdate(s)
 						end
 						p.attack=6
 					end
+					taketurn()
 				end
 			elseif btnp()>8 then
 			 state=0 state_i(state)
@@ -1107,8 +1119,10 @@ function stateupdate(s)
 			end
 			foreach(actors.creatures,shakeactor)
 			if p!=nil then
-				cam[1]=flr(p.x/rooms[level].sector_s)*rooms[level].sector_s*cellw
-				cam[2]=flr(p.y/rooms[level].sector_s)*rooms[level].sector_s*cellh
+				cam[1]=(p.x-rooms[level].sector_s/2)*cellw
+				cam[2]=(p.y-rooms[level].sector_s/2)*cellh
+				--cam[1]=flr(p.x/rooms[level].sector_s)*rooms[level].sector_s*cellw
+				--cam[2]=flr(p.y/rooms[level].sector_s)*rooms[level].sector_s*cellh
 			end
 		else
 			foreach(actors.cursors,doactor)
@@ -1165,7 +1179,7 @@ function statedraw(s)
 	end
 	if s==1 then
 		foreach(actors,drawactor)
-		rect(cam[1],cam[2],cam[1]+rooms[level].sector_s*cellw+1,cam[2]+rooms[level].sector_s*cellh+2,rooms[level].c+4)
+--		rect(cam[1],cam[2],cam[1]+rooms[level].sector_s*cellw+1,cam[2]+rooms[level].sector_s*cellh+2,rooms[level].c+4)
 		foreach(menus,drawmenu)
 	end
 	if debug then
