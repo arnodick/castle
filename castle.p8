@@ -757,11 +757,6 @@ function destroyactors()
 	actors.cursors={}
 end
 
---function dodialogue(m,t)
---	changemenu(m,4)
---	m.target=t
---end
-
 function doitem(m,it)
 	del(p.inventory,it)
 	if it==4 then
@@ -835,7 +830,6 @@ function domenu(m)
 			elseif target==3 or target==7 or target==8 then
 				sendtomenu(m,{"you see:"," a "..species[ty.sp],">>button 1 to interact"})
 				if btnp(4) then
---					dodialogue(m,target)
 					changemenu(m,4)
 					m.target=target
 				end
@@ -872,7 +866,8 @@ function domenu(m)
 		else
 			flav="you face:"
 		end
-		controlmenu(m,3,2,{flav," a "..species[actortypes[m.target][level+1].sp].." feeling *"..feelings[rltns[actortypes[m.target][level+1].rl].fe].."*","talk","argue"})
+			controlmenu(m,3,2,{flav," a "..species[actortypes[m.target][level+1].sp],"talk","argue"})
+--		controlmenu(m,3,2,{flav," a "..species[actortypes[m.target][level+1].sp].." feeling *"..feelings[rltns[actortypes[m.target][level+1].rl].fe].."*","talk","argue"})
 	elseif m.t==5 then
 		local arg={}
 --		for a=1,#rltns do
@@ -919,17 +914,17 @@ function controlmenu(m,mi,ma,me)
 							--you hate them
 							sendtomenu(m,{"they say:"," you're mean...","*"..species[actortypes[m.target][level+1].sp].." now hates you!*"})
 
-					--now they hate you
+							--now they hate you
 							rltns[actortypes[m.target][level+1].rl].ha=actortypes[p.t][level+1].rl
 							while rltns[actortypes[m.target][level+1].rl].li==prl do
 								rltns[actortypes[m.target][level+1].rl].li=flr(rnd(#rltns))+1
 							end
 						elseif rltns[trl].li==prl then
 							--they like you
-							sendtomenu(m,{"they say:"," i like you! ;)"," "..species[actortypes[en[r]][level+1].sp].." hates "..feelings[rltns[actortypes[en[r]][level+1].rl].ha].."!"})
+							sendtomenu(m,{"they say:"," i like you! ;)"," "..species[actortypes[en[r]][level+1].sp].." hates "..feelings[rltns[rltns[actortypes[en[r]][level+1].rl].ha].fe].."!"})
 						else
 							--mutual ambivalence
-							sendtomenu(m,{"they say:"," "..species[actortypes[en[r]][level+1].sp].." hates "..feelings[rltns[actortypes[en[r]][level+1].rl].ha].."!"})
+							sendtomenu(m,{"they say:"," "..species[actortypes[en[r]][level+1].sp].." hates "..feelings[rltns[rltns[actortypes[en[r]][level+1].rl].ha].fe].."!"})
 						end
 					end
 				else
@@ -938,20 +933,22 @@ function controlmenu(m,mi,ma,me)
 				end
 			elseif m.t==5 then
 				--arguing
-				if m.sel==actortypes[m.target][level+1].rl then
+				if p.args[m.sel]==actortypes[m.target][level+1].rl then
 					--they like you now
 					--todo: for now this works but it's technically making them have the same feelings as you, not making them like you
 					actortypes[m.target][level+1].rl=actortypes[p.t][level+1].rl
 					actortypes[m.target][level+1].m=1
-					del(p.args,m.sel)
+					del(p.args,p.args[m.sel])
 					quitmenu(m,1,false,{"the x says:"," hm good point ..","*x now likes you!*"})
 --					sendtomenu(m,{"the x says:"," hm, good point ..","*x now likes you!*"})
-				elseif m.sel==rltns[actortypes[m.target][level+1].rl].ha then
+				elseif p.args[m.sel]==rltns[actortypes[m.target][level+1].rl].ha then
 					rltns[actortypes[m.target][level+1].rl].ha=actortypes[p.t][level+1].rl
 					actortypes[m.target][level+1].m=2
+					del(p.args,p.args[m.sel])
 					quitmenu(m,1,true,{"they howl:"," how dare you say such thiiiiing!"})
 				else
 					quitmenu(m,1,true,{"they murmur:"," yeah sure uh see ya later..."})
+					del(p.args,p.args[m.sel])
 					actortypes[m.target][level+1].m=2
 				end
 			end
@@ -992,6 +989,7 @@ function changelevel(l)
 		p=players[1]
 		add(actors,p)
 		add(actors.creatures,p)
+		p.args={1,2,3,4}
 	end
 	cur=makeactor(11,p.x,p.y)
 	loadmap(rooms[level].room_w,rooms[level].sector_a)
