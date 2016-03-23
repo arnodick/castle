@@ -430,6 +430,9 @@ function makeactor(t,x,y)
 		add(actors.items,a)
 	end
 	if a.t==8 or a.t==7 or a.t==3 or a.t==1 then
+		if a.t==1 then
+			a.args={1,2,3,4}
+		end
 		a.attack=0
 		a.attackdir=0
 		a.attackpwr=2
@@ -731,7 +734,7 @@ function doactor(a)
 		if a==p then
 			sendtomenu(menus[2],listinventory(p.inventory,"inventory:"))
 		end
-		if comparedistance(a,p)<5 or a.t==11 then
+		if comparedistance(a,p)<5.5 or a.t==11 then
 			if a.hit==0 then
 				local d=movetype(a)
 				if moveactor(a,d) then
@@ -938,13 +941,16 @@ function controlmenu(m,mi,ma,me)
 					--they like you now
 					--todo: for now this works but it's technically making them have the same feelings as you, not making them like you
 					actortypes[m.target][level+1].rl=actortypes[p.t][level+1].rl
-					quitmenu(m,1,false,{"the x says:"," hm, good point ..","*x now likes you!*"})
+					actortypes[m.target][level+1].m=1
+					quitmenu(m,1,false,{"the x says:"," hm good point ..","*x now likes you!*"})
 --					sendtomenu(m,{"the x says:"," hm, good point ..","*x now likes you!*"})
-				elseif m.sel==rltns[actortypes[m.target][level+1].rl].ha
+				elseif m.sel==rltns[actortypes[m.target][level+1].rl].ha then
 					rltns[actortypes[m.target][level+1].rl].ha=actortypes[p.t][level+1].rl
+					actortypes[m.target][level+1].m=2
 					quitmenu(m,1,true,{"they howl:"," how dare you say such thiiiiing!"})
 				else
 					quitmenu(m,1,true,{"they murmur:"," yeah sure uh see ya later..."})
+					actortypes[m.target][level+1].m=2
 				end
 			end
 		elseif btnp(5) then
