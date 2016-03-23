@@ -199,7 +199,7 @@ function actortypes_i(l,r)
 	end
 	
 	actortypes={}
-	for a=1,11 do
+	for a=1,12 do
 		actortypes[a]={}
 		for b=1,4 do actortypes[a][b]={} end
 	end		
@@ -282,7 +282,7 @@ function actortypes_i(l,r)
 		actortypes[7][a].solid=true
 		actortypes[7][a].dial=flr(rnd(#dial))+1
 	end
-		--enemy attributes
+	--enemy attributes
 	for a=1,4 do
 		ch=flr(rnd(#chars)+1)
 		actortypes[8][a].ch=sub(chars,ch,ch)
@@ -324,6 +324,20 @@ function actortypes_i(l,r)
 		--actortypes[11][a].display=false
 		--actortypes[11][a].control=false
 	end
+	--enemy attributes
+	for a=1,4 do
+		ch=flr(rnd(#chars)+1)
+		actortypes[12][a].ch=sub(chars,ch,ch)
+		actortypes[12][a].c=flr(rnd(14))+1
+		actortypes[12][a].m=2
+		actortypes[12][a].ad=flr(rnd(#adjectives))+1
+		actortypes[12][a].pn=#pronouns if rnd(1)<=0.5 then actortypes[2][a].pn=flr(rnd(#pronouns))+1 end
+		actortypes[12][a].sp=flr(rnd(#species))+1
+		actortypes[12][a].rl=flr(rnd(#rltns))+1
+		actortypes[12][a].solid=true
+		actortypes[12][a].dial=flr(rnd(#dial))+1
+	end
+
 end
 
 function rooms_i(ss,sa)
@@ -370,10 +384,10 @@ function loadsector(sx,sy,mx,my)
 				end
 			end
 			if mc==10 then if rand<0.1 then cell=4 end end
-			local en={} en[0]=3 en[1]=7 en[2]=8
-			if rand<0.03 then cell=en[flr(rnd(3))] end
+			local en={} en[0]=3 en[1]=7 en[2]=8 en[3]=12
+			if rand<0.03 then cell=en[flr(rnd(4))] end
 			if rand<0.001 then cell=4 end
-			if cell==3 or cell==4 or cell==7 or cell==8 then
+			if cell==3 or cell==4 or cell==7 or cell==8 or cell==12 then
 				room[a+sx*ss][b+sy*ss]=cell
 			end
 		end
@@ -429,9 +443,10 @@ function makeactor(t,x,y)
 	if a.t==4 or a.t==6 then
 		add(actors.items,a)
 	end
-	if a.t==8 or a.t==7 or a.t==3 or a.t==1 then
+	if a.t==12 or a.t==8 or a.t==7 or a.t==3 or a.t==1 then
 		if a.t==1 then
 			a.args={1,2,3,4}
+			a.buy={4,6}
 		end
 		a.attack=0
 		a.attackdir=0
@@ -668,8 +683,7 @@ function colactor(a,d,t)
 				local mes={}
 				room[t.x][t.y]=0
 				dropitem(t)
-				if a==p then
-					
+				if a==p then	
 					mes[1]=species[actortypes[t.t][level+1].sp].." screams:"
 					mes[2]=" blargharaghghr!!!..."
 					mes[3]="*"..species[actortypes[t.t][level+1].sp].." now hates you!*"
@@ -805,12 +819,17 @@ function listinventory(l,title)
 	me={}
 	me[1]=title
 	for b=1,#l do
-		me[b+1]=" "..items[actortypes[l[b]][level+1].sp]
+		me[b+1]=items[actortypes[l[b]][level+1].sp]
 	end
 	return me
 end
 
 function sendtomenu(m,me)
+	if m.t==2 then
+		for a=2,#me do
+			me[a]="  "..me[a]
+		end
+	end
 	m.display=true
 	m.me=me
 end
@@ -827,7 +846,7 @@ function domenu(m)
 			
 			if target==1 then	
 				sendtomenu(m,{"you are:"," a "..adjectives[ty.ad].." "..pronouns[ty.pn]..species[ty.sp]," in a "..adjectives[rooms[level].ad].." "..places[rooms[level].pl]," feeling *"..feelings[rltns[ty.rl].fe].."*"})
-			elseif target==3 or target==7 or target==8 then
+			elseif target==3 or target==7 or target==8 or target==12 then
 				sendtomenu(m,{"you see:"," a "..species[ty.sp],">>button 1 to interact"})
 				if btnp(4) then
 					changemenu(m,4)
@@ -850,10 +869,10 @@ function domenu(m)
 	--buy menu
 	elseif m.t==3 then
 		local buy={} buy[1]="buy:"
-		for a=1,#items do
-			buy[a+1]=items[a]
+		for a=1,#p.buy do
+			buy[a+1]=items[actortypes[p.buy[a]][level+1].sp]
 		end
-		controlmenu(m,2,#items,buy)
+		controlmenu(m,2,#p.buy,buy)
 	--dialogue menu
 	elseif m.t==4 then
 		local flav=""
@@ -894,8 +913,8 @@ function controlmenu(m,mi,ma,me)
 				doitem(m,p.inventory[m.sel])
 			elseif m.t==3 then
 				--buy item
-				makeactor(6,p.x,p.y)
-				quitmenu(m,2,true)
+				makeactor(p.buy[m.sel],p.x,p.y)
+				quitmenu(m,2,true,listinventory(p.inventory,"inventory:"))
 			elseif m.t==4 then
 				--dialogue
 				if m.sel==1 then
