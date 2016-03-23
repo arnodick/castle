@@ -389,6 +389,11 @@ function loadsector(sx,sy,mx,my)
 			if rand<0.001 then cell=4 end
 			if cell==3 or cell==4 or cell==7 or cell==8 or cell==12 then
 				room[a+sx*ss][b+sy*ss]=cell
+				local sp=a+sx*ss-1
+				if sp<0 then sp=rooms[level].room_w-1
+				elseif sp>rooms[level].room_w-1 then sp=0
+				end
+				room[sp][b+sy*ss]=0
 			end
 		end
 	end
@@ -718,6 +723,11 @@ function moveactor(a,d)
 --			a.secx=flr(a.x/rooms[level].sector_s)*rooms[level].sector_s*cellw
 --			a.secy=flr(a.y/rooms[level].sector_s)*rooms[level].sector_s*cellh
 		elseif cell==2 or cell==9 then
+			--for b=0,3 do
+			--	dire=actoroob(a,direction(b))
+			--	cell=room[a.x+dire[1]][a.y+dire[2]]
+				
+			--end
 			moveactor(a,2^flr(rnd(4)))
 		else
 		 return true
