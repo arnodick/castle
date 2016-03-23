@@ -854,6 +854,8 @@ function domenu(m)
 				end
 			elseif target==2 or target==9 then	
 				sendtomenu(m,{"you see:"," a "..objects[ty.sp]})
+			elseif target==4 or target==6 then
+				sendtomenu(m,{"you see:"," a "..items[ty.sp]})
 			else
 				sendtomenu(m,{""})
 			end
@@ -958,7 +960,7 @@ function controlmenu(m,mi,ma,me)
 					actortypes[m.target][level+1].rl=actortypes[p.t][level+1].rl
 					actortypes[m.target][level+1].m=1
 					del(p.args,p.args[m.sel])
-					quitmenu(m,1,false,{"the x says:"," hm good point ..","*x now likes you!*"})
+					quitmenu(m,1,false,{"the "..species[actortypes[m.target][level+1].sp].." says:"," hm good point ..","*"..species[actortypes[m.target][level+1].sp].. " now likes you!*"})
 --					sendtomenu(m,{"the x says:"," hm, good point ..","*x now likes you!*"})
 				elseif p.args[m.sel]==rltns[actortypes[m.target][level+1].rl].ha then
 					rltns[actortypes[m.target][level+1].rl].ha=actortypes[p.t][level+1].rl
