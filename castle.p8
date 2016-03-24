@@ -459,6 +459,9 @@ function makeactor(t,x,y)
 --	a.secy=flr(a.y/rooms[level].sector_s)*rooms[level].sector_s*cellh
 	a.shakex=0
 	a.shakey=0
+	a.movex=0
+	a.movey=0
+
 	if a.t==5 then
 		add(actors.exits,a)
 	end
@@ -509,14 +512,14 @@ function drawactor(a)
 		if comparedistance(a,p)<10 then
 			if actortypes[a.t][level+1].ch2!=nil then
 				--print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[2][level+1].c2) --keeping this in case it was giving good colour results?
-				print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[a.t][level+1].c2)
+				print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+a.movex+camoffx+2,a.y*cellh+a.shakey+a.movey+camoffy+2,actortypes[a.t][level+1].c2)
 			end
 			if comparedistance(a,p)<6 then
 		--if flr(a.x/8)==flr(p.x/8) then
 			--if flr(a.y/8)==flr(p.y/8) then
 		--if a.secx==cam[1] then 
 			--if	a.secy==cam[2] then
-				print(actortypes[a.t][level+1].ch,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[a.t][level+1].c)
+				print(actortypes[a.t][level+1].ch,a.x*cellw+a.shakex+a.movex+camoffx+2,a.y*cellh+a.shakey+a.movey+camoffy+1,actortypes[a.t][level+1].c)
 			
 				if menus[1].control then
 					if a.tar!=nil then
@@ -739,6 +742,8 @@ function moveactor(a,d)
 		elseif cell==0 or not actortypes[cell][level+1].solid then
 			room[a.x][a.y]=0
 			a.x+=dire[1] a.y+=dire[2]
+			a.movex=-dire[1]*cellw
+			a.movey=-dire[2]*cellh
 			room[a.x][a.y]=a.t
 --			a.secx=flr(a.x/rooms[level].sector_s)*rooms[level].sector_s*cellw
 --			a.secy=flr(a.y/rooms[level].sector_s)*rooms[level].sector_s*cellh
@@ -960,6 +965,7 @@ function controlmenu(m,mi,ma,me)
 						local prl=actortypes[p.t][level+1].rl
 						if     rltns[trl].ha==prl then
 							--they hate you
+							--todo: make it so each result ahs its own quit menu
 							sendtomenu(m,{"they say:"," no i hate you!"})
 						elseif rltns[prl].ha==trl then
 							--you hate them
@@ -1021,9 +1027,9 @@ end
 function shakeactor(a)
 	if a.attack>0 then
 		if a.attackdir==1 then
-			a.shakex=cos(timer*1/6)*2
+			a.shakex=cos(timer*1/6)*4
 		else
-			a.shakey=cos(timer*1/6)*2
+			a.shakey=cos(timer*1/6)*4
 		end
 		a.attack-=1
 	elseif a.hit>0 then
@@ -1031,6 +1037,18 @@ function shakeactor(a)
 	else
 		a.shakex=0 --a.shakey=0
 		a.shakey=-abs(cos(timer*1/40))*2+1
+	end
+	if a.movex!=0 then
+		if   a.movex>0 then a.movex-=1
+		else a.movex+=1
+		end
+	elseif a.movey!=0 then
+		if   a.movey>0 then a.movey-=1
+		else a.movey+=1
+		end
+	else
+		a.movex=0
+		a.movey=0
 	end
 end
 
@@ -1129,8 +1147,8 @@ function stateupdate(s)
 			end
 			foreach(actors.creatures,shakeactor)
 			if p!=nil then
-				cam[1]=(p.x-rooms[level].sector_s/2)*cellw
-				cam[2]=(p.y-rooms[level].sector_s/2)*cellh
+				cam[1]=(p.x-rooms[level].sector_s/2)*cellw+p.movex
+				cam[2]=(p.y-rooms[level].sector_s/2)*cellh+p.movey
 				--cam[1]=flr(p.x/rooms[level].sector_s)*rooms[level].sector_s*cellw
 				--cam[2]=flr(p.y/rooms[level].sector_s)*rooms[level].sector_s*cellh
 			end
