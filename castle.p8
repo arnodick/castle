@@ -512,14 +512,15 @@ function drawactor(a)
 		if comparedistance(a,p)<10 then
 			if actortypes[a.t][level+1].ch2!=nil then
 				--print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[2][level+1].c2) --keeping this in case it was giving good colour results?
-				print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+a.movex+camoffx+2,a.y*cellh+a.shakey+a.movey+camoffy+2,actortypes[a.t][level+1].c2)
+				print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+a.movex+camoffx+2,a.y*cellh+a.shakey+a.movey+camoffy+2,5)
 			end
 			if comparedistance(a,p)<6 then
 		--if flr(a.x/8)==flr(p.x/8) then
 			--if flr(a.y/8)==flr(p.y/8) then
 		--if a.secx==cam[1] then 
 			--if	a.secy==cam[2] then
-				print(actortypes[a.t][level+1].ch,a.x*cellw+a.shakex+a.movex+camoffx+2,a.y*cellh+a.shakey+a.movey+camoffy+1,actortypes[a.t][level+1].c)
+				print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+a.movex+camoffx+2,a.y*cellh+a.shakey+a.movey+camoffy+2,actortypes[a.t][level+1].c2)
+				print(actortypes[a.t][level+1].ch, a.x*cellw+a.shakex+a.movex+camoffx+2,a.y*cellh+a.shakey+a.movey+camoffy+1,actortypes[a.t][level+1].c)
 			
 				if menus[1].control then
 					if a.tar!=nil then
