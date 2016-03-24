@@ -584,11 +584,18 @@ function direction(d)
 end
 
 function actoroob(a,dire)
-	if a.x+dire[1]<0       then dire[1]=rooms[level].room_w-1 end
-	if a.x+dire[1]>=rooms[level].room_w then dire[1]=-rooms[level].room_w+1 end
-	if a.y+dire[2]<0       then dire[2]=rooms[level].room_w-1 end
-	if a.y+dire[2]>=rooms[level].room_w then dire[2]=-rooms[level].room_w+1 end	
+	local out=false
+	if a.x+dire[1]<0       then dire[1]=rooms[level].room_w-1 out=true  end
+	if a.x+dire[1]>=rooms[level].room_w then dire[1]=-rooms[level].room_w+1 out=true  end
+	if a.y+dire[2]<0       then dire[2]=rooms[level].room_w-1 out=true  end
+	if a.y+dire[2]>=rooms[level].room_w then dire[2]=-rooms[level].room_w+1 out=true  end	
+	if a==p and out then
+		level+=1
+		if level>3 then level=0 end
+		changelevel(level)
+	end
 	return dire
+	
 end
 
 function comparedistance(a,t)
