@@ -232,8 +232,10 @@ function actortypes_i(l,r)
 	--enemy attributes
 	for a=1,4 do
 		ch=flr(rnd(#chars)+1)
-		actortypes[3][a].ch=sub(chars,ch,ch)
-		actortypes[3][a].ch2=sub(chars,ch,ch)
+--		actortypes[3][a].ch=sub(chars,ch,ch)
+--		actortypes[3][a].ch2=sub(chars,ch,ch)
+		actortypes[3][a].ch=sub(chars,1,1)
+		actortypes[3][a].ch2=sub(chars,1,1)
 		actortypes[3][a].c=flr(rnd(14))+1
 		actortypes[3][a].c2=5
 		actortypes[3][a].m=2
@@ -274,9 +276,11 @@ function actortypes_i(l,r)
 		--enemy attributes
 	for a=1,4 do
 		ch=flr(rnd(#chars)+1)
-		actortypes[7][a].ch=sub(chars,ch,ch)
+--		actortypes[7][a].ch=sub(chars,ch,ch)
+--		actortypes[7][a].ch2=sub(chars,ch,ch)
+		actortypes[7][a].ch=sub(chars,1,1)
+		actortypes[7][a].ch2=sub(chars,1,1)
 		actortypes[7][a].c=flr(rnd(14))+1
-		actortypes[7][a].ch2=sub(chars,ch,ch)
 		actortypes[7][a].c2=5
 		actortypes[7][a].m=2
 		actortypes[7][a].ad=flr(rnd(#adjectives))+1
@@ -289,9 +293,11 @@ function actortypes_i(l,r)
 	--enemy attributes
 	for a=1,4 do
 		ch=flr(rnd(#chars)+1)
-		actortypes[8][a].ch=sub(chars,ch,ch)
+		actortypes[8][a].ch=sub(chars,1,1)
+		actortypes[8][a].ch2=sub(chars,1,1)
+--		actortypes[8][a].ch=sub(chars,ch,ch)
+--		actortypes[8][a].ch2=sub(chars,ch,ch)
 		actortypes[8][a].c=flr(rnd(14))+1
-		actortypes[8][a].ch2=sub(chars,ch,ch)
 		actortypes[8][a].c2=5
 		actortypes[8][a].m=2		
 		actortypes[8][a].ad=flr(rnd(#adjectives))+1
@@ -333,9 +339,11 @@ function actortypes_i(l,r)
 	--enemy attributes
 	for a=1,4 do
 		ch=flr(rnd(#chars)+1)
-		actortypes[12][a].ch=sub(chars,ch,ch)
+		actortypes[12][a].ch=sub(chars,1,1)
+		actortypes[12][a].ch2=sub(chars,1,1)
+--		actortypes[12][a].ch=sub(chars,ch,ch)
+--		actortypes[12][a].ch2=sub(chars,ch,ch)
 		actortypes[12][a].c=flr(rnd(14))+1
-		actortypes[12][a].ch2=sub(chars,ch,ch)
 		actortypes[12][a].c2=5
 	
 		actortypes[12][a].m=2
@@ -693,6 +701,8 @@ function colactor(a,d,t)
 				if t==p then
 					sendtomenu(menus[1],tut)
 				end
+			elseif t.hit==2 then
+				moveactor(a,2^flr(rnd(4)))
 			else
 				sfx(1)
 				local mes={}
@@ -768,7 +778,7 @@ function doactor(a)
 --		if a==p then
 --			sendtomenu(menus[2],listinventory(p.inventory,"inventory:"))
 --		end
-		if comparedistance(a,p)<11 or a.t==11 then
+		if comparedistance(a,p)<5.5 or a.t==11 then
 			if a.hit==0 then
 				local d=movetype(a)
 				if moveactor(a,d) then
