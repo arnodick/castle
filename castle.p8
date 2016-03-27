@@ -511,22 +511,16 @@ function drawactor(a)
 	if p!=nil then
 		if comparedistance(a,p)<10 then
 			if actortypes[a.t][level+1].ch2!=nil then
-				--print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+camoffx+2,a.y*cellh+a.shakey+camoffy+2,actortypes[2][level+1].c2) --keeping this in case it was giving good colour results?
 				print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+a.movex+camoffx+2,a.y*cellh+a.shakey+a.movey+camoffy+2,5)
 			end
 			if comparedistance(a,p)<6 then
-		--if flr(a.x/8)==flr(p.x/8) then
-			--if flr(a.y/8)==flr(p.y/8) then
-		--if a.secx==cam[1] then 
-			--if	a.secy==cam[2] then
-				print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+a.movex+camoffx+2,a.y*cellh+a.shakey+a.movey+camoffy+2,actortypes[a.t][level+1].c2)
-				print(actortypes[a.t][level+1].ch, a.x*cellw+a.shakex+a.movex+camoffx+2,a.y*cellh+a.shakey+a.movey+camoffy+1,actortypes[a.t][level+1].c)
-			
+				if actortypes[a.t][level+1].ch2!=nil then
+					print(actortypes[a.t][level+1].ch2,a.x*cellw+a.shakex+a.movex+camoffx+2,a.y*cellh+a.shakey+a.movey+camoffy+2,actortypes[a.t][level+1].c2)
+				end
+				print(actortypes[a.t][level+1].ch, a.x*cellw+a.shakex+a.movex+camoffx+2,a.y*cellh+a.shakey+a.movey+camoffy+1,actortypes[a.t][level+1].c)			
 				if menus[1].control then
 					if a.tar!=nil then
-	--		rect(a.tar.x*cellw,a.tar.y*cellh,a.tar.x*cellw+5,a.tar.y*cellh+5,8)
 						line(a.tar.x*cellw+3+2,a.tar.y*cellh+3+2,a.x*cellw+3+2,a.y*cellh+3+2,8)
-	--				print(comparedistance(a.tar,a),a.x*cellw+cellw,a.y*cellh+cellh,8)
 					end
 				end
 			end
@@ -544,7 +538,6 @@ function drawmenu(m)
 --	rectfill(cam[1]+m.x-3,cam[2]+m.y-2,cam[1]+m.x-4,cam[2]+m.y+m.h,0)
 --	rectfill(cam[1]+m.x-2,cam[2]+m.y-3,cam[1]+m.x+m.w,cam[2]+m.y-4,0)
 	if m.control then
-
 		if m.t==1 then
 			--draw cursor
 			if flr(timer/10)%2==0 then
