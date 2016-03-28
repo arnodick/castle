@@ -182,7 +182,7 @@ function actortypes_i(l,r)
 	end
 	for a=1,r do
 		rltns[a]={}
-		local fe=ind[flr(rnd(#ind))+1]
+		local fe=ind[rndint(#ind)]
 		rltns[a].fe=fe
 		--rltns[a].li=a --this is just to set up the below code that stops liking your own feeling
 		rltns[a].li=a --this is just to set up the below code that stops liking your own feeling
@@ -194,167 +194,141 @@ function actortypes_i(l,r)
 		--	rltns[a].li=flr(rnd(r))+1
 		--end
 		while rltns[a].ha==a or rltns[a].ha==rltns[a].li do
-			rltns[a].ha=flr(rnd(r))+1
+			rltns[a].ha=rndint(r)
 		end
 	end
 	
 	actortypes={}
 	for a=1,12 do
 		actortypes[a]={}
---		for b=1,4 do actortypes[a][b]={} end
 	end		
 	--player attributes
-	local ad=flr(rnd(#adjectives))+1
-	local pn=#pronouns if rnd(1)<=0.5 then pn=flr(rnd(#pronouns))+1 end
-	local sp=flr(rnd(#species))+1
-	local rl=flr(rnd(#rltns))+1
---	for a=1,4 do
-		actortypes[1].ch=sub(chars,1,1)
-		actortypes[1].c=7
-		actortypes[1].m=1
-		actortypes[1].ad=ad
-		actortypes[1].pn=pn
-		actortypes[1].sp=sp
-		actortypes[1].rl=rl
-		actortypes[1].solid=true
---	end
-	--tree attributes
---	for a=1,4 do
-		local ch=flr(rnd(#chars)+1)
-		local ch2=flr(rnd(#chars)+1)
-		actortypes[2].ch=sub(chars,ch,ch)
-		actortypes[2].c=flr(rnd(14))+1
-		actortypes[2].ch2=sub(chars,ch2,ch2)
-		actortypes[2].c2=flr(rnd(14))+1
-		actortypes[2].sp=flr(rnd(#objects))+1
-		actortypes[2].solid=true
---	end
-	--enemy attributes
---	for a=1,4 do
-		ch=flr(rnd(#chars)+1)
---		actortypes[3][a].ch=sub(chars,ch,ch)
---		actortypes[3][a].ch2=sub(chars,ch,ch)
-		actortypes[3].ch=sub(chars,1,1)
-		actortypes[3].ch2=sub(chars,1,1)
-		actortypes[3].c=flr(rnd(14))+1
-		actortypes[3].c2=5
-		actortypes[3].m=2
-		actortypes[3].ad=flr(rnd(#adjectives))+1
-		actortypes[3].pn=#pronouns if rnd(1)<=0.5 then actortypes[3].pn=flr(rnd(#pronouns))+1 end
-		actortypes[3].sp=flr(rnd(#species))+1
-		actortypes[3].rl=flr(rnd(#rltns))+1
-		actortypes[3].solid=true
-		actortypes[3].dial=flr(rnd(#dial))+1
---	end
-	--cash attributes
-	local ch=flr(rnd(#chars)+1)
---	for a=1,4 do
-		actortypes[4].ch=sub(chars,16,16)
-		actortypes[4].c=10
-		actortypes[4].m=0
-		actortypes[4].sp=1
-		actortypes[4].solid=false
-		actortypes[4].snd=4
---	end
-	--exit attributes
---	for a=1,4 do
-		actortypes[5].ch="&"
-		actortypes[5].c=11
-		actortypes[5].m=0
-		actortypes[5].solid=false
-		actortypes[5].snd=6
---	end
-	--potion?
---	for a=1,4 do
-		actortypes[6].ch="~"
-		actortypes[6].c=13
-		actortypes[6].m=0
-		actortypes[6].sp=2
-		actortypes[6].solid=false
-		actortypes[6].snd=5
---	end
-		--enemy attributes
---	for a=1,4 do
-		ch=flr(rnd(#chars)+1)
---		actortypes[7][a].ch=sub(chars,ch,ch)
---		actortypes[7][a].ch2=sub(chars,ch,ch)
-		actortypes[7].ch=sub(chars,1,1)
-		actortypes[7].ch2=sub(chars,1,1)
-		actortypes[7].c=flr(rnd(14))+1
-		actortypes[7].c2=5
-		actortypes[7].m=2
-		actortypes[7].ad=flr(rnd(#adjectives))+1
-		actortypes[7].pn=#pronouns if rnd(1)<=0.5 then actortypes[7].pn=flr(rnd(#pronouns))+1 end
-		actortypes[7].sp=flr(rnd(#species))+1
-		actortypes[7].rl=flr(rnd(#rltns))+1
-		actortypes[7].solid=true
-		actortypes[7].dial=flr(rnd(#dial))+1
---	end
-	--enemy attributes
---	for a=1,4 do
-		ch=flr(rnd(#chars)+1)
-		actortypes[8].ch=sub(chars,1,1)
-		actortypes[8].ch2=sub(chars,1,1)
---		actortypes[8][a].ch=sub(chars,ch,ch)
---		actortypes[8][a].ch2=sub(chars,ch,ch)
-		actortypes[8].c=flr(rnd(14))+1
-		actortypes[8].c2=5
-		actortypes[8].m=2		
-		actortypes[8].ad=flr(rnd(#adjectives))+1
-		actortypes[8].pn=#pronouns if rnd(1)<=0.5 then actortypes[8].pn=flr(rnd(#pronouns))+1 end
-		actortypes[8].sp=flr(rnd(#species))+1
-		actortypes[8].rl=flr(rnd(#rltns))+1
-		actortypes[8].solid=true
-		actortypes[8].dial=flr(rnd(#dial))+1
---	end
-	--wall attributes
---	for a=1,4 do
-		local ch=flr(rnd(#chars)+1)
-		local ch2=flr(rnd(#chars)+1)
-		actortypes[9].ch=sub(chars,ch,ch)
-		actortypes[9].c=flr(rnd(14))+1
-		actortypes[9].ch2=sub(chars,ch2,ch2)
-		actortypes[9].c2=flr(rnd(14))+1
-		actortypes[9].sp=flr(rnd(#objects))+1
-		actortypes[9].solid=true
---	end
-	--ground attributes
---	for a=1,4 do
-		local ch=48
-		actortypes[10].ch=sub(chars,ch,ch)
-		actortypes[10].c=flr(rnd(14))+1
-		actortypes[10].sp=flr(rnd(#objects))+1
-		actortypes[10].solid=false
---	end
-		--cursor abilities
---	for a=1,4 do
-		actortypes[11].ch=sub(chars,#chars,#chars)
-		actortypes[11].c=8
---		actortypes[10][a].sp=flr(rnd(#objects))+1
-		actortypes[11].solid=false
-		actortypes[11].m=1
-		--actortypes[11][a].display=false
-		--actortypes[11][a].control=false
---	end
-	--enemy attributes
---	for a=1,4 do
-		ch=flr(rnd(#chars)+1)
-		actortypes[12].ch=sub(chars,1,1)
-		actortypes[12].ch2=sub(chars,1,1)
---		actortypes[12][a].ch=sub(chars,ch,ch)
---		actortypes[12][a].ch2=sub(chars,ch,ch)
-		actortypes[12].c=flr(rnd(14))+1
-		actortypes[12].c2=5
-	
-		actortypes[12].m=2
-		actortypes[12].ad=flr(rnd(#adjectives))+1
-		actortypes[12].pn=#pronouns if rnd(1)<=0.5 then actortypes[12].pn=flr(rnd(#pronouns))+1 end
-		actortypes[12].sp=flr(rnd(#species))+1
-		actortypes[12].rl=flr(rnd(#rltns))+1
-		actortypes[12].solid=true
-		actortypes[12].dial=flr(rnd(#dial))+1
---	end
+	local ad=rndint(#adjectives)
+	local pn=#pronouns if rnd(1)<=0.5 then pn=rndint(#pronouns) end
+	local sp=rndint(#species)
+	local rl=rndint(#rltns)
 
+	actortypes[1].ch=sub(chars,1,1)
+	actortypes[1].c=7
+	actortypes[1].m=1
+	actortypes[1].ad=ad
+	actortypes[1].pn=pn
+	actortypes[1].sp=sp
+	actortypes[1].rl=rl
+	actortypes[1].solid=true
+	
+	--tree attributes
+	local ch=rndint(#chars)
+	local ch2=rndint(#chars)
+	actortypes[2].ch=sub(chars,ch,ch)
+	actortypes[2].ch2=sub(chars,ch2,ch2)
+	actortypes[2].c=rndint(14)
+	actortypes[2].c2=rndint(14)
+	actortypes[2].sp=rndint(#objects)
+	actortypes[2].solid=true
+	
+	--enemy attributes
+	ch=rndint(#chars)
+	actortypes[3].ch=sub(chars,1,1)
+	actortypes[3].ch2=sub(chars,1,1)
+	actortypes[3].c=rndint(14)
+	actortypes[3].c2=5
+	actortypes[3].m=2
+	actortypes[3].ad=rndint(#adjectives)
+	actortypes[3].pn=#pronouns if rnd(1)<=0.5 then actortypes[3].pn=rndint(#pronouns) end
+	actortypes[3].sp=rndint(#species)
+	actortypes[3].rl=rndint(#rltns)
+	actortypes[3].solid=true
+	actortypes[3].dial=rndint(#dial)
+
+	--cash attributes
+	local ch=rndint(#chars)
+	actortypes[4].ch=sub(chars,16,16)
+	actortypes[4].c=10
+	actortypes[4].m=0
+	actortypes[4].sp=1
+	actortypes[4].solid=false
+	actortypes[4].snd=4
+
+	--exit attributes
+	actortypes[5].ch="&"
+	actortypes[5].c=11
+	actortypes[5].m=0
+	actortypes[5].solid=false
+	actortypes[5].snd=6
+
+	--potion?
+	actortypes[6].ch="~"
+	actortypes[6].c=13
+	actortypes[6].m=0
+	actortypes[6].sp=2
+	actortypes[6].solid=false
+	actortypes[6].snd=5
+
+	--enemy attributes
+	ch=rndint(#chars)
+	actortypes[7].ch=sub(chars,1,1)
+	actortypes[7].ch2=sub(chars,1,1)
+	actortypes[7].c=rndint(14)
+	actortypes[7].c2=5
+	actortypes[7].m=2
+	actortypes[7].ad=rndint(#adjectives)
+	actortypes[7].pn=#pronouns if rnd(1)<=0.5 then actortypes[7].pn=rndint(#pronouns) end
+	actortypes[7].sp=rndint(#species)
+	actortypes[7].rl=rndint(#rltns)
+	actortypes[7].solid=true
+	actortypes[7].dial=rndint(#dial)
+
+	--enemy attributes
+	ch=rndint(#chars)
+	actortypes[8].ch=sub(chars,1,1)
+	actortypes[8].ch2=sub(chars,1,1)
+	actortypes[8].c=rndint(14)
+	actortypes[8].c2=5
+	actortypes[8].m=2		
+	actortypes[8].ad=rndint(#adjectives)
+	actortypes[8].pn=#pronouns if rnd(1)<=0.5 then actortypes[8].pn=rndint(#pronouns) end
+	actortypes[8].sp=rndint(#species)
+	actortypes[8].rl=rndint(#rltns)
+	actortypes[8].solid=true
+	actortypes[8].dial=rndint(#dial)
+
+	--wall attributes
+	local ch=rndint(#chars)
+	local ch2=rndint(#chars)
+	actortypes[9].ch=sub(chars,ch,ch)
+	actortypes[9].c=rndint(14)
+	actortypes[9].ch2=sub(chars,ch2,ch2)
+	actortypes[9].c2=rndint(14)
+	actortypes[9].sp=rndint(#objects)
+	actortypes[9].solid=true
+
+	--ground attributes
+	local ch=48
+	actortypes[10].ch=sub(chars,ch,ch)
+	actortypes[10].c=rndint(14)
+	actortypes[10].sp=rndint(#objects)
+	actortypes[10].solid=false
+
+	--cursor abilities
+	actortypes[11].ch=sub(chars,#chars,#chars)
+	actortypes[11].c=8
+	actortypes[11].solid=false
+	actortypes[11].m=1
+
+	--enemy attributes
+	ch=rndint(#chars)
+	actortypes[12].ch=sub(chars,1,1)
+	actortypes[12].ch2=sub(chars,1,1)
+	actortypes[12].c=rndint(14)
+	actortypes[12].c2=5
+	actortypes[12].m=2
+	actortypes[12].ad=rndint(#adjectives)
+	actortypes[12].pn=#pronouns if rnd(1)<=0.5 then actortypes[12].pn=rndint(#pronouns) end
+	actortypes[12].sp=rndint(#species)
+	actortypes[12].rl=rndint(#rltns)
+	actortypes[12].solid=true
+	actortypes[12].dial=rndint(#dial)
 end
 
 function rooms_i(ss,sa)
@@ -366,8 +340,8 @@ function rooms_i(ss,sa)
 		rooms[b].room_w=rooms[level].sector_s*rooms[level].sector_a
 
 		rooms[b].c=flr(rnd(6))
-		rooms[b].ad=flr(rnd(#adjectives))+1
-		rooms[b].pl=flr(rnd(#places))+1
+		rooms[b].ad=rndint(#adjectives)
+		rooms[b].pl=rndint(#places)
 		for a=0,sa*sa-1 do
 			--sets sector of map to load
 			rooms[b][a]=flr(rnd(8))
@@ -380,6 +354,10 @@ function reset()
 	actortypes={}
 	destroyactors()
 	menus={}
+end
+
+function rndint(n)
+	return	flr(rnd(n))+1
 end
 
 function loadsector(sx,sy,mx,my)
@@ -587,8 +565,7 @@ function actoroob(a,dire)
 		if level>3 then level=0 end
 		changelevel(level)
 	end
-	return dire
-	
+	return dire	
 end
 
 function comparedistance(a,t)
@@ -625,17 +602,20 @@ function closesthated(a,ar)
 	return close
 end
 
+function getrltn(t)
+	return rltns[actortypes[t].rl]
+end
+
 function settarget(a)
 	local tars={} local d={}
 	tars[1]=closestactor(a,actors.items)
 	tars[2]=closestactor(a,actors.creatures)
 	if actors.items[1]!=nil then
-
 		for b=1,2 do
 			d[b]=comparedistance(a,tars[b])
 		end
 		if d[2]<d[1]
-		and rltns[actortypes[a.t].rl].ha==actortypes[tars[2].t].rl 
+		and getrltn(a.t).ha==actortypes[tars[2].t].rl 
 		and d[2]<8 then
 			a.tar=tars[2]
 			return followactor(a,tars[2])
@@ -716,7 +696,7 @@ function colactor(a,d,t)
 					mes[1]=species[actortypes[t.t].sp].." screams:"
 					mes[2]=" blargharaghghr!!!..."
 					mes[3]="*"..species[actortypes[t.t].sp].." now hates you!*"
-					rltns[actortypes[t.t].rl].ha=actortypes[p.t].rl
+					getrltn(t.t).ha=actortypes[p.t].rl
 				elseif t==p then
 					sendtomenu(menus[2],listinventory(p.inventory,"inventory:"))
 					mes[1]="you are dead!"
@@ -914,7 +894,8 @@ function domenu(m)
 	--dialogue menu
 	elseif m.t==4 then
 		local flav=""
-		local prl=rltns[actortypes[p.t].rl]
+		--rltns[actortypes[p.t].rl]
+		local prl=getrltn(p.t)
 		local trl=actortypes[m.target].rl
 		if prl.ha==trl then
 			flav="you hate >( !!"
@@ -923,11 +904,9 @@ function domenu(m)
 		else
 			flav="you face:"
 		end
-			controlmenu(m,3,2,{flav," a "..species[actortypes[m.target].sp],"talk","argue"})
---		controlmenu(m,3,2,{flav," a "..species[actortypes[m.target][level+1].sp].." feeling *"..feelings[rltns[actortypes[m.target][level+1].rl].fe].."*","talk","argue"})
+		controlmenu(m,3,2,{flav," a "..species[actortypes[m.target].sp],"talk","argue"})
 	elseif m.t==5 then
 		local arg={}
---		for a=1,#rltns do
 		for a=1,#p.args do
 			arg[a]=feelings[rltns[p.args[a]].fe].." is best!"
 		end
@@ -960,7 +939,8 @@ function controlmenu(m,mi,ma,me)
 					sfx(flr(rnd(2))+8)
 					quitmenu(m,1,true)
 					local en={} en[1]=3 en[2]=7 en[3]=8
-					local r=flr(rnd(#en))+1
+					local r=rndint(#en)
+--					flr(rnd(#en))+1
 					if players[1]!=nil then
 						local trl=actortypes[m.target].rl
 						local prl=actortypes[p.t].rl
@@ -973,9 +953,10 @@ function controlmenu(m,mi,ma,me)
 							sendtomenu(m,{"they say:"," you're mean...","*"..species[actortypes[m.target].sp].." now hates you!*"})
 
 							--now they hate you
-							rltns[actortypes[m.target].rl].ha=actortypes[p.t].rl
-							while rltns[actortypes[m.target].rl].li==prl do
-								rltns[actortypes[m.target].rl].li=flr(rnd(#rltns))+1
+							--rltns[actortypes[m.target].rl].ha=actortypes[p.t].rl
+							getrltn(m.target).ha=actortypes[p.t].rl
+							while getrltn(m.target).li==prl do
+								getrltn(m.target).li=rndint(#rltns)
 							end
 						elseif rltns[trl].li==prl then
 							--they like you
@@ -999,8 +980,8 @@ function controlmenu(m,mi,ma,me)
 					del(p.args,p.args[m.sel])
 					quitmenu(m,1,false,{"the "..species[actortypes[m.target].sp].." says:"," hm good point ..","*"..species[actortypes[m.target].sp].. " now likes you!*"})
 --					sendtomenu(m,{"the x says:"," hm, good point ..","*x now likes you!*"})
-				elseif p.args[m.sel]==rltns[actortypes[m.target].rl].ha then
-					rltns[actortypes[m.target].rl].ha=actortypes[p.t].rl
+				elseif p.args[m.sel]==getrltn(m.target).ha then
+					getrltn(m.target).ha=actortypes[p.t].rl
 					actortypes[m.target].m=2
 					del(p.args,p.args[m.sel])
 					quitmenu(m,1,true,{"they howl:"," how dare you say such thiiiiing!"})
