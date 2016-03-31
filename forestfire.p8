@@ -21,10 +21,12 @@ function debug_u()
 	debug_l[8]="camy:"..cam[2]
 	debug_l[9]="settings:"..settings[1]
 	debug_l[10]="timestep:"..timestep
-end
-
-function reset()
-	menus={}
+	debug_l[11]="gene prob:"..probs[0]
+	debug_l[12]="grow prob:"..probs[1]
+	debug_l[13]="burn prob:"..probs[2]
+	debug_l[14]="exti prob:"..probs[3]
+	debug_l[15]="deco prob:"..probs[4]
+	debug_l[16]="dest prob:"..probs[5]
 end
 
 function rndint(n)
@@ -37,13 +39,11 @@ function choose(ar,d)
 	return r
 end
 
-function movetype(a)
-	local m=actortypes[a.t].m
-	if m==1 then
-		return btnp()
-	elseif m==2 then
-		return settarget(a)
+function clampoverflow(v,mi,ma)
+	if v<mi then v=ma
+	elseif v>ma then v=mi
 	end
+	return v
 end
 
 function makemenu(t,x,y,w,h)
@@ -55,30 +55,14 @@ function makemenu(t,x,y,w,h)
 	m.h=h
 	m.me={}
 	m.sel=1
-	m.display=false
-	m.control=false
 	add(menus,m)
 end
 
 function drawmenu(m)	
-	--hacky background fix
---	rectfill(cam[1]+m.x-3,cam[2]+m.y-2,cam[1]+m.x-4,cam[2]+m.y+m.h,0)
---	rectfill(cam[1]+m.x-2,cam[2]+m.y-3,cam[1]+m.x+m.w,cam[2]+m.y-4,0)
-	if m.control then
-		if m.t==1 then
-			--draw cursor
-			if flr(timer/10)%2==0 then
-				rect(cur.x*cellw+camoffx,cur.y*cellh+camoffy,cur.x*cellw+cellw+camoffx+1,cur.y*cellh+cellh+camoffy+1,8)
-			end
-		end
-	end
-	if m.display then
-		rectfill(cam[1]+m.x-2,cam[2]+m.y-2,cam[1]+m.x+m.w,cam[2]+m.y+m.h,0)
-		rect(cam[1]+m.x-2,cam[2]+m.y-2,cam[1]+m.x+m.w,cam[2]+m.y+m.h,rooms[level].c+4)
-		local l=#m.me-1 if l>flr(m.h/cellh) then l=m.h/cellh end
-		for a=0,l do
-			print(m.me[a+1],m.x+cam[1],m.y+a*cellh+cam[2],6)
-		end
+	rectfill(cam[1]+m.x,cam[2]+m.y,cam[1]+m.x+m.w,cam[2]+m.y+m.h,0)
+	rect    (cam[1]+m.x,cam[2]+m.y,cam[1]+m.x+m.w,cam[2]+m.y+m.h,5)
+	for a=0,#m.me-1 do
+		print(m.me[a],m.x+cam[1],m.y+cam[2]+a*cellh,6)
 	end
 end
 
@@ -87,182 +71,30 @@ function changemenu(m,ty)
 	m.t=ty
 end
 
-function quitmenu(m,ty,tu,me)
-	m.control=false
-	changemenu(m,ty)
-	if tu then
-		taketurn()
-	end
-	sendtomenu(m,me)
-end
-
 function sendtomenu(m,me)
-	if m.t==2 then
-		for a=2,#me do
-			me[a]="  "..me[a]
-		end
-	end
-	m.display=true
 	m.me=me
 end
 
 function domenu(m)
-	--examine menu
 	if m.t==1 then
-		if m.control==true then
-			local target=room[cur.x][cur.y]
-			local ty=nil
-			if target!=0 then
-				ty=actortypes[target]
-			end
-			
-			if target==1 then	
-				sendtomenu(m,{"you are:"," a "..adjectives[ty.ad].." "..pronouns[ty.pn]..species[ty.sp]," in a "..adjectives[rooms[level].ad].." "..places[rooms[level].pl]," feeling *"..feelings[rltns[ty.rl].fe].."*"})
-			elseif target==3 or target==7 or target==8 or target==12 then
-				sendtomenu(m,{"you see:"," a "..species[ty.sp],">>button 1 to interact"})
-				if btnp(4) then
-					changemenu(m,4)
-					m.target=target
-				end
-			elseif target==2 or target==9 then	
-				sendtomenu(m,{"you see:"," a "..objects[ty.sp]})
-			elseif target==4 or target==6 then
-				sendtomenu(m,{"you see:"," a "..items[ty.sp]})
-			else
-				sendtomenu(m,{""})
-			end
-			if btnp(5) then
-				quitmenu(m,m.t,false,tut)
-			end
-		end
-	--inventory menu
-	elseif m.t==2 then
-		if p!=nil then
-			controlmenu(m,2,#p.inventory,listinventory(p.inventory,"use:"))
-		end
-	--buy menu
-	elseif m.t==3 then
-		local buy={} buy[1]="buy:"
-		for a=1,#p.buy do
-			buy[a+1]=items[actortypes[p.buy[a]].sp]
-		end
-		controlmenu(m,2,#p.buy,buy)
-	--dialogue menu
-	elseif m.t==4 then
-		local flav=""
-		--rltns[actortypes[p.t].rl]
-		local prl=getrltn(p.t)
-		local trl=actortypes[m.target].rl
-		if prl.ha==trl then
-			flav="you hate >( !!"
-		elseif prl.li==trl then
-			flav="you looooove <3"
-		else
-			flav="you face:"
-		end
-		controlmenu(m,3,2,{flav," a "..species[actortypes[m.target].sp],"talk","argue"})
-	elseif m.t==5 then
-		local arg={}
-		for a=1,#p.args do
-			arg[a]=feelings[rltns[p.args[a]].fe].." is best!"
-		end
-		controlmenu(m,1,#p.args,arg)
+		
 	end
 end
 
-function controlmenu(m,mi,ma,me)
-	if m.control then
-		m.me=me
-		for a=1,ma do
-			local s=" -"
-			if a==m.sel then s=">>" end
-			m.me[a+mi-1]=s..m.me[a+mi-1]
+function controlmenu(m,me)
+	local mes=me
+	for a=0,#mes-1 do
+		local s="  "
+		if a==m.sel then s=">>" end
+		mes[a]=s..mes[a]
+	end
+	if     btnp(2) then m.sel-=1 if m.sel<0 then m.sel=5 end
+	elseif btnp(3) then m.sel+=1 if m.sel>5 then m.sel=0 end
+	elseif btnp(4) then
+		if m.t==1 then
 		end
-		if btnp(2) then m.sel-=1 if m.sel<1 then m.sel=ma end
-		elseif btnp(3) then m.sel+=1 if m.sel>ma then m.sel=1 end
-		elseif btnp(4) then
-			if m.t==2 then
-				--use item
-				doitem(m,p.inventory[m.sel])
-			elseif m.t==3 then
-				--buy item
-				makeactor(p.buy[m.sel],p.x,p.y)
-				quitmenu(m,2,true,listinventory(p.inventory,"inventory:"))
-			elseif m.t==4 then
-				--dialogue
-				if m.sel==1 then
-					--talk choice
-					sfx(flr(rnd(2))+8)
-					quitmenu(m,1,true)
-					local en={} en[1]=3 en[2]=7 en[3]=8
-					local r=rndint(#en)
---					flr(rnd(#en))+1
-					if players[1]!=nil then
-						local trl=actortypes[m.target].rl
-						local prl=actortypes[p.t].rl
-						if     rltns[trl].ha==prl then
-							--they hate you
-							--todo: make it so each result ahs its own quit menu
-							sendtomenu(m,{"they say:"," no i hate you!"})
-						elseif rltns[prl].ha==trl then
-							--you hate them
-							sendtomenu(m,{"they say:"," you're mean...","*"..species[actortypes[m.target].sp].." now hates you!*"})
-
-							--now they hate you
-							--rltns[actortypes[m.target].rl].ha=actortypes[p.t].rl
-							getrltn(m.target).ha=actortypes[p.t].rl
-							while getrltn(m.target).li==prl do
-								getrltn(m.target).li=rndint(#rltns)
-							end
-						elseif rltns[trl].li==prl then
-							--they like you
-							sendtomenu(m,{"they say:"," i like you! ;)"," "..species[actortypes[en[r]].sp].." hates "..feelings[rltns[rltns[actortypes[en[r]].rl].ha].fe].."!"})
-						else
-							--mutual ambivalence
-							local ta={}
-							ta[1]={"they say:"," "..dial[actortypes[m.target].dial]}
-							ta[2]={"they say:"," "..species[actortypes[en[r]].sp].." hates "..feelings[rltns[rltns[actortypes[en[r]].rl].ha].fe].."!"}
---							sendtomenu(m,{"they say:"," "..species[actortypes[en[r]].sp].." hates "..feelings[rltns[rltns[actortypes[en[r]].rl].ha].fe].."!"})
-							sendtomenu(m,choose(ta))
-						end
-					end
-				else
-					--argue choice
-					changemenu(m,5)
-				end
-			elseif m.t==5 then
-				--arguing
-				if p.args[m.sel]==actortypes[m.target].rl then
-					--they like you now
-					--todo: for now this works but it's technically making them have the same feelings as you, not making them like you
-					actortypes[m.target].rl=actortypes[p.t].rl
-					actortypes[m.target].m=1
-					del(p.args,p.args[m.sel])
-					quitmenu(m,1,false,{"the "..species[actortypes[m.target].sp].." says:"," hm good point ..","*"..species[actortypes[m.target].sp].. " now likes you!*"})
---					sendtomenu(m,{"the x says:"," hm, good point ..","*x now likes you!*"})
-				elseif p.args[m.sel]==getrltn(m.target).ha then
-					getrltn(m.target).ha=actortypes[p.t].rl
-					actortypes[m.target].m=2
-					del(p.args,p.args[m.sel])
-					quitmenu(m,1,true,{"they howl:"," how dare you say such thiiiiing!"})
-				else
-					quitmenu(m,1,true,{"they murmur:"," yeah sure uh see ya later..."})
-					del(p.args,p.args[m.sel])
-					actortypes[m.target].m=2
-				end
-			end
-		elseif btnp(5) then
-			--quit control menu
-			--todo: make default menu attr?
-			local mt=m.t
-			if mt==4 then mt=1 end
-			if mt==5 then mt=1 end
-			if mt==1 then
-				quitmenu(m,mt,false,tut)
-			else
-				quitmenu(m,mt,false,listinventory(p.inventory,"inventory:"))
-			end
-		end
+	elseif btnp(5) then
+	
 	end
 end
 
@@ -280,76 +112,58 @@ function drawtitle(tx,yl,st,td,col)
 	print("title press button",16,16)
 end
 
-function gentree(x,y,gp)	
-	if rndint(1000)<=gp then
-		mset(x,y,1)
-		--mset(x,y,checkneighbours(x,y,0,1,1))
-	end
-end
-
-function growtree(x,y,gp,s)
-	if rndint(1000)<=gp then
-		mset(x,y,2)
-	end
-end
-
-function burntree(x,y,bp)
-	mset(x,y,checkneighbours(x,y,3,3,63))
-	if rndint(1000)<=bp then
-		mset(x,y,3)
-		sfx(3)
-	end
-end
-
-function decompose(x,y,dp,dt)
-	if rndint(1000)<=dp then
-		mset(x,y,dt)
-	end
-end
-
-function checkneighbours(x,y,ch,se,bu)
+function checkneighbours(x,y,ch)
 	for a=0,3 do
-		local cell=direction(2^a)
-		if mget(x+cell[1],y+cell[2])==ch then
-			if cell[1]==1 or cell[2]==1 then
-				sfx(ch)
-				return se
+		local dire=direction(2^a)
+		if mget(x+dire[1],y+dire[2])==ch then
+			if dire[1]==1 or dire[2]==1 then
+				--sfx(ch)
+				return 1
 			else
-				return bu
+				return 2
 			end
 		end
 	end
-	return 2
+	return 0
 end
 
-function genforest()
-	for b=0,maph do
-		for a=0,mapw do
-			local cell=mget(a,b)
+function processcell(x,y,cell,chance)
+	if rndint(1000)<=chance then
+		cell=clampoverflow(cell+1,0,5)
+		mset(x,y,cell)
+		if cell==3 then
+			sfx(cell)
+		end
+	end
+end
+
+function genforest(mw,mh)
+	for y=0,mh do
+		for x=0,mw do
+			local cell=mget(x,y)
 			if cell==63 then
-				mset(a,b,3)
+				mset(x,y,3)
 				sfx(3)
-			elseif cell==5 then
-				decompose(a,b,decprob,0)
-			elseif cell==4 then
-				decompose(a,b,decprob,5)
-			elseif cell==3 then
-				mset(a,b,4)
-			elseif cell==2 then
-				burntree(a,b,burnprob)
-			elseif cell==1 then
-				growtree(a,b,growprob,settings[1])
-			elseif cell==0 then
-				local gp=genprob
-				if settings[1]==2 then
-				for d=0,3 do
-					local cell=direction(2^d)
-					if mget(a+cell[1],b+cell[2])==2 then
-						gp=50
+			else
+				local chance=probs[cell]
+				if cell==0 then
+					if settings[1]==2 then
+						if checkneighbours(x,y,2)>0 then
+							chance=50
+						end
+					end
+				elseif cell==2 then
+					local ne=checkneighbours(x,y,3)
+					if ne==1 then
+						chance=1000
+					elseif ne==2 then
+						cell=63
+						mset(x,y,cell)
 					end
 				end
+				if cell!=63 then
+			 	processcell(x,y,cell,chance)
 				end
-				gentree(a,b,gp)		
 			end
 		end
 	end
@@ -361,20 +175,27 @@ function state_i(s)
 	settings={}
 	settings[1]=2
 	timestep=1
+	
+	probs={}
+	probs[0]=2
+	probs[1]=100
+	probs[2]=3
+	probs[3]=1000
+	probs[4]=200
+	probs[5]=200
+
 	if s==1 then
 
 	end
 	if s==2 then
-		timestep=1
-		genprob=2
-		growprob=100
-		burnprob=5
-		decprob=200
+		cellw=8
+		cellh=8
 		mapw=16
 		maph=16
-		screenw=mapw*8
-		screenh=maph*8
-		genforest()
+		screenw=mapw*cellw
+		screenh=maph*cellh
+		menus={}
+		genforest(mapw,maph)
 	end
 end
 
@@ -387,10 +208,11 @@ function statedraw(s)
 	if s==2 then
 		rectfill(cam[1],cam[2],screenw,screenh,15)
 		map(0,0,0,0,mapw,maph)
-	end
-	if debug then
-		for a=1,#debug_l do
-			print(debug_l[a],cam[1]+0,cam[2]+(a-1)*6,8)
+		foreach(menus,drawmenu)
+		if debug then
+			for a=1,#debug_l do
+				print(debug_l[a],cam[1]+0,cam[2]+(a-1)*6,8)
+			end
 		end
 	end
 end
@@ -402,17 +224,28 @@ function stateupdate(s)
 			state_i(state)
 		end
 	elseif s==2 then
-		if btnp(4) then
-			timestep+=1
-		elseif btnp(5) then
-			timestep-=1
+--		if btnp(4) then
+--			timestep+=1
+--		elseif btnp(5) then
+--			timestep-=1
+--		end
+		if btnp(5) then
+			if menus[1]!=nil then
+				menus={}
+			else 
+				makemenu(1,10,10,50,50)
+				sendtomenu(menus[1],probs)
+			end
+		end
+		if menus[1]!=nil then
+			--controlmenu(menus[1],probs)
 		end
 		local dire=direction(btn())		
 		for a=1,2 do
 			cam[a]+=dire[a]
 		end
 		if timer%timestep==0 then
-			genforest()
+			genforest(mapw,maph)
 		end
 	end
 
@@ -601,9 +434,9 @@ __map__
 __sfx__
 000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-000300000c6100961008610096100e6101061011610106100e6100a6100a610096100961003610026100161001610026100161001610000000000000000000000000000000000000000000000000000000000000
+000300000c6000960008600096000e6001060011600106000e6000a6000a600096000960003600026000160001600026000160001600000000000000000000000000000000000000000000000000000000000000
 000100000461004610036100261001610016100161001610016100161001610016100161001610016000160001600016000160001600016000000000000000000000000000000000000000000000000000000000
-00010000224101c6101b6101a61018610176101461013610126100f6100e6100e6100b6100a6100a6100861007610056100461003610000000000000000000000000000000000000000000000000000000000000
+00010000224001c6001b6001a60018600176001460013600126000f6000e6000e6000b6000a6000a6000860007600056000460003600000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
