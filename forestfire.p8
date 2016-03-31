@@ -46,55 +46,47 @@ function clampoverflow(v,mi,ma)
 	return v
 end
 
-function makemenu(t,x,y,w,h)
+function makemenu(t,x,y,w,h,b)
 	m={}
 	m.t=t
 	m.x=x
 	m.y=y
 	m.w=w
 	m.h=h
+	m.b=b
 	m.me={}
-	m.sel=1
+	m.sel=0
 	add(menus,m)
 end
 
 function drawmenu(m)	
 	rectfill(cam[1]+m.x,cam[2]+m.y,cam[1]+m.x+m.w,cam[2]+m.y+m.h,0)
 	rect    (cam[1]+m.x,cam[2]+m.y,cam[1]+m.x+m.w,cam[2]+m.y+m.h,5)
-	for a=0,#m.me-1 do
-		print(m.me[a],m.x+cam[1],m.y+cam[2]+a*cellh,6)
+	for a=0,#m.me do
+		local col=6
+		if a==m.sel then col=7 end
+		print(titles[a]..(m.me[a]/10).."%",m.x+cam[1]+m.b,m.y+cam[2]+m.b+a*cellh,col)
 	end
-end
-
-function changemenu(m,ty)
-	m.sel=1
-	m.t=ty
 end
 
 function sendtomenu(m,me)
 	m.me=me
 end
 
-function domenu(m)
-	if m.t==1 then
-		
+function controlmenu(m)
+	if     btnp(2) then m.sel-=1
+	elseif btnp(3) then m.sel+=1
 	end
-end
-
-function controlmenu(m,me)
-	local mes=me
-	for a=0,#mes-1 do
-		local s="  "
-		if a==m.sel then s=">>" end
-		mes[a]=s..mes[a]
+	m.sel=clampoverflow(m.sel,0,#m.me)
+	if     btnp(0) then probs[m.sel]-=1
+	elseif btnp(1) then probs[m.sel]+=1
 	end
-	if     btnp(2) then m.sel-=1 if m.sel<0 then m.sel=5 end
-	elseif btnp(3) then m.sel+=1 if m.sel>5 then m.sel=0 end
-	elseif btnp(4) then
+	probs[m.sel]=clampoverflow(probs[m.sel],0,1000)
+	if btnp(4) then
 		if m.t==1 then
 		end
 	elseif btnp(5) then
-	
+		menus={}
 	end
 end
 
@@ -117,7 +109,6 @@ function checkneighbours(x,y,ch)
 		local dire=direction(2^a)
 		if mget(x+dire[1],y+dire[2])==ch then
 			if dire[1]==1 or dire[2]==1 then
-				--sfx(ch)
 				return 1
 			else
 				return 2
@@ -174,7 +165,7 @@ function state_i(s)
 	cam[1]=0 cam[2]=0
 	settings={}
 	settings[1]=2
-	timestep=1
+	timestep=10
 	
 	probs={}
 	probs[0]=2
@@ -183,6 +174,14 @@ function state_i(s)
 	probs[3]=1000
 	probs[4]=200
 	probs[5]=200
+	
+	titles={}
+	titles[0]="sprout: "
+	titles[1]="grow  : "
+	titles[2]="burn  : "
+	titles[3]="exting: "
+	titles[4]="decomp: "
+	titles[5]="disapp: "
 
 	if s==1 then
 
@@ -229,21 +228,20 @@ function stateupdate(s)
 --		elseif btnp(5) then
 --			timestep-=1
 --		end
-		if btnp(5) then
-			if menus[1]!=nil then
-				menus={}
-			else 
-				makemenu(1,10,10,50,50)
+		
+		if menus[1]==nil then
+			local dire=direction(btn())		
+			for a=1,2 do
+				cam[a]+=dire[a]*2
+			end
+			if btnp(5) then
+				makemenu(1,38,38,52,50,3)
 				sendtomenu(menus[1],probs)
 			end
+		else
+			foreach(menus,controlmenu)
 		end
-		if menus[1]!=nil then
-			--controlmenu(menus[1],probs)
-		end
-		local dire=direction(btn())		
-		for a=1,2 do
-			cam[a]+=dire[a]
-		end
+		
 		if timer%timestep==0 then
 			genforest(mapw,maph)
 		end
