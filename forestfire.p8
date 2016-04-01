@@ -218,8 +218,8 @@ function state_i(s)
 	if s==2 then
 		cellw=8
 		cellh=8
-		mapw=16
-		maph=16
+		mapw=8
+		maph=8
 		screenw=mapw*cellw
 		screenh=maph*cellh
 		menus={}
@@ -234,7 +234,7 @@ function statedraw(s)
 		drawtitle()
 	end
 	if s==2 then
-		rectfill(cam[1],cam[2],screenw,screenh,15)
+		rectfill(0,0,screenw,screenh,15)
 		map(0,0,0,0,mapw,maph)
 		foreach(menus,drawmenu)
 		if debug then
