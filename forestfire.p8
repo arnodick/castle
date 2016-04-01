@@ -19,8 +19,8 @@ function debug_u()
 	debug_l[6]="state:"..state
 	debug_l[7]="camx:"..cam[1]
 	debug_l[8]="camy:"..cam[2]
-	debug_l[9]="settings:"..settings[1]
-	debug_l[10]="timestep:"..timestep
+--	debug_l[9]="settings:"..settings[1]
+--	debug_l[10]="timestep:"..timestep
 	debug_l[11]="gene prob:"..probs[0]
 	debug_l[12]="grow prob:"..probs[1]
 	debug_l[13]="burn prob:"..probs[2]
@@ -62,10 +62,18 @@ end
 function drawmenu(m)	
 	rectfill(cam[1]+m.x,cam[2]+m.y,cam[1]+m.x+m.w,cam[2]+m.y+m.h,0)
 	rect    (cam[1]+m.x,cam[2]+m.y,cam[1]+m.x+m.w,cam[2]+m.y+m.h,5)
-	for a=0,#m.me do
-		local col=6
-		if a==m.sel then col=7 end
-		print(titles[a]..(m.me[a]/10).."%",m.x+cam[1]+m.b,m.y+cam[2]+m.b+a*cellh,col)
+	if     m.t==1 then
+		for a=0,#m.me do
+			local col=6
+			if a==m.sel then col=7 end
+			print(m.me[a],m.x+cam[1]+m.b,m.y+cam[2]+m.b+a*cellh,col)
+		end
+	elseif m.t==2 then
+		for a=0,#m.me do
+			local col=6
+			if a==m.sel then col=7 end
+			print(titles[a]..(m.me[a]/10).."%",m.x+cam[1]+m.b,m.y+cam[2]+m.b+a*cellh,col)
+		end
 	end
 end
 
@@ -164,8 +172,9 @@ function state_i(s)
 	timer=0
 	cam[1]=0 cam[2]=0
 	settings={}
+	settings[0]=10
 	settings[1]=2
-	timestep=10
+--	timestep=10
 	
 	probs={}
 	probs[0]=2
@@ -234,15 +243,19 @@ function stateupdate(s)
 			for a=1,2 do
 				cam[a]+=dire[a]*2
 			end
-			if btnp(5) then
+			if btnp(4) then
 				makemenu(1,38,38,52,50,3)
+				sendtomenu(menus[1],settings)
+			end
+			if btnp(5) then
+				makemenu(2,38,38,52,50,3)
 				sendtomenu(menus[1],probs)
 			end
 		else
 			foreach(menus,controlmenu)
 		end
 		
-		if timer%timestep==0 then
+		if timer%settings[0]==0 then
 			genforest(mapw,maph)
 		end
 	end
