@@ -27,7 +27,6 @@ function debug_u()
 	debug_l[14]="exti prob:"..probs[3]
 	debug_l[15]="deco prob:"..probs[4]
 	debug_l[16]="dest prob:"..probs[5]
-	debug_l[17]="loads:"..settings[5]
 end
 
 function rndint(n)
@@ -102,7 +101,7 @@ function controlmenu(m)
 		end
 		settings[m.sel]=clampoverflow(settings[m.sel],0,1000)
 		if m.sel==3 then
-			reload(0,(settings[3]*16)*32,settings[5])
+			reload(0,(settings[3]*16)*32,476)
 			pal()
 		end
 	end
@@ -165,7 +164,7 @@ function genforest(mw,mh)
 				end
 			elseif cell==2 then
 				if checkneighbours(x,y,4)>0 then
-					chance=settings[6]
+					chance=settings[5]
 				end
 			end
 			processcell(x,y,cell,chance)
@@ -206,11 +205,10 @@ function state_i(s)
 	--1: ?(8 direction)
 	--2: cardinal automata
 	--3: corners
-	settings[2]=20--alg chance
+	settings[2]=20--algo grow
 	settings[3]=1--level
 	settings[4]=1--pallette
-	settings[5]=476--load length
-	settings[6]=1000--algo burn
+	settings[5]=1000--algo burn
 	
 	stitles={}
 	stitles[0]="time step:"
@@ -218,8 +216,7 @@ function state_i(s)
 	stitles[2]="algo grow:"
 	stitles[3]="level:"
 	stitles[4]="palette:"
-	stitles[5]="loads:"
-	stitles[6]="algo burn:"
+	stitles[5]="algo burn:"
 	
 	probs={}
 	probs[0]=2
