@@ -4,8 +4,8 @@ __lua__
 --forest fire
 --by ashley pringle
 
---				reload(0x2000,0x2000,0x1000)--load from map
---				reload(0x0000,0x0000,0x00f0)
+--reload(0x2000,0x2000,0x1000)--load from map
+--reload(0x0000,0x0000,0x00f0)
 
 debug=false
 debug_l={}
@@ -83,8 +83,8 @@ function controlmenu(m)
 	settings[m.t-1][m.sel][2]=clampoverflow(settings[m.t-1][m.sel][2],settings[m.t-1][m.sel][3],settings[m.t-1][m.sel][4])
 
 	if m.t==1 then
-		if m.sel==3 then
-			reload(0,settings[0][3][2]*512,476)
+		if m.sel==4 then
+			reload(0,settings[0][4][2]*512,476)
 			pal()
 		end
 	end
@@ -109,13 +109,11 @@ function drawtitle(tx,yl,st,td,col)
 end
 
 function checkneighbours(x,y,ch)
-	for a=0,3 do
-		local dire=direction(2^a)
-		if mget(x+dire[1],y+dire[2])==ch then
-			if dire[1]==1 or dire[2]==1 then
+	if settings[0][1][2]==1 then
+		for a=0,3 do
+			local dire=direction(2^a)
+			if mget(x+dire[1],y+dire[2])==ch then
 				return 1
-			else
-				return 2
 			end
 		end
 	end
@@ -138,14 +136,12 @@ function genforest(mw,mh)
 			local cell=mget(x,y)
 			local chance=settings[1][cell][2]
 			if cell==0 then
-				if settings[0][1][2]==2 then
-					if checkneighbours(x,y,2)>0 then
-						chance=settings[0][2][2]
-					end
+				if checkneighbours(x,y,2)>0 then
+					chance=settings[0][2][2]
 				end
 			elseif cell==2 then
 				if checkneighbours(x,y,4)>0 then
-					chance=settings[0][5][2]
+					chance=settings[0][3][2]
 				end
 			end
 			processcell(x,y,cell,chance)
@@ -189,11 +185,11 @@ function state_i(s)
 	end
 	--general settings
 	settings[0][0]={"timer  :",21,  0,60  ,1 ,""}
-	settings[0][1]={"algrthm:",2   ,0,2   ,1 ,""}
+	settings[0][1]={"algrthm:",1   ,1,2   ,1 ,""}
 	settings[0][2]={"alg grw:",20  ,0,1000,10,"%"}--algo grow
-	settings[0][3]={"level  :"    ,1   ,1,4   ,1 ,""}
-	settings[0][4]={"palette:"  ,1   ,1,2   ,1 ,""}
-	settings[0][5]={"alg brn:",1000,0,1000,10,"%"}--algo burn
+	settings[0][3]={"alg brn:",1000,0,1000,10,"%"}--algo burn
+	settings[0][4]={"level  :"    ,1   ,1,4   ,1 ,""}
+	settings[0][5]={"palette:"  ,1   ,1,2   ,1 ,""}
 
 	for a=0,6 do
 		settings[1][a]={}
@@ -230,9 +226,10 @@ function statedraw(s)
 		drawtitle()
 	end
 	if s==2 then
-		pal(palette[ settings[0][3][2] ][1][1],palette[ settings[0][3][2] ][ settings[0][4][2] ][1])
-		pal(palette[ settings[0][3][2] ][1][2],palette[ settings[0][3][2] ][ settings[0][4][2] ][2])
-		rectfill(0,0,screenw,screenh,levels[settings[0][3][2]].c)
+		for a=1,2 do
+			pal(palette[ settings[0][4][2] ][1][a],palette[ settings[0][4][2] ][ settings[0][5][2] ][a])
+		end
+		rectfill(0,0,screenw,screenh,levels[settings[0][4][2]].c)
 		map(0,0,0,0,mapw,maph)
 		rect    (-1,-1,screenw,screenh,7)
 		foreach(menus,drawmenu)
@@ -257,12 +254,12 @@ function stateupdate(s)
 				cam[a]+=dire[a]*2
 			end
 			if btnp(4) then
---				makemenu(1,38,38,52,58,3)
-				makemenu(1,5,2,52,58,3)--64x64 mode
+				makemenu(1,38,38,52,58,3)
+--				makemenu(1,5,2,52,58,3)--64x64 mode
 			end
 			if btnp(5) then
---				makemenu(2,38,38,52,58,3)
-				makemenu(2,5,2,52,58,3)--64x64 mode
+				makemenu(2,38,38,52,58,3)
+--				makemenu(2,5,2,52,58,3)--64x64 mode
 			end
 		else
 			foreach(menus,controlmenu)
@@ -281,7 +278,7 @@ function _init()
 	cam={}
 	state=1
 	state_i(state)
-	poke(0x5f2c,3)
+--	poke(0x5f2c,3)
 end
 
 function _draw()
