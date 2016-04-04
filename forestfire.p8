@@ -21,12 +21,13 @@ function debug_u()
 	debug_l[8]="camy:"..cam[2]
 --	debug_l[9]="settings:"..settings[1]
 --	debug_l[10]="timestep:"..timestep
-	debug_l[11]="gene prob:"..probs[0]
-	debug_l[12]="grow prob:"..probs[1]
-	debug_l[13]="igni prob:"..probs[2]
-	debug_l[14]="exti prob:"..probs[3]
-	debug_l[15]="deco prob:"..probs[4]
-	debug_l[16]="dest prob:"..probs[5]
+	debug_l[11]="sprt prob:"..settings[1][0][2]
+	debug_l[12]="grow prob:"..settings[1][1][2]
+	debug_l[13]="igni prob:"..settings[1][2][2]
+	debug_l[14]="burn prob:"..settings[1][3][2]
+	debug_l[15]="exti prob:"..settings[1][4][2]
+	debug_l[16]="deco prob:"..settings[1][5][2]
+	debug_l[17]="dest prob:"..settings[1][6][2]
 end
 
 function rndint(n)
@@ -96,10 +97,10 @@ function controlmenu(m)
 	if btn(4) then ms=10 end
 
 	if m.t==2 then
-		if     btnp(0) then probs[m.sel]-=ms
-		elseif btnp(1) then probs[m.sel]+=ms
+		if     btnp(0) then settings[1][m.sel][2]-=ms
+		elseif btnp(1) then settings[1][m.sel][2]+=ms
 		end
-		probs[m.sel]=clampoverflow(probs[m.sel],0,1000)
+		settings[1][m.sel][2]=clampoverflow(settings[1][m.sel][2],0,1000)
 	elseif m.t==1 then
 		if     btnp(0) then settings[0][m.sel][2]-=ms
 		elseif btnp(1) then settings[0][m.sel][2]+=ms
@@ -161,7 +162,7 @@ function genforest(mw,mh)
 	for y=0,mh-1 do
 		for x=0,mw-1 do
 			local cell=mget(x,y)
-			local chance=probs[cell]
+			local chance=settings[1][cell][2]
 			if cell==0 then
 				if settings[0][1][2]==2 then
 					if checkneighbours(x,y,2)>0 then
@@ -208,6 +209,7 @@ function state_i(s)
 	for a=0,1 do
 		settings[a]={}
 	end
+	
 	for a=0,5 do
 		settings[0][a]={}
 	end
@@ -218,24 +220,18 @@ function state_i(s)
 	settings[0][3]={"level:"    ,1   ,1,4}
 	settings[0][4]={"palette:"  ,1   ,1,2}
 	settings[0][5]={"algo burn:",1000,0,1000}--algo burn
-	
-	probs={}
-	probs[0]=2
-	probs[1]=100
-	probs[2]=3
-	probs[3]=1000
-	probs[4]=1000
-	probs[5]=200
-	probs[6]=200
-	
-	titles={}
-	titles[0]="sprout: "
-	titles[1]="grow  : "
-	titles[2]="ignite: "
-	titles[3]="bern  : "
-	titles[4]="exting: "
-	titles[5]="decomp: "
-	titles[6]="disapp: "
+
+	for a=0,6 do
+		settings[1][a]={}
+	end
+	--probability settings
+	settings[1][0]={"sprout: ",2     ,0,1000}
+	settings[1][1]={"grow  : ",100   ,0,1000}
+	settings[1][2]={"ignite: ",3     ,0,1000}
+	settings[1][3]={"bern  : ",1000  ,0,1000}
+	settings[1][4]={"exting: ",1000  ,0,1000}
+	settings[1][5]={"decomp: ",200   ,0,1000}
+	settings[1][6]={"disapp: ",200   ,0,1000}
 
 	if s==1 then
 		music(0)
@@ -303,7 +299,7 @@ function stateupdate(s)
 --				reload(0x0000,0x0000,0x00f0)
 				makemenu(2,38,38,52,58,3)
 --				makemenu(2,5,6,52,50,3)--64x64 mode
-				sendtomenu(menus[1],probs)
+--				sendtomenu(menus[1],probs)
 			end
 		else
 			foreach(menus,controlmenu)
