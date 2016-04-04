@@ -121,15 +121,15 @@ end
 
 function checkneighbours(x,y,ch)
 	local adj=0
-	for a=0,3 do
-		local dire={}
-		local alg=settings[0][1][2]
-		if alg==1 or alg==4 then
+	local dire={}
+	local alg=settings[0][1][2]
+	for a=0,algos[alg]-1 do
+			if alg==1 or alg==4 then
 			dire=direction(2^a,alg)
 		elseif alg==2 or alg==5 then
-			dire=direction(rndint(8),alg)
+			dire=direction(a+1,alg)
 		elseif alg==3 then
-			dire=direction(rndint(4)*2,alg)
+			dire=direction(a*2,alg)
 		end
 		if mget(x+dire[1],y+dire[2])==ch then
 			if alg==4 or alg==5 then
@@ -179,8 +179,16 @@ function state_i(s)
 	timer=0
 	cam[1]=0 cam[2]=0
 	
+	algos={}
 	levels={}
 	palette={}
+	
+	algos[1]=4
+	algos[2]=8
+	algos[3]=4
+	algos[4]=4
+	algos[5]=8
+	
 	for a=1,4 do
 		levels[a]={}
 		palette[a]={}
