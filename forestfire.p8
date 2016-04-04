@@ -4,6 +4,9 @@ __lua__
 --forest fire
 --by ashley pringle
 
+--				reload(0x2000,0x2000,0x1000)--load from map
+--				reload(0x0000,0x0000,0x00f0)
+
 debug=false
 debug_l={}
 debug_l[4]=0
@@ -15,12 +18,9 @@ function debug_u()
 	if stat(1)>debug_l[4] then
 		debug_l[4]=stat(1)
 	end
---	debug_l[5]="actors:"..#actors
 	debug_l[6]="state:"..state
 	debug_l[7]="camx:"..cam[1]
 	debug_l[8]="camy:"..cam[2]
---	debug_l[9]="settings:"..settings[1]
---	debug_l[10]="timestep:"..timestep
 	debug_l[11]="sprt prob:"..settings[1][0][2]
 	debug_l[12]="grow prob:"..settings[1][1][2]
 	debug_l[13]="igni prob:"..settings[1][2][2]
@@ -55,7 +55,6 @@ function makemenu(t,x,y,w,h,b)
 	m.w=w
 	m.h=h
 	m.b=b
-	m.me={}
 	m.sel=0
 	add(menus,m)
 end
@@ -233,8 +232,6 @@ function statedraw(s)
 	if s==2 then
 		pal(palette[ settings[0][3][2] ][1][1],palette[ settings[0][3][2] ][ settings[0][4][2] ][1])
 		pal(palette[ settings[0][3][2] ][1][2],palette[ settings[0][3][2] ][ settings[0][4][2] ][2])
---		pal(7,3)
---		pal(8,11)
 		rectfill(0,0,screenw,screenh,levels[settings[0][3][2]].c)
 		map(0,0,0,0,mapw,maph)
 		rect    (-1,-1,screenw,screenh,7)
@@ -260,19 +257,12 @@ function stateupdate(s)
 				cam[a]+=dire[a]*2
 			end
 			if btnp(4) then
-				makemenu(1,38,38,52,58,3)
---				makemenu(1,5,6,52,50,3)--64x64 mode
-				
---				pal(3,rndint(15))
---				pal(4,rndint(15))
---				pal(9,rndint(15))
---				pal(11,rndint(15))
+--				makemenu(1,38,38,52,58,3)
+				makemenu(1,5,2,52,58,3)--64x64 mode
 			end
 			if btnp(5) then
---				reload(0x2000,0x2000,0x1000)--load from map
---				reload(0x0000,0x0000,0x00f0)
-				makemenu(2,38,38,52,58,3)
---				makemenu(2,5,6,52,50,3)--64x64 mode
+--				makemenu(2,38,38,52,58,3)
+				makemenu(2,5,2,52,58,3)--64x64 mode
 			end
 		else
 			foreach(menus,controlmenu)
@@ -291,7 +281,7 @@ function _init()
 	cam={}
 	state=1
 	state_i(state)
---	poke(0x5f2c,3)
+	poke(0x5f2c,3)
 end
 
 function _draw()
