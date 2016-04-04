@@ -101,7 +101,7 @@ function direction(d,al)
 		if d==2 then dire[1]= 1 end
 		if d==4 then dire[2]=-1 end
 		if d==8 then dire[2]= 1 end
-	elseif al==2 or al==3 then
+	elseif al==2 or al==3 or al==5 then
 		if d==1 then dire[1]= 1 end
 		if d==2 then dire[1]= 1 dire[2]= 1 end
 		if d==3 then dire[1]= 0 dire[2]= 1 end
@@ -110,6 +110,7 @@ function direction(d,al)
 		if d==6 then dire[1]=-1 dire[2]=-1 end
 		if d==7 then dire[1]= 0 dire[2]=-1 end
 		if d==8 then dire[1]= 1 dire[2]=-1 end
+	end
 	return dire
 end
 
@@ -119,29 +120,27 @@ function drawtitle(tx,yl,st,td,col)
 end
 
 function checkneighbours(x,y,ch)
+	local adj=0
 	for a=0,3 do
 		local dire={}
 		local alg=settings[0][1][2]
-		local adj=0
 		if alg==1 or alg==4 then
 			dire=direction(2^a,alg)
-		elseif alg==2 then
+		elseif alg==2 or alg==5 then
 			dire=direction(rndint(8),alg)
 		elseif alg==3 then
 			dire=direction(rndint(4)*2,alg)
 		end
 		if mget(x+dire[1],y+dire[2])==ch then
-			if alg==4 then
+			if alg==4 or alg==5 then
 				adj+=1
 			else
 				return 1
 			end
 		end
 	end
-	if alg==4 then
-		if adj==1 then
-			return 1
-		end
+	if adj==1 then
+		return 1
 	else
 		return 0
 	end
@@ -212,7 +211,7 @@ function state_i(s)
 	end
 	--general settings
 	settings[0][0]={"timer  :",21,  0,60  ,1 ,""}
-	settings[0][1]={"algrthm:",1   ,1,4   ,1 ,""}
+	settings[0][1]={"algrthm:",1   ,1,5   ,1 ,""}
 	settings[0][2]={"alg grw:",20  ,0,1000,10,"%"}--algo grow
 	settings[0][3]={"alg brn:",1000,0,1000,10,"%"}--algo burn
 	settings[0][4]={"sprites:",1   ,1,4   ,1 ,""}
