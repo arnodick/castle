@@ -66,25 +66,8 @@ function drawmenu(m)
 	for a=0,#settings[m.t-1] do
 		local col=6
 		if a==m.sel then col=7 end
-		print(settings[m.t-1][a][1]..settings[m.t-1][a][2],m.x+cam[1]+m.b,m.y+cam[2]+m.b+a*cellh,col)
+		print(settings[m.t-1][a][1]..settings[m.t-1][a][2]/settings[m.t-1][a][5]..settings[m.t-1][a][6],m.x+cam[1]+m.b,m.y+cam[2]+m.b+a*cellh,col)
 	end
---	if     m.t==1 then
---		for a=0,#m.me do
---			local col=6
---			if a==m.sel then col=7 end
---			print(stitles[a]..m.me[a],m.x+cam[1]+m.b,m.y+cam[2]+m.b+a*cellh,col)
---		end
---	elseif m.t==2 then
---		for a=0,#m.me do
---			local col=6
---			if a==m.sel then col=7 end
---			print(titles[a]..(m.me[a]/10).."%",m.x+cam[1]+m.b,m.y+cam[2]+m.b+a*cellh,col)
---		end
---	end
-end
-
-function sendtomenu(m,me)
-	m.me=me
 end
 
 function controlmenu(m)
@@ -95,27 +78,19 @@ function controlmenu(m)
 	
 	local ms=1
 	if btn(4) then ms=10 end
+	if     btnp(0) then settings[m.t-1][m.sel][2]-=ms
+	elseif btnp(1) then settings[m.t-1][m.sel][2]+=ms
+	end
+	settings[m.t-1][m.sel][2]=clampoverflow(settings[m.t-1][m.sel][2],settings[m.t-1][m.sel][3],settings[m.t-1][m.sel][4])
 
-	if m.t==2 then
-		if     btnp(0) then settings[1][m.sel][2]-=ms
-		elseif btnp(1) then settings[1][m.sel][2]+=ms
-		end
-		settings[1][m.sel][2]=clampoverflow(settings[1][m.sel][2],0,1000)
-	elseif m.t==1 then
-		if     btnp(0) then settings[0][m.sel][2]-=ms
-		elseif btnp(1) then settings[0][m.sel][2]+=ms
-		end
-		settings[0][m.sel][2]=clampoverflow(settings[0][m.sel][2],0,1000)
+	if m.t==1 then
 		if m.sel==3 then
-		--todo
-			reload(0,(settings[0][3][2]*16)*32,476)
+			reload(0,settings[0][3][2]*512,476)
 			pal()
 		end
 	end
-	if btnp(4) then
-		if m.t==1 then
-		end
-	elseif btnp(5) then
+
+	if btnp(5) then
 		menus={}
 	end
 end
@@ -214,24 +189,24 @@ function state_i(s)
 		settings[0][a]={}
 	end
 	--general settings
-	settings[0][0]={"time step:",21,  0,60}
-	settings[0][1]={"algorithm:",2   ,0,2}
-	settings[0][2]={"algo grow:",20  ,0,1000}--algo grow
-	settings[0][3]={"level:"    ,1   ,1,4}
-	settings[0][4]={"palette:"  ,1   ,1,2}
-	settings[0][5]={"algo burn:",1000,0,1000}--algo burn
+	settings[0][0]={"timer  :",21,  0,60  ,1 ,""}
+	settings[0][1]={"algrthm:",2   ,0,2   ,1 ,""}
+	settings[0][2]={"alg grw:",20  ,0,1000,10,"%"}--algo grow
+	settings[0][3]={"level  :"    ,1   ,1,4   ,1 ,""}
+	settings[0][4]={"palette:"  ,1   ,1,2   ,1 ,""}
+	settings[0][5]={"alg brn:",1000,0,1000,10,"%"}--algo burn
 
 	for a=0,6 do
 		settings[1][a]={}
 	end
 	--probability settings
-	settings[1][0]={"sprout: ",2     ,0,1000}
-	settings[1][1]={"grow  : ",100   ,0,1000}
-	settings[1][2]={"ignite: ",3     ,0,1000}
-	settings[1][3]={"bern  : ",1000  ,0,1000}
-	settings[1][4]={"exting: ",1000  ,0,1000}
-	settings[1][5]={"decomp: ",200   ,0,1000}
-	settings[1][6]={"disapp: ",200   ,0,1000}
+	settings[1][0]={"sprout: ",2     ,0,1000,10,"%"}
+	settings[1][1]={"grow  : ",100   ,0,1000,10,"%"}
+	settings[1][2]={"ignite: ",3     ,0,1000,10,"%"}
+	settings[1][3]={"bern  : ",1000  ,0,1000,10,"%"}
+	settings[1][4]={"exting: ",1000  ,0,1000,10,"%"}
+	settings[1][5]={"decomp: ",200   ,0,1000,10,"%"}
+	settings[1][6]={"disapp: ",200   ,0,1000,10,"%"}
 
 	if s==1 then
 		music(0)
@@ -287,7 +262,6 @@ function stateupdate(s)
 			if btnp(4) then
 				makemenu(1,38,38,52,58,3)
 --				makemenu(1,5,6,52,50,3)--64x64 mode
-				sendtomenu(menus[1],settings)
 				
 --				pal(3,rndint(15))
 --				pal(4,rndint(15))
@@ -299,7 +273,6 @@ function stateupdate(s)
 --				reload(0x0000,0x0000,0x00f0)
 				makemenu(2,38,38,52,58,3)
 --				makemenu(2,5,6,52,50,3)--64x64 mode
---				sendtomenu(menus[1],probs)
 			end
 		else
 			foreach(menus,controlmenu)
