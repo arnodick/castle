@@ -62,19 +62,24 @@ end
 function drawmenu(m)	
 	rectfill(cam[1]+m.x,cam[2]+m.y,cam[1]+m.x+m.w,cam[2]+m.y+m.h,0)
 	rect    (cam[1]+m.x,cam[2]+m.y,cam[1]+m.x+m.w,cam[2]+m.y+m.h,5)
-	if     m.t==1 then
-		for a=0,#m.me do
-			local col=6
-			if a==m.sel then col=7 end
-			print(stitles[a]..m.me[a],m.x+cam[1]+m.b,m.y+cam[2]+m.b+a*cellh,col)
-		end
-	elseif m.t==2 then
-		for a=0,#m.me do
-			local col=6
-			if a==m.sel then col=7 end
-			print(titles[a]..(m.me[a]/10).."%",m.x+cam[1]+m.b,m.y+cam[2]+m.b+a*cellh,col)
-		end
+	for a=0,#settings[m.t-1] do
+		local col=6
+		if a==m.sel then col=7 end
+		print(settings[m.t-1][a][1]..settings[m.t-1][a][2],m.x+cam[1]+m.b,m.y+cam[2]+m.b+a*cellh,col)
 	end
+--	if     m.t==1 then
+--		for a=0,#m.me do
+--			local col=6
+--			if a==m.sel then col=7 end
+--			print(stitles[a]..m.me[a],m.x+cam[1]+m.b,m.y+cam[2]+m.b+a*cellh,col)
+--		end
+--	elseif m.t==2 then
+--		for a=0,#m.me do
+--			local col=6
+--			if a==m.sel then col=7 end
+--			print(titles[a]..(m.me[a]/10).."%",m.x+cam[1]+m.b,m.y+cam[2]+m.b+a*cellh,col)
+--		end
+--	end
 end
 
 function sendtomenu(m,me)
@@ -85,7 +90,7 @@ function controlmenu(m)
 	if     btnp(2) then m.sel-=1
 	elseif btnp(3) then m.sel+=1
 	end
-	m.sel=clampoverflow(m.sel,0,#m.me)
+	m.sel=clampoverflow(m.sel,0,#settings[m.t-1])
 	
 	local ms=1
 	if btn(4) then ms=10 end
@@ -96,12 +101,13 @@ function controlmenu(m)
 		end
 		probs[m.sel]=clampoverflow(probs[m.sel],0,1000)
 	elseif m.t==1 then
-		if     btnp(0) then settings[m.sel]-=ms
-		elseif btnp(1) then settings[m.sel]+=ms
+		if     btnp(0) then settings[0][m.sel][2]-=ms
+		elseif btnp(1) then settings[0][m.sel][2]+=ms
 		end
-		settings[m.sel]=clampoverflow(settings[m.sel],0,1000)
+		settings[0][m.sel][2]=clampoverflow(settings[0][m.sel][2],0,1000)
 		if m.sel==3 then
-			reload(0,(settings[3]*16)*32,476)
+		--todo
+			reload(0,(settings[0][3][2]*16)*32,476)
 			pal()
 		end
 	end
@@ -157,14 +163,14 @@ function genforest(mw,mh)
 			local cell=mget(x,y)
 			local chance=probs[cell]
 			if cell==0 then
-				if settings[1]==2 then
+				if settings[0][1][2]==2 then
 					if checkneighbours(x,y,2)>0 then
-						chance=settings[2]
+						chance=settings[0][2][2]
 					end
 				end
 			elseif cell==2 then
 				if checkneighbours(x,y,4)>0 then
-					chance=settings[5]
+					chance=settings[0][5][2]
 				end
 			end
 			processcell(x,y,cell,chance)
@@ -199,24 +205,19 @@ function state_i(s)
 	palette[4][2]={0,6}
 	
 	settings={}
-	settings[0]=21--timestep
-	settings[1]=2--generation algs
-	--0: random(?)
-	--1: ?(8 direction)
-	--2: cardinal automata
-	--3: corners
-	settings[2]=20--algo grow
-	settings[3]=1--level
-	settings[4]=1--pallette
-	settings[5]=1000--algo burn
-	
-	stitles={}
-	stitles[0]="time step:"
-	stitles[1]="algorithm:"
-	stitles[2]="algo grow:"
-	stitles[3]="level:"
-	stitles[4]="palette:"
-	stitles[5]="algo burn:"
+	for a=0,1 do
+		settings[a]={}
+	end
+	for a=0,5 do
+		settings[0][a]={}
+	end
+	--general settings
+	settings[0][0]={"time step:",21,  0,60}
+	settings[0][1]={"algorithm:",2   ,0,2}
+	settings[0][2]={"algo grow:",20  ,0,1000}--algo grow
+	settings[0][3]={"level:"    ,1   ,1,4}
+	settings[0][4]={"palette:"  ,1   ,1,2}
+	settings[0][5]={"algo burn:",1000,0,1000}--algo burn
 	
 	probs={}
 	probs[0]=2
@@ -259,11 +260,11 @@ function statedraw(s)
 		drawtitle()
 	end
 	if s==2 then
-		pal(palette[settings[3]][1][1],palette[settings[3]][settings[4]][1])
-		pal(palette[settings[3]][1][2],palette[settings[3]][settings[4]][2])
+		pal(palette[ settings[0][3][2] ][1][1],palette[ settings[0][3][2] ][ settings[0][4][2] ][1])
+		pal(palette[ settings[0][3][2] ][1][2],palette[ settings[0][3][2] ][ settings[0][4][2] ][2])
 --		pal(7,3)
 --		pal(8,11)
-		rectfill(0,0,screenw,screenh,levels[settings[3]].c)
+		rectfill(0,0,screenw,screenh,levels[settings[0][3][2]].c)
 		map(0,0,0,0,mapw,maph)
 		rect    (-1,-1,screenw,screenh,7)
 		foreach(menus,drawmenu)
@@ -308,7 +309,7 @@ function stateupdate(s)
 			foreach(menus,controlmenu)
 		end
 		
-		if timer%settings[0]==0 then
+		if timer%settings[0][0][2]==0 then
 			genforest(mapw,maph)
 		end
 	end
