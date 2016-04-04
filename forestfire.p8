@@ -93,13 +93,23 @@ function controlmenu(m)
 	end
 end
 
-function direction(d)
+function direction(d,al)
 	local dire={}
 	dire[1]=0 dire[2]=0
-	if d==1 then dire[1]=-1 end
-	if d==2 then dire[1]= 1 end
-	if d==4 then dire[2]=-1 end
-	if d==8 then dire[2]= 1 end
+	if al==1 or al==4 then
+		if d==1 then dire[1]=-1 end
+		if d==2 then dire[1]= 1 end
+		if d==4 then dire[2]=-1 end
+		if d==8 then dire[2]= 1 end
+	elseif al==2 or al==3 then
+		if d==1 then dire[1]= 1 end
+		if d==2 then dire[1]= 1 dire[2]= 1 end
+		if d==3 then dire[1]= 0 dire[2]= 1 end
+		if d==4 then dire[1]=-1 dire[2]= 1 end
+		if d==5 then dire[1]=-1 end
+		if d==6 then dire[1]=-1 dire[2]=-1 end
+		if d==7 then dire[1]= 0 dire[2]=-1 end
+		if d==8 then dire[1]= 1 dire[2]=-1 end
 	return dire
 end
 
@@ -109,15 +119,32 @@ function drawtitle(tx,yl,st,td,col)
 end
 
 function checkneighbours(x,y,ch)
-	if settings[0][1][2]==1 then
-		for a=0,3 do
-			local dire=direction(2^a)
-			if mget(x+dire[1],y+dire[2])==ch then
+	for a=0,3 do
+		local dire={}
+		local alg=settings[0][1][2]
+		local adj=0
+		if alg==1 or alg==4 then
+			dire=direction(2^a,alg)
+		elseif alg==2 then
+			dire=direction(rndint(8),alg)
+		elseif alg==3 then
+			dire=direction(rndint(4)*2,alg)
+		end
+		if mget(x+dire[1],y+dire[2])==ch then
+			if alg==4 then
+				adj+=1
+			else
 				return 1
 			end
 		end
 	end
-	return 0
+	if alg==4 then
+		if adj==1 then
+			return 1
+		end
+	else
+		return 0
+	end
 end
 
 function processcell(x,y,cell,chance)
@@ -185,7 +212,7 @@ function state_i(s)
 	end
 	--general settings
 	settings[0][0]={"timer  :",21,  0,60  ,1 ,""}
-	settings[0][1]={"algrthm:",1   ,1,2   ,1 ,""}
+	settings[0][1]={"algrthm:",1   ,1,4   ,1 ,""}
 	settings[0][2]={"alg grw:",20  ,0,1000,10,"%"}--algo grow
 	settings[0][3]={"alg brn:",1000,0,1000,10,"%"}--algo burn
 	settings[0][4]={"sprites:",1   ,1,4   ,1 ,""}
@@ -252,7 +279,7 @@ function stateupdate(s)
 		end
 	elseif s==2 then
 		if menus[1]==nil then
-			local dire=direction(btn())		
+			local dire=direction(btn(),1)
 			for a=1,2 do
 				cam[a]+=dire[a]*2
 				cam[a]=clampoverflow(cam[a],-32,80,true)
