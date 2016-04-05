@@ -232,7 +232,7 @@ function state_i(s)
 	--probability settings
 	settings[1][0]={"sprout: ",0     ,0,1000,10,"%"}
 	settings[1][1]={"grow  : ",100   ,0,1000,10,"%"}
-	settings[1][2]={"ignite: ",3     ,0,1000,10,"%"}
+	settings[1][2]={"ignite: ",5     ,0,1000,10,"%"}
 	settings[1][3]={"#bern : ",1000  ,0,1000,10,"%"}
 	settings[1][4]={"exting: ",1000  ,0,1000,10,"%"}
 	settings[1][5]={"decomp: ",200   ,0,1000,10,"%"}
