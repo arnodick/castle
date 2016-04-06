@@ -114,8 +114,12 @@ function direction(d,al)
 	return dire
 end
 
-function drawtitle(tx,yl,st,td,col)
+function drawtitle()
+	for a=1,#tpal do
+		pal(tpal[a],tpal[(flr(timer/14)+a)%#tpal+1])
+	end
 	spr(128,0,0,8,8)
+	
 --	print("title press button",16,16)
 end
 
@@ -240,6 +244,8 @@ function state_i(s)
 
 	if s==1 then
 		music(0)
+--		tpal={7,8,9,10}
+		tpal={8,9,10}
 	end
 	if s==2 then
 		music(-1)
