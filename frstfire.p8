@@ -164,7 +164,9 @@ function drawtitle(pa)
 		spr(128,0,0,8,8)
 	else
 		rectfill(0,0,64,64,0)
-		sspr(0,64,64,64,0+start/1.8,0+start/1.8,64/start*5,64/start*5)
+		--sspr(0,64,64,64,0+start/1.8,0+start/1.8,64/start*5,64/start*5)
+		local w=64/start*5
+		sspr(0,64,64,64,(64-w)/2,(64-w)/2,w,w)
 	end
 end
 
